@@ -27,7 +27,7 @@ func (ti TypeInfo) ToTemplateArgs() TemplateArgs {
 	} else {
 		ta.SetName = ti.Opts.Rename
 	}
-	ta.CapitalizeSetName = strings.ToTitle(ta.SetName)
+	ta.CapitalizeSetName = capitalize(ta.SetName)
 	if ti.Opts.ByPointer {
 		ta.TypeName = "*" + ta.TypeName
 	}
@@ -114,4 +114,16 @@ func MatchGosetComment(cmt string) (matched bool, opts string) {
 		return true, cmt
 	}
 	return false, ""
+}
+
+func capitalize(s string) string {
+	if len(s) == 0 {
+		return s
+	}
+	if 'a' <= s[0] && s[0] <= 'z' {
+		b := []byte(s)
+		b[0] = b[0] - (byte('a') - 'A')
+		return string(b)
+	}
+	return s
 }
