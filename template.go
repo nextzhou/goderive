@@ -1,30 +1,43 @@
 package main
 
-import "text/template"
+import (
+	"io"
+	"text/template"
+)
 
 var setTemplate = `
-type {{ .Name }}Set map[{{ .Name }}]struct{}
+type {{ .SetName }} map[{{ .TypeName }}]struct{}
 
 
-func New{{ .Name }}Set(capacity int) {{ .Name }}Set {
+func New{{ .CapitalizeSetName }} (capacity int) {{ .SetName }} {
 	if capacity > 0 {
-		return make(map[{{ .Name }}]struct{}, capacity)
+		return make(map[{{ .TypeName }}]struct{}, capacity)
 	}
-	return make(map[{{ .Name }}]struct{})
+	return make(map[{{ .TypeName }}]struct{})
 }
 
-func (set {{ .Name }}Set) Put(key {{ .Name }}) {
+func (set {{ .SetName }}) Put(key {{ .TypeName }}) {
 	set[key] = struct{}{}
 }
 
-func (set {{ .Name }}Set) Delete(key {{ .Name }}) {
+func (set {{ .SetName }}) Delete(key {{ .TypeName }}) {
 	delete(set, key)
 }
 
-func (set {{ .Name }}Set) Contains(key {{ .Name }}) bool {
+func (set {{ .SetName }}) Contains(key {{ .TypeName }}) bool {
 	_, ok := set[key]
 	return ok
 }
 `
 
 var tmpl, _ = template.New("set").Parse(setTemplate)
+
+type TemplateArgs struct {
+	TypeName          string
+	SetName           string
+	CapitalizeSetName string
+}
+
+func (ta TemplateArgs) GenerateTo(w io.Writer) error {
+	return tmpl.Execute(w, ta)
+}
