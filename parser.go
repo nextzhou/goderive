@@ -23,7 +23,7 @@ func (ti TypeInfo) ToTemplateArgs() TemplateArgs {
 	var ta TemplateArgs
 	ta.TypeName = ti.Name
 	if ti.Opts.Rename == "" {
-		ta.SetName = ti.Name
+		ta.SetName = ti.Name + "Set"
 	} else {
 		ta.SetName = ti.Opts.Rename
 	}
