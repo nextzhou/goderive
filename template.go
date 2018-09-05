@@ -28,6 +28,24 @@ func (set {{ .SetName }}) Contains(key {{ .TypeName }}) bool {
 	_, ok := set[key]
 	return ok
 }
+
+func (set {{ .SetName }}) ContainsAny(keys []{{ .TypeName }}) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set {{ .SetName }}) ContainsAll(keys []{{ .TypeName }}) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
 `
 
 var tmpl, _ = template.New("set").Parse(setTemplate)
