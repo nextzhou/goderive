@@ -16,6 +16,24 @@ func New{{ .CapitalizeSetName }} (capacity int) {{ .SetName }} {
 	return make(map[{{ .TypeName }}]struct{})
 }
 
+func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) {{ .SetName }} {
+	set := make(map[{{ .TypeName }}]struct{}, len(items))
+	for _, item := range items {
+		set[item] = struct{}{}
+	}
+	return set
+}
+
+func (set {{ .SetName }}) Extend(items []{{ .TypeName }}) {
+	for _, item := range items {
+		set[item] = struct{}{}
+	}
+}
+
+func (set {{ .SetName }}) Len() int {
+	return len(set)
+}
+
 func (set {{ .SetName }}) Put(key {{ .TypeName }}) {
 	set[key] = struct{}{}
 }
