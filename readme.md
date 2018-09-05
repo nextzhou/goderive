@@ -26,14 +26,24 @@ package xxx
 
 type YourTypeSet map[YourType]struct{}
 
-func NewYourTypeSet(capacity int) YourTypeSet {/*...*/}
 
-func (set YourTypeSet) Put(key YourType) {/*...*/}
+func NewYourType (capacity int) YourType {/*...*/}
 
-func (set YourTypeSet) Delete(key YourType) {/*...*/}
+func NewYourTypeFromSlice(items []*TypeInfo) YourType {/*...*/}
 
-func (set YourTypeSet) Contains(key YourType) bool {/*...*/}
+func (set YourType) Extend(items []*TypeInfo) {/*...*/}
 
+func (set YourType) Len() int {/*...*/}
+
+func (set YourType) Put(key *TypeInfo) {/*...*/}
+
+func (set YourType) Delete(key *TypeInfo) {/*...*/}
+
+func (set YourType) Contains(key *TypeInfo) bool {/*...*/}
+
+func (set YourType) ContainsAny(keys []*TypeInfo) bool {/*...*/}
+
+func (set YourType) ContainsAll(keys []*TypeInfo) bool {/*...*/}
 ```
 
 ## 生成选项
