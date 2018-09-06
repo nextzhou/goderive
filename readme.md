@@ -27,23 +27,23 @@ package xxx
 type YourTypeSet map[YourType]struct{}
 
 
-func NewYourType (capacity int) YourType {/*...*/}
+func NewYourTypeSet (capacity int) YourTypeSet {/*...*/}
 
-func NewYourTypeFromSlice(items []*TypeInfo) YourType {/*...*/}
+func NewYourTypeSetFromSlice(items []YourType) YourTypeSet {/*...*/}
 
-func (set YourType) Extend(items []*TypeInfo) {/*...*/}
+func (set YourTypeSet) Extend(items []YourType) {/*...*/}
 
-func (set YourType) Len() int {/*...*/}
+func (set YourTypeSet) Len() int {/*...*/}
 
-func (set YourType) Put(key *TypeInfo) {/*...*/}
+func (set YourTypeSet) Put(key YourType) {/*...*/}
 
-func (set YourType) Delete(key *TypeInfo) {/*...*/}
+func (set YourTypeSet) Delete(key YourType) {/*...*/}
 
-func (set YourType) Contains(key *TypeInfo) bool {/*...*/}
+func (set YourTypeSet) Contains(key YourType) bool {/*...*/}
 
-func (set YourType) ContainsAny(keys []*TypeInfo) bool {/*...*/}
+func (set YourTypeSet) ContainsAny(keys []YourType) bool {/*...*/}
 
-func (set YourType) ContainsAll(keys []*TypeInfo) bool {/*...*/}
+func (set YourTypeSet) ContainsAll(keys []YourType) bool {/*...*/}
 ```
 
 ## 生成选项
