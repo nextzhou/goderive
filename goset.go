@@ -30,7 +30,9 @@ func main() {
 		}
 		fi, ok := groupFileInfoByPath[path]
 		if !ok {
-			groupFileInfoByPath[path] = new(FileInfo)
+			fi = new(FileInfo)
+			groupFileInfoByPath[path] = fi
+
 		}
 
 		src, err := ioutil.ReadFile(file)
