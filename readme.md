@@ -46,6 +46,15 @@ func (set YourTypeSet) ContainsAny(keys ...YourType) bool {/*...*/}
 func (set YourTypeSet) ContainsAll(keys ...YourType) bool {/*...*/}
 ```
 
+### 非入侵扩展
+
+如果想添加集合操作的类型是外部库的类型，或者是go内建基础类型(例如`int32`)，这种情况可以通过以下方式解决:
+
+```go
+// goset
+type Int32 int32
+```
+
 ## 生成选项
 
 你可以通过在 `// goset` 注释后添加选项来修改生成代码的细节，目前支持以下选项：
