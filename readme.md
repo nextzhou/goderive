@@ -29,9 +29,9 @@ type YourTypeSet map[YourType]struct{}
 
 func NewYourTypeSet (capacity int) YourTypeSet {/*...*/}
 
-func NewYourTypeSetFromSlice(items []YourType) YourTypeSet {/*...*/}
+func NewYourTypeSetFromSlice(items ...YourType) YourTypeSet {/*...*/}
 
-func (set YourTypeSet) Extend(items []YourType) {/*...*/}
+func (set YourTypeSet) Extend(items ...YourType) {/*...*/}
 
 func (set YourTypeSet) Len() int {/*...*/}
 
@@ -41,9 +41,9 @@ func (set YourTypeSet) Delete(key YourType) {/*...*/}
 
 func (set YourTypeSet) Contains(key YourType) bool {/*...*/}
 
-func (set YourTypeSet) ContainsAny(keys []YourType) bool {/*...*/}
+func (set YourTypeSet) ContainsAny(keys ...YourType) bool {/*...*/}
 
-func (set YourTypeSet) ContainsAll(keys []YourType) bool {/*...*/}
+func (set YourTypeSet) ContainsAll(keys ...YourType) bool {/*...*/}
 ```
 
 ## 生成选项

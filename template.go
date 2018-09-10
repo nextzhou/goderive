@@ -16,7 +16,7 @@ func New{{ .CapitalizeSetName }} (capacity int) {{ .SetName }} {
 	return make(map[{{ .TypeName }}]struct{})
 }
 
-func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) {{ .SetName }} {
+func New{{ .CapitalizeSetName }}FromSlice(items ...{{ .TypeName }}) {{ .SetName }} {
 	set := make(map[{{ .TypeName }}]struct{}, len(items))
 	for _, item := range items {
 		set[item] = struct{}{}
@@ -24,7 +24,7 @@ func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) {{ .SetName }
 	return set
 }
 
-func (set {{ .SetName }}) Extend(items []{{ .TypeName }}) {
+func (set {{ .SetName }}) Extend(items ...{{ .TypeName }}) {
 	for _, item := range items {
 		set[item] = struct{}{}
 	}
@@ -47,7 +47,7 @@ func (set {{ .SetName }}) Contains(key {{ .TypeName }}) bool {
 	return ok
 }
 
-func (set {{ .SetName }}) ContainsAny(keys []{{ .TypeName }}) bool {
+func (set {{ .SetName }}) ContainsAny(keys ...{{ .TypeName }}) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -56,7 +56,7 @@ func (set {{ .SetName }}) ContainsAny(keys []{{ .TypeName }}) bool {
 	return false
 }
 
-func (set {{ .SetName }}) ContainsAll(keys []{{ .TypeName }}) bool {
+func (set {{ .SetName }}) ContainsAll(keys ...{{ .TypeName }}) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
