@@ -52,7 +52,7 @@ func (set YourTypeSet) ContainsAll(keys ...YourType) bool {/*...*/}
 
 ```go
 // goset
-type Int32 int32
+type Int32 = int32
 ```
 
 ## 生成选项
