@@ -197,7 +197,7 @@ func (d *Derive) Run(inputPaths []string) error {
 		}
 		headBuf := bytes.NewBuffer(nil)
 		headBuf.WriteString(fmt.Sprintf("package %s\n\n", fileInfo.PkgName))
-		imports := make([]string, 0)
+		imports := utils.NewStrSet(0)
 		bodyBuf := bytes.NewBuffer(nil)
 		for _, typ := range fileInfo.Types {
 			for pluginID, opts := range typ.Plugins {
@@ -207,17 +207,16 @@ func (d *Derive) Run(inputPaths []string) error {
 					// TODO log file path of type
 					return fmt.Errorf("failed to generate code of type %s: %v", typ.Name, err)
 				}
-				// FIXME: imports uniq
-				imports = append(imports, prerequisites.Imports...)
+				imports.Extend(prerequisites.Imports...)
 			}
 		}
 		// TODO write file after all generating
 
-		if len(imports) > 0 {
+		if !imports.IsEmpty() {
 			headBuf.WriteString("import (\n")
-			for _, i := range imports {
+			imports.ForEach(func(i string) {
 				headBuf.WriteString(fmt.Sprintf("\t%#v\n", i))
-			}
+			})
 			headBuf.WriteString(")\n")
 		}
 

@@ -1,3 +1,4 @@
+//go:generate goderive
 package utils
 
 import (
@@ -38,3 +39,6 @@ func (tw *TableWriter) Append(row []string) {
 func (tw *TableWriter) Render() {
 	tw.table.Render()
 }
+
+// derive-set
+type Str = string
