@@ -7,6 +7,9 @@ import (
 	"go/parser"
 	"go/token"
 	"strings"
+
+	"github.com/nextzhou/goderive/plugin"
+	"github.com/nextzhou/goderive/utils"
 )
 
 type FileInfo struct {
@@ -16,58 +19,9 @@ type FileInfo struct {
 
 type TypeInfo struct {
 	Name string
-	Opts Options
-}
-
-func (ti TypeInfo) ToTemplateArgs() TemplateArgs {
-	var ta TemplateArgs
-	ta.TypeName = ti.Name
-	if ti.Opts.Rename == "" {
-		ta.SetName = ti.Name + "Set"
-	} else {
-		ta.SetName = ti.Opts.Rename
-	}
-	ta.CapitalizeSetName = capitalize(ta.SetName)
-	if ti.Opts.ByPointer {
-		ta.TypeName = "*" + ta.TypeName
-	}
-	return ta
-}
-
-type Options struct {
-	Rename    string // Rename Set struct
-	ByPointer bool   // Record elements by pointer
-}
-
-func (opt *Options) Parse(desc string) error {
-	optStrs := strings.Split(desc, ",")
-	for _, optStr := range optStrs {
-		terms := strings.SplitN(optStr, "=", 2)
-		switch strings.TrimSpace(terms[0]) {
-		case OptionRename:
-			if opt.Rename != "" {
-				return fmt.Errorf("duplicate '%s' option", OptionRename)
-			}
-			if len(terms) == 2 {
-				name := strings.TrimSpace(terms[1])
-				if name != "" {
-					opt.Rename = name
-					break
-				}
-			}
-			return fmt.Errorf("wrong '%s' format, expect '%s=<name>'", OptionRename, OptionRename)
-		case OptionByPointer:
-			if opt.ByPointer {
-				return fmt.Errorf("duplicate '%s' option", OptionByPointer)
-			}
-			if len(terms) == 1 {
-				opt.ByPointer = true
-			} else {
-				return fmt.Errorf("wrong '%s' format, expect '%s'", OptionByPointer, OptionByPointer)
-			}
-		}
-	}
-	return nil
+	// TODO keep order
+	Plugins map[string]*plugin.Options
+	Ast     ast.TypeSpec
 }
 
 func ExtractTypes(src []byte) (FileInfo, error) {
@@ -82,20 +36,40 @@ func ExtractTypes(src []byte) (FileInfo, error) {
 	pkg, _ := ast.NewPackage(fset, map[string]*ast.File{"": file}, nil, nil)
 	d := doc.New(pkg, file.Name.String(), doc.AllDecls)
 
-	// select types with 'goset' marker
+	// select types with 'derive' marker
 	for _, typ := range d.Types {
 		var typeInfo TypeInfo
 
 		cmts := strings.Split(typ.Doc, "\n")
 		for _, cmt := range cmts {
-			matched, optsStr := MatchGosetComment(cmt)
-			if matched {
+			dc, err := MatchDeriveComment(cmt)
+			if err != nil {
+				return fileInfo, fmt.Errorf("type %s: %v", typ.Name, err)
+			}
+			if dc == nil {
+				continue
+			}
+			if typeInfo.Name == "" {
 				typeInfo.Name = typ.Name
-				err = typeInfo.Opts.Parse(optsStr)
+				typeInfo.Plugins = make(map[string]*plugin.Options)
+				typeInfo.Ast = *typ.Decl.Specs[0].(*ast.TypeSpec)
+			}
+			opts, err := plugin.ParseOptions(dc.OptionsStr)
+			if err != nil {
+				return fileInfo, fmt.Errorf("type %s: %v", typ.Name, err)
+			}
+
+			// merge options
+			currentOpts := typeInfo.Plugins[dc.Plugin]
+			if currentOpts.IsEmpty() {
+				currentOpts = opts
+			} else {
+				err = currentOpts.Merge(opts)
 				if err != nil {
-					return fileInfo, err
+					return fileInfo, fmt.Errorf("type %s: %v", typ.Name, err)
 				}
 			}
+			typeInfo.Plugins[dc.Plugin] = currentOpts
 		}
 		if typeInfo.Name != "" {
 			fileInfo.PkgName = pkg.Name
@@ -105,25 +79,27 @@ func ExtractTypes(src []byte) (FileInfo, error) {
 	return fileInfo, nil
 }
 
-func MatchGosetComment(cmt string) (matched bool, opts string) {
-	cmt = strings.TrimSpace(cmt)
-	if cmt == "goset" {
-		return true, ""
-	} else if strings.HasPrefix(cmt, "goset:") {
-		cmt = strings.TrimPrefix(cmt, "goset:")
-		return true, cmt
-	}
-	return false, ""
+type DeriveComment struct {
+	Plugin     string
+	OptionsStr string
 }
 
-func capitalize(s string) string {
-	if len(s) == 0 {
-		return s
+func MatchDeriveComment(cmt string) (*DeriveComment, error) {
+	cmt = strings.TrimSpace(cmt)
+	if !strings.HasPrefix(cmt, "derive-") {
+		return nil, nil
 	}
-	if 'a' <= s[0] && s[0] <= 'z' {
-		b := []byte(s)
-		b[0] = b[0] - (byte('a') - 'A')
-		return string(b)
+	cmt = strings.TrimPrefix(cmt, "derive-")
+	splitIdx := strings.Index(cmt, ":")
+	dc := new(DeriveComment)
+	if splitIdx == -1 {
+		dc.Plugin = cmt
+	} else {
+		dc.Plugin = cmt[:splitIdx]
+		dc.OptionsStr = strings.TrimSpace(cmt[splitIdx+1:])
 	}
-	return s
+	if !utils.ValidateIdentName(dc.Plugin) {
+		return nil, fmt.Errorf("invalid plugin name %#v", dc.Plugin)
+	}
+	return dc, nil
 }
