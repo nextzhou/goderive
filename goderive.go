@@ -201,8 +201,9 @@ func (d *Derive) Run(inputPaths []string) error {
 		bodyBuf := bytes.NewBuffer(nil)
 		for _, typ := range fileInfo.Types {
 			for pluginID, opts := range typ.Plugins {
-				plugin, _ := d.GetPlugin(pluginID)
-				prerequisites, err := plugin.GenerateTo(bodyBuf, typ.Name, typ.Ast, *opts)
+				p, _ := d.GetPlugin(pluginID)
+				typeInfo := plugin.TypeInfo{Name: typ.Name, Ast: typ.Ast}
+				prerequisites, err := p.GenerateTo(bodyBuf, typeInfo, *opts)
 				if err != nil {
 					// TODO log file path of type
 					return fmt.Errorf("failed to generate code of type %s: %v", typ.Name, err)

@@ -1,7 +1,6 @@
 package set
 
 import (
-	"go/ast"
 	"io"
 
 	"github.com/nextzhou/goderive/plugin"
@@ -31,12 +30,12 @@ func (set Set) Describe() plugin.Description {
 	}
 }
 
-func (set Set) GenerateTo(w io.Writer, typeName string, typeInfo ast.TypeSpec, opt plugin.Options) (plugin.Prerequisites, error) {
+func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Options) (plugin.Prerequisites, error) {
 	var arg TemplateArgs
 	var pre plugin.Prerequisites
 	pre.Imports = []string{"fmt", "encoding/json"}
-	arg.RawTypeName = typeName
-	arg.SetName = typeName + "Set"
+	arg.RawTypeName = typeInfo.Name
+	arg.SetName = typeInfo.Name + "Set"
 	if val := opt.GetValue("Rename"); !val.IsNil() {
 		if !utils.ValidateIdentName(val.Str()) {
 			return pre, &utils.InvalidIdentError{Type: "rename", Ident: val.Str()}

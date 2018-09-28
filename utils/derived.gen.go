@@ -7,7 +7,6 @@ import (
 
 type StrSet map[Str]struct{}
 
-
 func NewStrSet(capacity int) *StrSet {
 	var set StrSet
 	if capacity > 0 {

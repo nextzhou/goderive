@@ -1,12 +1,11 @@
 package plugin
 
 import (
+	"bytes"
 	"fmt"
 	"go/ast"
 	"io"
 	"strings"
-
-	"bytes"
 
 	"github.com/nextzhou/goderive/utils"
 )
@@ -214,7 +213,7 @@ func (opts Options) GetValuesOrEmpty(key string) []Value {
 
 type Plugin interface {
 	Describe() Description
-	GenerateTo(w io.Writer, typeName string, typeInfo ast.TypeSpec, opt Options) (Prerequisites, error)
+	GenerateTo(w io.Writer, typeInfo TypeInfo, opt Options) (Prerequisites, error)
 }
 
 type Prerequisites struct {
@@ -241,7 +240,7 @@ type ArgDescription struct {
 	Key string
 	//ValueDescription string
 	DefaultValue     *Value
-	ValidValues      []Value
+	ValidValues      []Value // TODO
 	AllowEmpty       bool
 	IsMultipleValues bool
 	Effect           string
@@ -365,4 +364,9 @@ func (desc Description) validateArgs(opts *Options) error {
 		return &utils.UnexpectedError{Type: string(OptionTypeArgKey), Idents: args}
 	}
 	return nil
+}
+
+type TypeInfo struct {
+	Name string
+	Ast  ast.TypeSpec
 }
