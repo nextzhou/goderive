@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
+	"sort"
 	"strings"
 
 	"github.com/nextzhou/goderive/plugin"
@@ -214,10 +215,13 @@ func (d *Derive) Run(inputPaths []string) error {
 		// TODO write file after all generating
 
 		if !imports.IsEmpty() {
+			// TODO rewrite when "order set" is complete
 			headBuf.WriteString("import (\n")
-			imports.ForEach(func(i string) {
+			sortedImports := imports.ToSlice()
+			sort.Strings(sortedImports)
+			for _, i := range sortedImports {
 				headBuf.WriteString(fmt.Sprintf("\t%#v\n", i))
-			})
+			}
 			headBuf.WriteString(")\n")
 		}
 
