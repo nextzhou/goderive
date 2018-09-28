@@ -8,7 +8,6 @@ import (
 var setTemplate = `
 type {{ .SetName }} map[{{ .TypeName }}]struct{}
 
-
 func New{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
 	var set {{ .SetName }}
 	if capacity > 0 {
