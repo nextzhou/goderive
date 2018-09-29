@@ -151,7 +151,7 @@ type Arg struct {
 	Values []Value
 }
 
-// derive-set
+// derive-set:Order=Append
 type Value string
 
 func (v *Value) IsNil() bool {
@@ -290,7 +290,11 @@ func (desc Description) ToHelpString() string {
 			if val := arg.DefaultValue; val != nil {
 				effect += "(default: " + string(*val) + ")"
 			}
-			w.Append([]string{arg.Key, valNum, effect})
+			var validValues string
+			if !arg.ValidValues.IsEmpty() {
+				validValues = arg.ValidValues.String()
+			}
+			w.Append([]string{arg.Key, valNum, validValues, effect})
 		}
 		if desc.AllowUnexpectedlyArg {
 			w.Append([]string{"other args"})

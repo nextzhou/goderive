@@ -6,15 +6,17 @@ import (
 )
 
 type ValueSet struct {
-	elements map[Value]struct{}
+	elements        map[Value]uint32
+	elementSequence []Value
 }
 
 func NewValueSet(capacity int) *ValueSet {
 	set := new(ValueSet)
 	if capacity > 0 {
-		set.elements = make(map[Value]struct{}, capacity)
+		set.elements = make(map[Value]uint32, capacity)
+		set.elementSequence = make([]Value, 0, capacity)
 	} else {
-		set.elements = make(map[Value]struct{})
+		set.elements = make(map[Value]uint32)
 	}
 	return set
 }
@@ -48,25 +50,35 @@ func (set *ValueSet) ToSlice() []Value {
 	if set == nil {
 		return nil
 	}
-	s := make([]Value, 0, set.Len())
-	set.ForEach(func(item Value) {
-		s = append(s, item)
-	})
+	s := make([]Value, set.Len())
+	for idx, item := range set.elementSequence {
+		s[idx] = item
+	}
 	return s
 }
 
+// NOTICE: efficient but unsafe
+func (set *ValueSet) ToSliceRef() []Value {
+	return set.elementSequence
+}
+
 func (set *ValueSet) Put(key Value) {
-	set.elements[key] = struct{}{}
+	if _, ok := set.elements[key]; !ok {
+		set.elements[key] = uint32(len(set.elementSequence))
+		set.elementSequence = append(set.elementSequence, key)
+	}
 }
 
 func (set *ValueSet) Clear() {
-	set.elements = make(map[Value]struct{})
+	set.elements = make(map[Value]uint32)
+	set.elementSequence = set.elementSequence[:0]
 }
 
 func (set *ValueSet) Clone() *ValueSet {
 	cloned := NewValueSet(set.Len())
-	for item := range set.elements {
-		cloned.elements[item] = struct{}{}
+	for idx, item := range set.elementSequence {
+		cloned.elements[item] = uint32(idx)
+		cloned.elementSequence = append(cloned.elementSequence, item)
 	}
 	return cloned
 }
@@ -93,6 +105,7 @@ func (set *ValueSet) Equal(another *ValueSet) bool {
 	return true
 }
 
+// TODO keep order
 func (set *ValueSet) Intersect(another *ValueSet) *ValueSet {
 	intersection := NewValueSet(0)
 	if set.Len() < another.Len() {
@@ -151,7 +164,7 @@ func (set *ValueSet) ForEach(f func(Value)) {
 	if set.IsEmpty() {
 		return
 	}
-	for item := range set.elements {
+	for _, item := range set.elementSequence {
 		f(item)
 	}
 }
@@ -167,7 +180,16 @@ func (set *ValueSet) Filter(f func(Value) bool) *ValueSet {
 }
 
 func (set *ValueSet) Remove(key Value) {
-	delete(set.elements, key)
+	if idx, ok := set.elements[key]; ok {
+		l := set.Len()
+		delete(set.elements, key)
+		for ; idx < uint32(l-1); idx++ {
+			item := set.elementSequence[idx+1]
+			set.elementSequence[idx] = item
+			set.elements[item] = idx
+		}
+		set.elementSequence = set.elementSequence[:l-1]
+	}
 }
 
 func (set ValueSet) Contains(key Value) bool {
@@ -194,7 +216,7 @@ func (set ValueSet) ContainsAll(keys ...Value) bool {
 }
 
 func (set *ValueSet) String() string {
-	return fmt.Sprint(set.ToSlice())
+	return fmt.Sprint(set.elementSequence)
 }
 
 func (set *ValueSet) MarshalJSON() ([]byte, error) {
