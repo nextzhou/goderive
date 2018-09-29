@@ -1,6 +1,7 @@
 package examples
 
 import (
+	"encoding/json"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -38,6 +39,12 @@ func TestIntSet(t *testing.T) {
 		So(set.Len(), ShouldEqual, 0)
 		So(set.IsEmpty(), ShouldBeTrue)
 		So(set.ContainsAny(1, 2, 3, 4), ShouldBeFalse)
+
+		set = &IntSet{}
+		err := json.Unmarshal([]byte(`[3,7,4,7]`), set)
+		So(err, ShouldBeNil)
+		So(set.ContainsAll(3, 7, 4), ShouldBeTrue)
+		So(set.Len(), ShouldEqual, 3)
 	})
 }
 
@@ -83,5 +90,14 @@ func TestAppendOrderIntSet(t *testing.T) {
 		So(set.IsEmpty(), ShouldBeTrue)
 		So(set.ContainsAny(1, 2, 3, 4), ShouldBeFalse)
 		So(set.String(), ShouldEqual, "[]")
+
+		set = &intOrderSet{}
+		err := json.Unmarshal([]byte(`[3,7,4,7,5]`), set)
+		So(err, ShouldBeNil)
+		So(set.ContainsAll(3, 7, 4, 5), ShouldBeTrue)
+		So(set.Len(), ShouldEqual, 4)
+		data, err := json.Marshal(set)
+		So(err, ShouldBeNil)
+		So(string(data), ShouldEqual, `[3,7,4,5]`)
 	})
 }
