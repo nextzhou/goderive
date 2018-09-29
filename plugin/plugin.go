@@ -1,3 +1,4 @@
+//go:generate goderive
 package plugin
 
 import (
@@ -150,6 +151,7 @@ type Arg struct {
 	Values []Value
 }
 
+// derive-set
 type Value string
 
 func (v *Value) IsNil() bool {
@@ -240,7 +242,7 @@ type ArgDescription struct {
 	Key string
 	//ValueDescription string
 	DefaultValue     *Value
-	ValidValues      []Value // TODO
+	ValidValues      *ValueSet
 	AllowEmpty       bool
 	IsMultipleValues bool
 	Effect           string
@@ -349,6 +351,14 @@ func (desc Description) validateArgs(opts *Options) error {
 				if len(arg.Values) != 1 {
 					return &utils.ArgNotSingleValueError{ArgKey: validArg.Key}
 				}
+			}
+			if !validArg.ValidValues.IsEmpty() {
+				for _, value := range arg.Values {
+					if !validArg.ValidValues.Contains(value) {
+						return &utils.UnsupportedError{Type: OptionTypeArgValue, Idents: []string{value.Str()}}
+					}
+				}
+
 			}
 		} else if validArg.DefaultValue != nil {
 			// set default value

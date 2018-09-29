@@ -22,7 +22,7 @@ func (set Set) Describe() plugin.Description {
 		},
 		ValidArgs: []plugin.ArgDescription{
 			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign set type name manually"},
-			{Key: "Order", DefaultValue: &UnstableOrder, ValidValues: []plugin.Value{UnstableOrder, AppendOrder},
+			{Key: "Order", DefaultValue: &UnstableOrder, ValidValues: plugin.NewValueSetFromSlice([]plugin.Value{UnstableOrder, AppendOrder}),
 				AllowEmpty: true, IsMultipleValues: false, Effect: "keep order"},
 		},
 		AllowUnexpectedlyFlag: false,
