@@ -6,29 +6,32 @@ import (
 )
 
 var setTemplate = `
-type {{ .SetName }} map[{{ .TypeName }}]struct{}
+type {{ .SetName }} struct {
+	elements map[{{ .TypeName }}]struct{}
+}
 
 func New{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
-	var set {{ .SetName }}
+	set := new({{ .SetName }})
 	if capacity > 0 {
-		set = make(map[{{ .TypeName }}]struct{}, capacity)
+		set.elements = make(map[{{ .TypeName }}]struct{}, capacity)
 	} else {
-		set = make(map[{{ .TypeName }}]struct{})
+		set.elements = make(map[{{ .TypeName }}]struct{})
 	}
-	return (*{{ .SetName }})(&set)
+	return set
 }
 
 func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
-	set := make(map[{{ .TypeName }}]struct{}, len(items))
+	set := new({{ .SetName }})
+	set.elements = make(map[{{ .TypeName }}]struct{}, len(items))
 	for _, item := range items {
-		set[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
-	return (*{{ .SetName }})(&set)
+	return set
 }
 
 func (set *{{ .SetName }}) Extend(items ...{{ .TypeName }}) {
 	for _, item := range items {
-		(*set)[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
 }
 
@@ -36,11 +39,11 @@ func (set *{{ .SetName }}) Len() int {
 	if set == nil {
 		return 0
 	}
-	return len(*set)
+	return len(set.elements)
 }
 
 func (set *{{ .SetName }}) IsEmpty() bool {
-	return set == nil || set.Len() == 0
+	return set.Len() == 0
 }
 
 func (set *{{ .SetName }}) ToSlice() []{{ .TypeName }} {
@@ -55,24 +58,24 @@ func (set *{{ .SetName }}) ToSlice() []{{ .TypeName }} {
 }
 
 func (set *{{ .SetName }}) Put(key {{ .TypeName }}) {
-	(*set)[key] = struct{}{}
+	set.elements[key] = struct{}{}
 }
 
 func (set *{{ .SetName }}) Clear() {
-	*set = make(map[{{ .TypeName }}]struct{})
+	set.elements = make(map[{{ .TypeName }}]struct{})
 }
 
 func (set *{{ .SetName }}) Clone() *{{ .SetName }} {
 	cloned := New{{ .SetName }}(set.Len())
-	for item := range *set {
-		(*cloned)[item] = struct{}{}
+	for item := range set.elements {
+		cloned.Put(item)
 	}
 	return cloned
 }
 
 func (set *{{ .SetName }}) Difference(another *{{ .SetName }}) *{{ .SetName }} {
 	difference := New{{ .SetName }}(0)
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			difference.Put(item)
 		}
@@ -84,7 +87,7 @@ func (set *{{ .SetName }}) Equal(another *{{ .SetName }}) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -95,13 +98,13 @@ func (set *{{ .SetName }}) Equal(another *{{ .SetName }}) bool {
 func (set *{{ .SetName }}) Intersect(another *{{ .SetName }}) *{{ .SetName }} {
 	intersection := New{{ .SetName }}(0)
 	if set.Len() < another.Len() {
-		for item := range *set {
+		for item := range set.elements {
 			if another.Contains(item) {
 				intersection.Put(item)
 			}
 		}
 	} else {
-		for item := range *another {
+		for item := range another.elements {
 			if set.Contains(item) {
 				intersection.Put(item)
 			}
@@ -134,7 +137,7 @@ func (set *{{ .SetName }}) IsSubsetOf(another *{{ .SetName }}) bool {
 	if set.Len() > another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -150,7 +153,7 @@ func (set *{{ .SetName }}) ForEach(f func({{ .TypeName }})) {
 	if set.IsEmpty() {
 		return
 	}
-	for item := range *set {
+	for item := range set.elements {
 		f(item)
 	}
 }
@@ -166,11 +169,11 @@ func (set *{{ .SetName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SetName }} 
 }
 
 func (set {{ .SetName }}) Remove(key {{ .TypeName }}) {
-	delete(set, key)
+	delete(set.elements, key)
 }
 
 func (set {{ .SetName }}) Contains(key {{ .TypeName }}) bool {
-	_, ok := set[key]
+	_, ok := set.elements[key]
 	return ok
 }
 

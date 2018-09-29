@@ -5,29 +5,32 @@ import (
 	"fmt"
 )
 
-type StrSet map[Str]struct{}
+type StrSet struct {
+	elements map[Str]struct{}
+}
 
 func NewStrSet(capacity int) *StrSet {
-	var set StrSet
+	set := new(StrSet)
 	if capacity > 0 {
-		set = make(map[Str]struct{}, capacity)
+		set.elements = make(map[Str]struct{}, capacity)
 	} else {
-		set = make(map[Str]struct{})
+		set.elements = make(map[Str]struct{})
 	}
-	return (*StrSet)(&set)
+	return set
 }
 
 func NewStrSetFromSlice(items []Str) *StrSet {
-	set := make(map[Str]struct{}, len(items))
+	set := new(StrSet)
+	set.elements = make(map[Str]struct{}, len(items))
 	for _, item := range items {
-		set[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
-	return (*StrSet)(&set)
+	return set
 }
 
 func (set *StrSet) Extend(items ...Str) {
 	for _, item := range items {
-		(*set)[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
 }
 
@@ -35,11 +38,11 @@ func (set *StrSet) Len() int {
 	if set == nil {
 		return 0
 	}
-	return len(*set)
+	return len(set.elements)
 }
 
 func (set *StrSet) IsEmpty() bool {
-	return set == nil || set.Len() == 0
+	return set.Len() == 0
 }
 
 func (set *StrSet) ToSlice() []Str {
@@ -54,24 +57,24 @@ func (set *StrSet) ToSlice() []Str {
 }
 
 func (set *StrSet) Put(key Str) {
-	(*set)[key] = struct{}{}
+	set.elements[key] = struct{}{}
 }
 
 func (set *StrSet) Clear() {
-	*set = make(map[Str]struct{})
+	set.elements = make(map[Str]struct{})
 }
 
 func (set *StrSet) Clone() *StrSet {
 	cloned := NewStrSet(set.Len())
-	for item := range *set {
-		(*cloned)[item] = struct{}{}
+	for item := range set.elements {
+		cloned.Put(item)
 	}
 	return cloned
 }
 
 func (set *StrSet) Difference(another *StrSet) *StrSet {
 	difference := NewStrSet(0)
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			difference.Put(item)
 		}
@@ -83,7 +86,7 @@ func (set *StrSet) Equal(another *StrSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -94,13 +97,13 @@ func (set *StrSet) Equal(another *StrSet) bool {
 func (set *StrSet) Intersect(another *StrSet) *StrSet {
 	intersection := NewStrSet(0)
 	if set.Len() < another.Len() {
-		for item := range *set {
+		for item := range set.elements {
 			if another.Contains(item) {
 				intersection.Put(item)
 			}
 		}
 	} else {
-		for item := range *another {
+		for item := range another.elements {
 			if set.Contains(item) {
 				intersection.Put(item)
 			}
@@ -133,7 +136,7 @@ func (set *StrSet) IsSubsetOf(another *StrSet) bool {
 	if set.Len() > another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -149,7 +152,7 @@ func (set *StrSet) ForEach(f func(Str)) {
 	if set.IsEmpty() {
 		return
 	}
-	for item := range *set {
+	for item := range set.elements {
 		f(item)
 	}
 }
@@ -165,11 +168,11 @@ func (set *StrSet) Filter(f func(Str) bool) *StrSet {
 }
 
 func (set StrSet) Remove(key Str) {
-	delete(set, key)
+	delete(set.elements, key)
 }
 
 func (set StrSet) Contains(key Str) bool {
-	_, ok := set[key]
+	_, ok := set.elements[key]
 	return ok
 }
 

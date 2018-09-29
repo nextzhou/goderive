@@ -5,29 +5,32 @@ import (
 	"fmt"
 )
 
-type IntSet map[Int]struct{}
+type IntSet struct {
+	elements map[Int]struct{}
+}
 
 func NewIntSet(capacity int) *IntSet {
-	var set IntSet
+	set := new(IntSet)
 	if capacity > 0 {
-		set = make(map[Int]struct{}, capacity)
+		set.elements = make(map[Int]struct{}, capacity)
 	} else {
-		set = make(map[Int]struct{})
+		set.elements = make(map[Int]struct{})
 	}
-	return (*IntSet)(&set)
+	return set
 }
 
 func NewIntSetFromSlice(items []Int) *IntSet {
-	set := make(map[Int]struct{}, len(items))
+	set := new(IntSet)
+	set.elements = make(map[Int]struct{}, len(items))
 	for _, item := range items {
-		set[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
-	return (*IntSet)(&set)
+	return set
 }
 
 func (set *IntSet) Extend(items ...Int) {
 	for _, item := range items {
-		(*set)[item] = struct{}{}
+		set.elements[item] = struct{}{}
 	}
 }
 
@@ -35,11 +38,11 @@ func (set *IntSet) Len() int {
 	if set == nil {
 		return 0
 	}
-	return len(*set)
+	return len(set.elements)
 }
 
 func (set *IntSet) IsEmpty() bool {
-	return set == nil || set.Len() == 0
+	return set.Len() == 0
 }
 
 func (set *IntSet) ToSlice() []Int {
@@ -54,24 +57,24 @@ func (set *IntSet) ToSlice() []Int {
 }
 
 func (set *IntSet) Put(key Int) {
-	(*set)[key] = struct{}{}
+	set.elements[key] = struct{}{}
 }
 
 func (set *IntSet) Clear() {
-	*set = make(map[Int]struct{})
+	set.elements = make(map[Int]struct{})
 }
 
 func (set *IntSet) Clone() *IntSet {
 	cloned := NewIntSet(set.Len())
-	for item := range *set {
-		(*cloned)[item] = struct{}{}
+	for item := range set.elements {
+		cloned.Put(item)
 	}
 	return cloned
 }
 
 func (set *IntSet) Difference(another *IntSet) *IntSet {
 	difference := NewIntSet(0)
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			difference.Put(item)
 		}
@@ -83,7 +86,7 @@ func (set *IntSet) Equal(another *IntSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -94,13 +97,13 @@ func (set *IntSet) Equal(another *IntSet) bool {
 func (set *IntSet) Intersect(another *IntSet) *IntSet {
 	intersection := NewIntSet(0)
 	if set.Len() < another.Len() {
-		for item := range *set {
+		for item := range set.elements {
 			if another.Contains(item) {
 				intersection.Put(item)
 			}
 		}
 	} else {
-		for item := range *another {
+		for item := range another.elements {
 			if set.Contains(item) {
 				intersection.Put(item)
 			}
@@ -133,7 +136,7 @@ func (set *IntSet) IsSubsetOf(another *IntSet) bool {
 	if set.Len() > another.Len() {
 		return false
 	}
-	for item := range *set {
+	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
@@ -149,7 +152,7 @@ func (set *IntSet) ForEach(f func(Int)) {
 	if set.IsEmpty() {
 		return
 	}
-	for item := range *set {
+	for item := range set.elements {
 		f(item)
 	}
 }
@@ -165,11 +168,11 @@ func (set *IntSet) Filter(f func(Int) bool) *IntSet {
 }
 
 func (set IntSet) Remove(key Int) {
-	delete(set, key)
+	delete(set.elements, key)
 }
 
 func (set IntSet) Contains(key Int) bool {
-	_, ok := set[key]
+	_, ok := set.elements[key]
 	return ok
 }
 
