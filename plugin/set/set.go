@@ -19,11 +19,11 @@ func (set Set) Describe() plugin.Description {
 			{Key: "ByPoint", IsDefault: false, Effect: "store elements by pointer"},
 			// TODO ThreadSafe
 			//{Key: "ThreadSafe", IsDefault: false, Effect: "thread-safe implementation"},
-			// TODO Order
-			//{Key: "Order", IsDefault: false, Effect: "keep order"},
 		},
 		ValidArgs: []plugin.ArgDescription{
 			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign set type name manually"},
+			{Key: "Order", DefaultValue: &UnstableOrder, ValidValues: []plugin.Value{UnstableOrder, AppendOrder},
+				AllowEmpty: true, IsMultipleValues: false, Effect: "keep order"},
 		},
 		AllowUnexpectedlyFlag: false,
 		AllowUnexpectedlyArg:  false,
@@ -42,6 +42,7 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 		}
 		arg.SetName = val.Str()
 	}
+	arg.Order = string(opt.MustGetValue("Order"))
 	arg.CapitalizeSetName = utils.Capitalize(arg.SetName)
 	if opt.WithFlag("ByPoint") {
 		arg.TypeName = "*" + arg.RawTypeName
@@ -51,3 +52,9 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 
 	return pre, arg.GenerateTo(w)
 }
+
+// TODO more sort type
+var (
+	UnstableOrder = plugin.Value("Unstable")
+	AppendOrder   = plugin.Value("Append")
+)

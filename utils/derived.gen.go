@@ -20,17 +20,16 @@ func NewStrSet(capacity int) *StrSet {
 }
 
 func NewStrSetFromSlice(items []Str) *StrSet {
-	set := new(StrSet)
-	set.elements = make(map[Str]struct{}, len(items))
+	set := NewStrSet(len(items))
 	for _, item := range items {
-		set.elements[item] = struct{}{}
+		set.Put(item)
 	}
 	return set
 }
 
 func (set *StrSet) Extend(items ...Str) {
 	for _, item := range items {
-		set.elements[item] = struct{}{}
+		set.Put(item)
 	}
 }
 
@@ -67,18 +66,18 @@ func (set *StrSet) Clear() {
 func (set *StrSet) Clone() *StrSet {
 	cloned := NewStrSet(set.Len())
 	for item := range set.elements {
-		cloned.Put(item)
+		cloned.elements[item] = struct{}{}
 	}
 	return cloned
 }
 
 func (set *StrSet) Difference(another *StrSet) *StrSet {
 	difference := NewStrSet(0)
-	for item := range set.elements {
+	set.ForEach(func(item Str) {
 		if !another.Contains(item) {
 			difference.Put(item)
 		}
-	}
+	})
 	return difference
 }
 
@@ -167,7 +166,7 @@ func (set *StrSet) Filter(f func(Str) bool) *StrSet {
 	return result
 }
 
-func (set StrSet) Remove(key Str) {
+func (set *StrSet) Remove(key Str) {
 	delete(set.elements, key)
 }
 
