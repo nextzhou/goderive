@@ -663,3 +663,7 @@ func (set *Int3Set) String() string {
 func (set *Int3Set) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
+
+func (set *Int3Set) UnmarshalJSON(b []byte) error {
+	return fmt.Errorf("unsupported")
+}

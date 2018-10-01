@@ -321,9 +321,11 @@ func (set *{{ .SetName }}) String() string {
 func (set *{{ .SetName }}) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
-{{- if not (eq .Order "Key") }}
 
 func (set *{{ .SetName }}) UnmarshalJSON(b []byte) error {
+	{{ if (eq .Order "Key") -}}
+	return fmt.Errorf("unsupported")
+	{{- else -}}
 	s := make([]{{ .TypeName }}, 0)
 	err := json.Unmarshal(b, &s)
 	if err != nil {
@@ -331,8 +333,8 @@ func (set *{{ .SetName }}) UnmarshalJSON(b []byte) error {
 	}
 	*set = *New{{ .CapitalizeSetName }}FromSlice(s)
 	return nil
+	{{- end }}
 }
-{{- end }}
 `
 
 var tpl, _ = template.New("set").Parse(setTemplate)
