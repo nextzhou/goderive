@@ -3,6 +3,7 @@ package examples
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 )
 
 type IntSet struct {
@@ -437,4 +438,228 @@ func (set *intOrderSet) UnmarshalJSON(b []byte) error {
 	}
 	*set = *NewIntOrderSetFromSlice(s)
 	return nil
+}
+
+type Int3Set struct {
+	cmp             func(i, j Int3) bool
+	elements        map[Int3]uint32
+	elementSequence []Int3
+}
+
+func NewInt3Set(capacity int, cmp func(i, j Int3) bool) *Int3Set {
+	set := new(Int3Set)
+	if capacity > 0 {
+		set.elements = make(map[Int3]uint32, capacity)
+		set.elementSequence = make([]Int3, 0, capacity)
+	} else {
+		set.elements = make(map[Int3]uint32)
+	}
+	set.cmp = cmp
+	return set
+}
+
+func NewInt3SetFromSlice(items []Int3, cmp func(i, j Int3) bool) *Int3Set {
+	set := NewInt3Set(len(items), cmp)
+	for _, item := range items {
+		set.Put(item)
+	}
+	return set
+}
+
+func (set *Int3Set) Extend(items ...Int3) {
+	for _, item := range items {
+		set.Put(item)
+	}
+}
+
+func (set *Int3Set) Len() int {
+	if set == nil {
+		return 0
+	}
+	return len(set.elements)
+}
+
+func (set *Int3Set) IsEmpty() bool {
+	return set.Len() == 0
+}
+
+func (set *Int3Set) ToSlice() []Int3 {
+	if set == nil {
+		return nil
+	}
+	s := make([]Int3, 0, set.Len())
+	set.ForEach(func(item Int3) {
+		s = append(s, item)
+	})
+	return s
+}
+
+func (set *Int3Set) Put(key Int3) {
+	if _, ok := set.elements[key]; !ok {
+		idx := sort.Search(len(set.elementSequence), func(i int) bool {
+			return set.cmp(key, set.elementSequence[i])
+		})
+		l := len(set.elementSequence)
+		set.elementSequence = append(set.elementSequence, key)
+		for i := l; i > idx; i-- {
+			set.elements[set.elementSequence[i]] = uint32(i + 1)
+			set.elementSequence[i] = set.elementSequence[i-1]
+		}
+		set.elements[set.elementSequence[idx]] = uint32(idx + 1)
+		set.elementSequence[idx] = key
+		set.elements[key] = uint32(idx)
+	}
+}
+
+func (set *Int3Set) Clear() {
+	set.elements = make(map[Int3]uint32)
+	set.elementSequence = set.elementSequence[:0]
+}
+
+func (set *Int3Set) Clone() *Int3Set {
+	cloned := NewInt3Set(set.Len(), set.cmp)
+	for idx, item := range set.elementSequence {
+		cloned.elements[item] = uint32(idx)
+		cloned.elementSequence = append(cloned.elementSequence, item)
+	}
+	return cloned
+}
+
+func (set *Int3Set) Difference(another *Int3Set) *Int3Set {
+	difference := NewInt3Set(0, set.cmp)
+	set.ForEach(func(item Int3) {
+		if !another.Contains(item) {
+			difference.Put(item)
+		}
+	})
+	return difference
+}
+
+func (set *Int3Set) Equal(another *Int3Set) bool {
+	if set.Len() != another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *Int3Set) Intersect(another *Int3Set) *Int3Set {
+	intersection := NewInt3Set(0, set.cmp)
+	if set.Len() < another.Len() {
+		for item := range set.elements {
+			if another.Contains(item) {
+				intersection.Put(item)
+			}
+		}
+	} else {
+		for item := range another.elements {
+			if set.Contains(item) {
+				intersection.Put(item)
+			}
+		}
+	}
+	return intersection
+}
+
+func (set *Int3Set) Union(another *Int3Set) *Int3Set {
+	union := set.Clone()
+	union.InPlaceUnion(another)
+	return union
+}
+
+func (set *Int3Set) InPlaceUnion(another *Int3Set) {
+	another.ForEach(func(item Int3) {
+		set.Put(item)
+	})
+}
+
+func (set *Int3Set) IsProperSubsetOf(another *Int3Set) bool {
+	return !set.Equal(another) && set.IsSubsetOf(another)
+}
+
+func (set *Int3Set) IsProperSupersetOf(another *Int3Set) bool {
+	return !set.Equal(another) && set.IsSupersetOf(another)
+}
+
+func (set *Int3Set) IsSubsetOf(another *Int3Set) bool {
+	if set.Len() > another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *Int3Set) IsSupersetOf(another *Int3Set) bool {
+	return another.IsSubsetOf(set)
+}
+
+func (set *Int3Set) ForEach(f func(Int3)) {
+	if set.IsEmpty() {
+		return
+	}
+	for _, item := range set.elementSequence {
+		f(item)
+	}
+}
+
+func (set *Int3Set) Filter(f func(Int3) bool) *Int3Set {
+	result := NewInt3Set(0, set.cmp)
+	set.ForEach(func(item Int3) {
+		if f(item) {
+			result.Put(item)
+		}
+	})
+	return result
+}
+
+func (set *Int3Set) Remove(key Int3) {
+	if idx, ok := set.elements[key]; ok {
+		l := set.Len()
+		delete(set.elements, key)
+		for ; idx < uint32(l-1); idx++ {
+			item := set.elementSequence[idx+1]
+			set.elementSequence[idx] = item
+			set.elements[item] = idx
+		}
+		set.elementSequence = set.elementSequence[:l-1]
+	}
+}
+
+func (set Int3Set) Contains(key Int3) bool {
+	_, ok := set.elements[key]
+	return ok
+}
+
+func (set Int3Set) ContainsAny(keys ...Int3) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set Int3Set) ContainsAll(keys ...Int3) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *Int3Set) String() string {
+	return fmt.Sprint(set.elementSequence)
+}
+
+func (set *Int3Set) MarshalJSON() ([]byte, error) {
+	return json.Marshal(set.ToSlice())
 }

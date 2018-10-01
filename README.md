@@ -47,5 +47,5 @@ Flags:
 
 Args:
   Rename         single value                            assign set type name manually
-  Order          single value    [Unstable Append]       keep order(default: Unstable)
+  Order          single value    [Unstable Append Key]   keep order(default: Unstable)
 ```
