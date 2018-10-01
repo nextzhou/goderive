@@ -268,8 +268,8 @@ func (desc Description) ToHelpString() string {
 			w.Append([]string{"other flags"})
 		}
 		w.Render()
+		help.WriteByte('\n')
 	}
-	help.WriteByte('\n')
 
 	// args
 	if len(desc.ValidArgs) > 0 || desc.AllowUnexpectedlyArg {

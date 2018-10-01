@@ -340,7 +340,6 @@ func (set *{{ .SetName }}) UnmarshalJSON(b []byte) error {
 var tpl, _ = template.New("set").Parse(setTemplate)
 
 type TemplateArgs struct {
-	RawTypeName       string
 	TypeName          string
 	SetName           string
 	CapitalizeSetName string

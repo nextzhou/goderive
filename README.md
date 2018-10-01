@@ -42,9 +42,6 @@ Plugin: set
 
 set collection
 
-Flags:
-  ByPoint        store elements by pointer
-
 Args:
   Rename         single value                            assign set type name manually
   Order          single value    [Unstable Append Key]   keep order(default: Unstable)

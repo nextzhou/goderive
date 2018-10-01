@@ -13,12 +13,11 @@ var _ plugin.Plugin = Set{}
 
 func (set Set) Describe() plugin.Description {
 	return plugin.Description{
-		Identity: "set",
-		Effect:   "set collection",
+		Identity:   "set",
+		Effect:     "set collection",
 		ValidFlags: []plugin.FlagDescription{
-			{Key: "ByPoint", IsDefault: false, Effect: "store elements by pointer"},
-			// TODO ThreadSafe
-			//{Key: "ThreadSafe", IsDefault: false, Effect: "thread-safe implementation"},
+		// TODO ThreadSafe
+		// {Key: "ThreadSafe", IsDefault: false, Effect: "thread-safe implementation"},
 		},
 		ValidArgs: []plugin.ArgDescription{
 			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign set type name manually"},
@@ -34,7 +33,7 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 	var arg TemplateArgs
 	var pre plugin.Prerequisites
 	pre.Imports = []string{"fmt", "encoding/json"}
-	arg.RawTypeName = typeInfo.Name
+	arg.TypeName = typeInfo.Name
 	arg.SetName = typeInfo.Name + "Set"
 	if val := opt.GetValue("Rename"); !val.IsNil() {
 		if !utils.ValidateIdentName(val.Str()) {
@@ -48,11 +47,6 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 		pre.Imports = append(pre.Imports, "sort")
 	}
 	arg.CapitalizeSetName = utils.Capitalize(arg.SetName)
-	if opt.WithFlag("ByPoint") {
-		arg.TypeName = "*" + arg.RawTypeName
-	} else {
-		arg.TypeName = arg.RawTypeName
-	}
 
 	return pre, arg.GenerateTo(w)
 }
