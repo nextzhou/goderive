@@ -57,7 +57,6 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 	return pre, arg.GenerateTo(w)
 }
 
-// TODO more sort type
 var (
 	UnstableOrder = plugin.Value("Unstable")
 	AppendOrder   = plugin.Value("Append")
