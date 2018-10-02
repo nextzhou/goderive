@@ -381,6 +381,7 @@ func (desc Description) validateArgs(opts *Options) error {
 }
 
 type TypeInfo struct {
-	Name string
-	Ast  ast.TypeSpec
+	Name     string
+	Assigned string
+	Ast      ast.TypeSpec
 }

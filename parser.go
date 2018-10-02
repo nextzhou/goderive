@@ -18,7 +18,8 @@ type FileInfo struct {
 }
 
 type TypeInfo struct {
-	Name string
+	Name     string
+	Assigned string
 	// TODO keep order
 	Plugins map[string]*plugin.Options
 	Ast     ast.TypeSpec
@@ -53,6 +54,9 @@ func ExtractTypes(src []byte) (FileInfo, error) {
 				typeInfo.Name = typ.Name
 				typeInfo.Plugins = make(map[string]*plugin.Options)
 				typeInfo.Ast = *typ.Decl.Specs[0].(*ast.TypeSpec)
+				if typeInfo.Ast.Assign.IsValid() {
+					typeInfo.Assigned = typeInfo.Ast.Name.Obj.Decl.(*ast.TypeSpec).Type.(*ast.Ident).Name
+				}
 			}
 			opts, err := plugin.ParseOptions(dc.OptionsStr)
 			if err != nil {
