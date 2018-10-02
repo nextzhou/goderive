@@ -466,6 +466,22 @@ func NewInt3SetFromSlice(items []Int3, cmp func(i, j Int3) bool) *Int3Set {
 	return set
 }
 
+func NewAscendingInt3Set(capacity int) *Int3Set {
+	return NewInt3Set(capacity, func(i, j Int3) bool { return i < j })
+}
+
+func NewDescendingInt3Set(capacity int) *Int3Set {
+	return NewInt3Set(capacity, func(i, j Int3) bool { return i > j })
+}
+
+func NewAscendingInt3SetFromSlice(items []Int3) *Int3Set {
+	return NewInt3SetFromSlice(items, func(i, j Int3) bool { return i < j })
+}
+
+func NewDescendingInt3SetFromSlice(items []Int3) *Int3Set {
+	return NewInt3SetFromSlice(items, func(i, j Int3) bool { return i > j })
+}
+
 func (set *Int3Set) Extend(items ...Int3) {
 	for _, item := range items {
 		set.Put(item)

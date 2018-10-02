@@ -203,7 +203,7 @@ func (d *Derive) Run(inputPaths []string) error {
 		for _, typ := range fileInfo.Types {
 			for pluginID, opts := range typ.Plugins {
 				p, _ := d.GetPlugin(pluginID)
-				typeInfo := plugin.TypeInfo{Name: typ.Name, Ast: typ.Ast}
+				typeInfo := plugin.TypeInfo{Name: typ.Name, Ast: typ.Ast, Assigned: typ.Assigned}
 				prerequisites, err := p.GenerateTo(bodyBuf, typeInfo, *opts)
 				if err != nil {
 					// TODO log file path of type

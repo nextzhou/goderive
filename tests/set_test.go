@@ -104,7 +104,7 @@ func TestAppendOrderIntSet(t *testing.T) {
 
 func TestKeyOrderIntSet(t *testing.T) {
 	Convey("int key order set", t, func() {
-		set := NewInt3Set(0, func(i, j Int3) bool { return i < j })
+		set := NewAscendingInt3Set(0)
 		set.Extend([]int{3, 8, 1, 5, 3, 5, 4}...)
 		So(set.Len(), ShouldEqual, 5)
 		So(set.String(), ShouldEqual, "[1 3 4 5 8]")
@@ -115,5 +115,8 @@ func TestKeyOrderIntSet(t *testing.T) {
 		So(set.String(), ShouldEqual, "[1 2 3 4 8]")
 		union := set.Union(NewInt3SetFromSlice([]int{2, 4, 6, 8, 10}, func(i, j Int3) bool { return i < j }))
 		So(union.String(), ShouldEqual, "[1 2 3 4 6 8 10]")
+
+		descSet := NewDescendingInt3SetFromSlice(set.ToSlice())
+		So(descSet.String(), ShouldEqual, "[8 4 3 2 1]")
 	})
 }

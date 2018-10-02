@@ -41,12 +41,12 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 		}
 		arg.SetName = val.Str()
 	}
-	// TODO default cmp func for base type
 	arg.Order = string(opt.MustGetValue("Order"))
 	if arg.Order == KeyOrder.Str() {
 		pre.Imports = append(pre.Imports, "sort")
 	}
 	arg.CapitalizeSetName = utils.Capitalize(arg.SetName)
+	arg.IsComparable = utils.IsComparableType(typeInfo.Assigned)
 
 	return pre, arg.GenerateTo(w)
 }

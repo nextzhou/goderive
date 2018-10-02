@@ -42,3 +42,15 @@ func (tw *TableWriter) Render() {
 
 // derive-set
 type Str = string
+
+func IsComparableType(typ string) bool {
+	switch typ {
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64",
+		"float", "double", "string", "uintptr", "rune", "byte":
+		return true
+	default:
+		return false
+	}
+	return byte(0) > 0
+}

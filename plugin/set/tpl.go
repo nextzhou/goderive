@@ -57,6 +57,24 @@ func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName 
 	}
 	return set
 }
+{{- if and (eq .Order "Key") .IsComparable }}
+
+func NewAscending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
+	return New{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i < j })
+}
+
+func NewDescending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
+	return New{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i > j })
+}
+
+func NewAscending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
+	return New{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i < j })
+}
+
+func NewDescending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
+	return New{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i > j })
+}
+{{- end }}
 
 func (set *{{ .SetName }}) Extend(items ...{{ .TypeName }}) {
 	for _, item := range items {
@@ -344,6 +362,7 @@ type TemplateArgs struct {
 	SetName           string
 	CapitalizeSetName string
 	Order             string
+	IsComparable      bool
 }
 
 func (ta TemplateArgs) GenerateTo(w io.Writer) error {
