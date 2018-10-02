@@ -16,6 +16,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var Version = "UNKNOWN"
+
 func main() {
 	defer func() {
 		if info := recover(); info != nil {
@@ -23,6 +25,7 @@ func main() {
 			fmt.Fprintln(os.Stderr, `║NOTICE: You found a bug!!!                                                      ║`)
 			fmt.Fprintln(os.Stderr, `║Please report bug to https://github.com/nextzhou/goderive/issues with log below.║`)
 			fmt.Fprintln(os.Stderr, `╚════════════════════════════════════════════════════════════════════════════════╝`)
+			fmt.Fprintf(os.Stderr, "Version: %s\n", Version)
 			fmt.Fprintf(os.Stderr, "panic: %v\n\n%s\n", info, debug.Stack())
 			os.Exit(1)
 		}
@@ -37,11 +40,12 @@ func main() {
 }
 
 type Derive struct {
-	Plugins []plugin.Plugin
-	Cmd     *cobra.Command
-	Err     error
-	Output  string
-	Delete  bool
+	Plugins     []plugin.Plugin
+	Cmd         *cobra.Command
+	Err         error
+	Output      string
+	Delete      bool
+	ShowVersion bool
 }
 
 func NewDerive() *Derive {
@@ -49,6 +53,10 @@ func NewDerive() *Derive {
 	derive.Cmd = &cobra.Command{
 		Use: "goderive",
 		RunE: func(cmd *cobra.Command, args []string) error {
+			if derive.ShowVersion {
+				fmt.Printf("Version: %s\n", Version)
+				return nil
+			}
 			if len(args) > 0 && args[0] == "help" {
 				return derive.Help(args[1:])
 			}
@@ -58,6 +66,7 @@ func NewDerive() *Derive {
 	}
 	derive.Cmd.Flags().StringVarP(&derive.Output, "output", "o", "derived.gen.go", "output file name")
 	derive.Cmd.Flags().BoolVarP(&derive.Delete, "delete", "d", true, "delete existing generated file when no derived type")
+	derive.Cmd.Flags().BoolVarP(&derive.ShowVersion, "version", "v", false, "show version information")
 	return derive
 }
 
@@ -94,6 +103,7 @@ Flags:
   -d, --delete          delete existing generated file when no derived type (default true)
   -h, --help            help for goderive
   -o, --output string   output file name (default "derived.gen.go")
+  -v, --version         show version information
 
 Plugins:
 `)

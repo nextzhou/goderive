@@ -29,6 +29,7 @@ Flags:
   -d, --delete          delete existing generated file when no derived type (default true)
   -h, --help            help for goderive
   -o, --output string   output file name (default "derived.gen.go")
+  -v, --version         show version information
 
 Plugins:
   set    set collection
