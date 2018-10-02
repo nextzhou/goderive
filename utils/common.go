@@ -52,5 +52,4 @@ func IsComparableType(typ string) bool {
 	default:
 		return false
 	}
-	return byte(0) > 0
 }
