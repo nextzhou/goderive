@@ -4,8 +4,22 @@ Add derive comment above your type, and generate source code for the marked type
 
 ## Install
 
+### via go get
+
 ```
-go get -u -v github.com/nextzhou/goderive
+$ go get -u -v github.com/nextzhou/goderive
+```
+
+### via makefile
+
+In this way you can get git version information
+
+```
+$ go get -u -v github.com/nextzhou/goderive
+$ cd $GOPATH/src/github.com/nextzhou/goderive
+$ make
+$ goderive --verion # show git version information
+Version: xxxxxxx
 ```
 
 ## Usage
