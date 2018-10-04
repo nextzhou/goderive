@@ -213,6 +213,7 @@ func (opts Options) GetValuesOrEmpty(key string) []Value {
 	return opts.Args[key].Values
 }
 
+// derive-set: Order=Append
 type Plugin interface {
 	Describe() Description
 	GenerateTo(w io.Writer, typeInfo TypeInfo, opt Options) (Prerequisites, error)

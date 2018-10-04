@@ -40,7 +40,7 @@ func main() {
 }
 
 type Derive struct {
-	Plugins     []plugin.Plugin
+	Plugins     *plugin.PluginSet
 	Cmd         *cobra.Command
 	Err         error
 	Output      string
@@ -50,6 +50,7 @@ type Derive struct {
 
 func NewDerive() *Derive {
 	derive := new(Derive)
+	derive.Plugins = plugin.NewPluginSet(0)
 	derive.Cmd = &cobra.Command{
 		Use: "goderive",
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -71,9 +72,7 @@ func NewDerive() *Derive {
 }
 
 func (d *Derive) RegisterPlugin(plugins ...plugin.Plugin) {
-	// TODO uniq
-	// TODO Description check
-	d.Plugins = append(d.Plugins, plugins...)
+	d.Plugins.Extend(plugins...)
 }
 
 func (d *Derive) Execute() error {
@@ -108,10 +107,10 @@ Flags:
 Plugins:
 `)
 	w := utils.NewTableWriter(help)
-	for _, plugin := range d.Plugins {
-		desc := plugin.Describe()
+	d.Plugins.ForEach(func(plg plugin.Plugin) {
+		desc := plg.Describe()
 		w.Append([]string{desc.Identity, desc.Effect})
-	}
+	})
 	w.Render()
 	return help.String()
 }
@@ -278,10 +277,11 @@ func (d *Derive) ValidatePluginOptions(pluginID string, opts *plugin.Options) er
 }
 
 func (d *Derive) GetPlugin(pluginID string) (plugin.Plugin, error) {
-	for _, plugin := range d.Plugins {
-		if plugin.Describe().Identity == pluginID {
-			return plugin, nil
-		}
+	plg := d.Plugins.FindBy(func(plg plugin.Plugin) bool {
+		return plg.Describe().Identity == pluginID
+	})
+	if plg != nil {
+		return *plg, nil
 	}
 	return nil, &utils.UnsupportedError{Type: "plugin", Idents: []string{pluginID}}
 }
