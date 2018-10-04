@@ -45,6 +45,18 @@ func TestIntSet(t *testing.T) {
 		So(err, ShouldBeNil)
 		So(set.ContainsAll(3, 7, 4), ShouldBeTrue)
 		So(set.Len(), ShouldEqual, 3)
+		found := set.FindBy(func(i Int) bool {
+			return i > 5
+		})
+		So(found, ShouldNotBeNil)
+		So(*found, ShouldEqual, 7)
+		*found = 5
+		So(set.Contains(7), ShouldBeTrue)
+		So(set.Contains(5), ShouldBeFalse)
+		found = set.FindBy(func(i Int) bool {
+			return i < 0
+		})
+		So(found, ShouldBeNil)
 	})
 }
 
@@ -99,6 +111,13 @@ func TestAppendOrderIntSet(t *testing.T) {
 		data, err := json.Marshal(set)
 		So(err, ShouldBeNil)
 		So(string(data), ShouldEqual, `[3,7,4,5]`)
+		found := set.FindBy(func(i Int2) bool {
+			return i%2 == 0
+		})
+		So(found, ShouldNotBeNil)
+		So(*found, ShouldEqual, 4)
+		*found = 6
+		So(set.String(), ShouldEqual, `[3 7 4 5]`)
 	})
 }
 

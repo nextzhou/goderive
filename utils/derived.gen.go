@@ -193,6 +193,15 @@ func (set *StrSet) ContainsAll(keys ...Str) bool {
 	return true
 }
 
+func (set *StrSet) FindBy(f func(Str) bool) *Str {
+	for item := range set.elements {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func (set *StrSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }

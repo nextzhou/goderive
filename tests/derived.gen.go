@@ -194,6 +194,15 @@ func (set *IntSet) ContainsAll(keys ...Int) bool {
 	return true
 }
 
+func (set *IntSet) FindBy(f func(Int) bool) *Int {
+	for item := range set.elements {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func (set *IntSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -438,6 +447,15 @@ func (set *intOrderSet) DoWhile(f func(Int2) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *intOrderSet) FindBy(f func(Int2) bool) *Int2 {
+	for _, item := range set.elementSequence {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
 }
 
 func (set *intOrderSet) String() string {
@@ -706,6 +724,15 @@ func (set *Int3Set) DoWhile(f func(Int3) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *Int3Set) FindBy(f func(Int3) bool) *Int3 {
+	for _, item := range set.elementSequence {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
 }
 
 func (set *Int3Set) String() string {

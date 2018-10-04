@@ -233,6 +233,15 @@ func (set *ValueSet) DoWhile(f func(Value) bool) int {
 	return -1
 }
 
+func (set *ValueSet) FindBy(f func(Value) bool) *Value {
+	for _, item := range set.elementSequence {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func (set *ValueSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
