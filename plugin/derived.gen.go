@@ -192,12 +192,12 @@ func (set *ValueSet) Remove(key Value) {
 	}
 }
 
-func (set ValueSet) Contains(key Value) bool {
+func (set *ValueSet) Contains(key Value) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set ValueSet) ContainsAny(keys ...Value) bool {
+func (set *ValueSet) ContainsAny(keys ...Value) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -206,7 +206,7 @@ func (set ValueSet) ContainsAny(keys ...Value) bool {
 	return false
 }
 
-func (set ValueSet) ContainsAll(keys ...Value) bool {
+func (set *ValueSet) ContainsAll(keys ...Value) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false

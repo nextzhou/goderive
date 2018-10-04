@@ -170,12 +170,12 @@ func (set *StrSet) Remove(key Str) {
 	delete(set.elements, key)
 }
 
-func (set StrSet) Contains(key Str) bool {
+func (set *StrSet) Contains(key Str) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set StrSet) ContainsAny(keys ...Str) bool {
+func (set *StrSet) ContainsAny(keys ...Str) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -184,7 +184,7 @@ func (set StrSet) ContainsAny(keys ...Str) bool {
 	return false
 }
 
-func (set StrSet) ContainsAll(keys ...Str) bool {
+func (set *StrSet) ContainsAll(keys ...Str) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false

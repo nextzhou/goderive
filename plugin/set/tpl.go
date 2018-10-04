@@ -305,12 +305,12 @@ func (set *{{ .SetName }}) Remove(key {{ .TypeName }}) {
 	{{- end }}
 }
 
-func (set {{ .SetName }}) Contains(key {{ .TypeName }}) bool {
+func (set *{{ .SetName }}) Contains(key {{ .TypeName }}) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set {{ .SetName }}) ContainsAny(keys ...{{ .TypeName }}) bool {
+func (set *{{ .SetName }}) ContainsAny(keys ...{{ .TypeName }}) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -319,7 +319,7 @@ func (set {{ .SetName }}) ContainsAny(keys ...{{ .TypeName }}) bool {
 	return false
 }
 
-func (set {{ .SetName }}) ContainsAll(keys ...{{ .TypeName }}) bool {
+func (set *{{ .SetName }}) ContainsAll(keys ...{{ .TypeName }}) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false

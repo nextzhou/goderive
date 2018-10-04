@@ -171,12 +171,12 @@ func (set *IntSet) Remove(key Int) {
 	delete(set.elements, key)
 }
 
-func (set IntSet) Contains(key Int) bool {
+func (set *IntSet) Contains(key Int) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set IntSet) ContainsAny(keys ...Int) bool {
+func (set *IntSet) ContainsAny(keys ...Int) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -185,7 +185,7 @@ func (set IntSet) ContainsAny(keys ...Int) bool {
 	return false
 }
 
-func (set IntSet) ContainsAll(keys ...Int) bool {
+func (set *IntSet) ContainsAll(keys ...Int) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
@@ -399,12 +399,12 @@ func (set *intOrderSet) Remove(key Int2) {
 	}
 }
 
-func (set intOrderSet) Contains(key Int2) bool {
+func (set *intOrderSet) Contains(key Int2) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set intOrderSet) ContainsAny(keys ...Int2) bool {
+func (set *intOrderSet) ContainsAny(keys ...Int2) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -413,7 +413,7 @@ func (set intOrderSet) ContainsAny(keys ...Int2) bool {
 	return false
 }
 
-func (set intOrderSet) ContainsAll(keys ...Int2) bool {
+func (set *intOrderSet) ContainsAll(keys ...Int2) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
@@ -649,12 +649,12 @@ func (set *Int3Set) Remove(key Int3) {
 	}
 }
 
-func (set Int3Set) Contains(key Int3) bool {
+func (set *Int3Set) Contains(key Int3) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set Int3Set) ContainsAny(keys ...Int3) bool {
+func (set *Int3Set) ContainsAny(keys ...Int3) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -663,7 +663,7 @@ func (set Int3Set) ContainsAny(keys ...Int3) bool {
 	return false
 }
 
-func (set Int3Set) ContainsAll(keys ...Int3) bool {
+func (set *Int3Set) ContainsAll(keys ...Int3) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
