@@ -215,6 +215,24 @@ func (set *ValueSet) ContainsAll(keys ...Value) bool {
 	return true
 }
 
+func (set *ValueSet) DoUntil(f func(Value) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *ValueSet) DoWhile(f func(Value) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
 func (set *ValueSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }

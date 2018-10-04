@@ -422,6 +422,24 @@ func (set *intOrderSet) ContainsAll(keys ...Int2) bool {
 	return true
 }
 
+func (set *intOrderSet) DoUntil(f func(Int2) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *intOrderSet) DoWhile(f func(Int2) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
 func (set *intOrderSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -670,6 +688,24 @@ func (set *Int3Set) ContainsAll(keys ...Int3) bool {
 		}
 	}
 	return true
+}
+
+func (set *Int3Set) DoUntil(f func(Int3) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *Int3Set) DoWhile(f func(Int3) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
 }
 
 func (set *Int3Set) String() string {

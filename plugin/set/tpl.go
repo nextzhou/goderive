@@ -327,6 +327,26 @@ func (set *{{ .SetName }}) ContainsAll(keys ...{{ .TypeName }}) bool {
 	}
 	return true
 }
+{{- if not (eq .Order "Unstable") }}
+
+func (set *{{ .SetName }}) DoUntil(f func({{ .TypeName }}) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *{{ .SetName }}) DoWhile(f func({{ .TypeName }}) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+{{- end }}
 
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
