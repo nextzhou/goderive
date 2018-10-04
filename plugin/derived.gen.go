@@ -242,6 +242,15 @@ func (set *ValueSet) FindBy(f func(Value) bool) *Value {
 	return nil
 }
 
+func (set *ValueSet) FindLastBy(f func(Value) bool) *Value {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func (set *ValueSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }

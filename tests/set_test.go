@@ -118,6 +118,16 @@ func TestAppendOrderIntSet(t *testing.T) {
 		So(*found, ShouldEqual, 4)
 		*found = 6
 		So(set.String(), ShouldEqual, `[3 7 4 5]`)
+
+		found = set.FindLastBy(func(i Int2) bool {
+			return i < 5
+		})
+		So(found, ShouldNotBeNil)
+		So(*found, ShouldEqual, 4)
+		found = set.FindLastBy(func(_ Int2) bool {
+			return false
+		})
+		So(found, ShouldBeNil)
 	})
 }
 

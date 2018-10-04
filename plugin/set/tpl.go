@@ -360,6 +360,17 @@ func (set *{{ .SetName }}) FindBy(f func({{ .TypeName }}) bool) *{{ .TypeName }}
 	}
 	return nil
 }
+{{- if or (eq .Order "Append") (eq .Order "Key") }}
+
+func (set *{{ .SetName }}) FindLastBy(f func({{ .TypeName }}) bool) *{{ .TypeName }} {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+{{- end }}
 
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}

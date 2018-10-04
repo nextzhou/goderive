@@ -458,6 +458,15 @@ func (set *intOrderSet) FindBy(f func(Int2) bool) *Int2 {
 	return nil
 }
 
+func (set *intOrderSet) FindLastBy(f func(Int2) bool) *Int2 {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
 func (set *intOrderSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -729,6 +738,15 @@ func (set *Int3Set) DoWhile(f func(Int3) bool) int {
 func (set *Int3Set) FindBy(f func(Int3) bool) *Int3 {
 	for _, item := range set.elementSequence {
 		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *Int3Set) FindLastBy(f func(Int3) bool) *Int3 {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
 			return &item
 		}
 	}
