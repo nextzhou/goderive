@@ -40,8 +40,11 @@ func (tw *TableWriter) Render() {
 	tw.table.Render()
 }
 
-// derive-set
+// derive-set: Order=Append
 type Str = string
+
+// derive-set: Rename=StrOrderSet;Order=Key
+type Str2 = string
 
 func IsComparableType(typ string) bool {
 	switch typ {

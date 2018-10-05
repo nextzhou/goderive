@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 	"runtime/debug"
-	"sort"
 	"strings"
 
 	"github.com/nextzhou/goderive/plugin"
@@ -207,7 +206,7 @@ func (d *Derive) Run(inputPaths []string) error {
 		}
 		headBuf := bytes.NewBuffer(nil)
 		headBuf.WriteString(fmt.Sprintf("package %s\n\n", fileInfo.PkgName))
-		imports := utils.NewStrSet(0)
+		imports := utils.NewAscendingStrOrderSet(0)
 		bodyBuf := bytes.NewBuffer(nil)
 		for _, typ := range fileInfo.Types {
 			for pluginID, opts := range typ.Plugins {
@@ -224,13 +223,10 @@ func (d *Derive) Run(inputPaths []string) error {
 		// TODO write file after all generating
 
 		if !imports.IsEmpty() {
-			// TODO rewrite when "order set" is complete
 			headBuf.WriteString("import (\n")
-			sortedImports := imports.ToSlice()
-			sort.Strings(sortedImports)
-			for _, i := range sortedImports {
-				headBuf.WriteString(fmt.Sprintf("\t%#v\n", i))
-			}
+			imports.ForEach(func(s string) {
+				headBuf.WriteString(fmt.Sprintf("\t%#v\n", s))
+			})
 			headBuf.WriteString(")\n")
 		}
 
