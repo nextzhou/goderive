@@ -1,5 +1,5 @@
 //go:generate goderive
-package examples
+package tests
 
 // derive-set
 type Int = int
