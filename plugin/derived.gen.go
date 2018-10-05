@@ -233,6 +233,15 @@ func (set *PluginSet) DoWhile(f func(Plugin) bool) int {
 	return -1
 }
 
+func (set *PluginSet) DoUntilError(f func(Plugin) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (set *PluginSet) FindBy(f func(Plugin) bool) *Plugin {
 	for _, item := range set.elementSequence {
 		if f(item) {
@@ -495,6 +504,15 @@ func (set *ValueSet) DoWhile(f func(Value) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *ValueSet) DoUntilError(f func(Value) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (set *ValueSet) FindBy(f func(Value) bool) *Value {

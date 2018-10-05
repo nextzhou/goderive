@@ -194,6 +194,15 @@ func (set *IntSet) ContainsAll(keys ...Int) bool {
 	return true
 }
 
+func (set *IntSet) DoUntilError(f func(Int) error) error {
+	for item := range set.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (set *IntSet) FindBy(f func(Int) bool) *Int {
 	for item := range set.elements {
 		if f(item) {
@@ -447,6 +456,15 @@ func (set *intOrderSet) DoWhile(f func(Int2) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *intOrderSet) DoUntilError(f func(Int2) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (set *intOrderSet) FindBy(f func(Int2) bool) *Int2 {
@@ -733,6 +751,15 @@ func (set *Int3Set) DoWhile(f func(Int3) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *Int3Set) DoUntilError(f func(Int3) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (set *Int3Set) FindBy(f func(Int3) bool) *Int3 {

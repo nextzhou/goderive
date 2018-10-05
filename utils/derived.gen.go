@@ -234,6 +234,15 @@ func (set *StrSet) DoWhile(f func(Str) bool) int {
 	return -1
 }
 
+func (set *StrSet) DoUntilError(f func(Str) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 func (set *StrSet) FindBy(f func(Str) bool) *Str {
 	for _, item := range set.elementSequence {
 		if f(item) {
@@ -518,6 +527,15 @@ func (set *StrOrderSet) DoWhile(f func(Str2) bool) int {
 		}
 	}
 	return -1
+}
+
+func (set *StrOrderSet) DoUntilError(f func(Str2) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (set *StrOrderSet) FindBy(f func(Str2) bool) *Str2 {
