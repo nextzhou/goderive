@@ -36,7 +36,7 @@ Comment Format:
   type YourType struct{/* ... */}
 
 Usage:
-  goderive [flags] [path ...]
+  goderive [flags] [path ...] # where a '/...' suffix includes all sub-directories
   goderive help [plugin ...]
 
 Flags:

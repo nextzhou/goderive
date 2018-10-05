@@ -94,7 +94,7 @@ Comment Format:
   type YourType struct{/* ... */}
 
 Usage:
-  goderive [flags] [path ...]
+  goderive [flags] [path ...] # where a '/...' suffix includes all sub-directories
   goderive help [plugin ...]
 
 Flags:
@@ -114,8 +114,11 @@ Plugins:
 	return help.String()
 }
 
-func ListGoFiles(path string) ([]string, error) {
-	// TODO support ./...
+func ListGoFiles(path string, recursive bool) ([]string, error) {
+	if strings.HasSuffix(path, "/...") {
+		recursive = true
+		path = strings.TrimSuffix(path, "/...")
+	}
 	stat, err := os.Stat(path)
 	if err != nil {
 		return nil, err
@@ -127,7 +130,19 @@ func ListGoFiles(path string) ([]string, error) {
 			return nil, err
 		}
 		for _, entry := range dirInfo {
-			if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".go") {
+			// TODO more filter
+			if entry.Name()[0] == '.' {
+				continue
+			}
+			if entry.IsDir() {
+				if recursive {
+					subDirFiles, err := ListGoFiles(filepath.Join(path, entry.Name()), recursive)
+					if err != nil {
+						return nil, err
+					}
+					files = append(files, subDirFiles...)
+				}
+			} else if strings.HasSuffix(entry.Name(), ".go") {
 				files = append(files, filepath.Join(path, entry.Name()))
 			}
 		}
@@ -148,7 +163,7 @@ func (d *Derive) Run(inputPaths []string) error {
 	}
 	files := utils.NewStrSet(0)
 	for _, path := range inputPaths {
-		fs, err := ListGoFiles(path)
+		fs, err := ListGoFiles(path, false)
 		if err != nil {
 			return err
 		}
