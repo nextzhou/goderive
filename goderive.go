@@ -143,22 +143,21 @@ func ListGoFiles(path string) ([]string, error) {
 
 func (d *Derive) Run(inputPaths []string) error {
 	// scan go source file
-	// TODO uniq
 	if len(inputPaths) == 0 {
 		inputPaths = []string{"."}
 	}
-	var files []string
+	files := utils.NewStrSet(0)
 	for _, path := range inputPaths {
 		fs, err := ListGoFiles(path)
 		if err != nil {
 			return err
 		}
-		files = append(files, fs...)
+		files.Extend(fs...)
 	}
 
 	// extract type info, and group them by package(path)
 	groupFileInfoByPath := make(map[string]*FileInfo)
-	for _, file := range files {
+	err := files.DoUntilError(func(file string) error {
 		path, err := filepath.Abs(filepath.Dir(file))
 		if err != nil {
 			panic(err)
@@ -179,7 +178,7 @@ func (d *Derive) Run(inputPaths []string) error {
 			return fmt.Errorf("%s: %s", file, err.Error())
 		}
 		if fileInfo.PkgName == "" || len(fileInfo.Types) == 0 {
-			continue
+			return nil
 		}
 		for _, typ := range fileInfo.Types {
 			for pluginID, opts := range typ.Plugins {
@@ -193,6 +192,10 @@ func (d *Derive) Run(inputPaths []string) error {
 		}
 		fi.Types = append(fi.Types, fileInfo.Types...)
 		groupFileInfoByPath[path] = fi
+		return nil
+	})
+	if err != nil {
+		return err
 	}
 
 	var shouldDeletedFiles []string
