@@ -302,7 +302,6 @@ func (desc Description) ToHelpString() string {
 		}
 		w.Render()
 	}
-	// TODO
 	return help.String()
 }
 
