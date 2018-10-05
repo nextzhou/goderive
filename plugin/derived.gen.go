@@ -242,6 +242,24 @@ func (set *PluginSet) DoUntilError(f func(Plugin) error) error {
 	return nil
 }
 
+func (set *PluginSet) All(f func(Plugin) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *PluginSet) Any(f func(Plugin) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func (set *PluginSet) FindBy(f func(Plugin) bool) *Plugin {
 	for _, item := range set.elementSequence {
 		if f(item) {
@@ -513,6 +531,24 @@ func (set *ValueSet) DoUntilError(f func(Value) error) error {
 		}
 	}
 	return nil
+}
+
+func (set *ValueSet) All(f func(Value) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *ValueSet) Any(f func(Value) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (set *ValueSet) FindBy(f func(Value) bool) *Value {

@@ -203,6 +203,24 @@ func (set *IntSet) DoUntilError(f func(Int) error) error {
 	return nil
 }
 
+func (set *IntSet) All(f func(Int) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *IntSet) Any(f func(Int) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func (set *IntSet) FindBy(f func(Int) bool) *Int {
 	for item := range set.elements {
 		if f(item) {
@@ -465,6 +483,24 @@ func (set *intOrderSet) DoUntilError(f func(Int2) error) error {
 		}
 	}
 	return nil
+}
+
+func (set *intOrderSet) All(f func(Int2) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *intOrderSet) Any(f func(Int2) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (set *intOrderSet) FindBy(f func(Int2) bool) *Int2 {
@@ -760,6 +796,24 @@ func (set *Int3Set) DoUntilError(f func(Int3) error) error {
 		}
 	}
 	return nil
+}
+
+func (set *Int3Set) All(f func(Int3) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *Int3Set) Any(f func(Int3) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (set *Int3Set) FindBy(f func(Int3) bool) *Int3 {

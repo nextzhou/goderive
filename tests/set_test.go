@@ -57,6 +57,11 @@ func TestIntSet(t *testing.T) {
 			return i < 0
 		})
 		So(found, ShouldBeNil)
+
+		So(set.All(func(i Int) bool { return i >= 3 }), ShouldBeTrue)
+		So(set.All(func(i Int) bool { return i > 3 }), ShouldBeFalse)
+		So(set.Any(func(i Int) bool { return i%2 == 0 }), ShouldBeTrue)
+		So(set.Any(func(i Int) bool { return i%5 == 0 }), ShouldBeFalse)
 	})
 }
 
@@ -147,5 +152,10 @@ func TestKeyOrderIntSet(t *testing.T) {
 
 		descSet := NewDescendingInt3SetFromSlice(set.ToSlice())
 		So(descSet.String(), ShouldEqual, "[8 4 3 2 1]")
+
+		So(set.All(func(i int) bool { return i > 0 }), ShouldBeTrue)
+		So(set.All(func(i int) bool { return i > 3 }), ShouldBeFalse)
+		So(set.Any(func(i int) bool { return i > 3 }), ShouldBeTrue)
+		So(set.Any(func(i int) bool { return i > 9 }), ShouldBeFalse)
 	})
 }

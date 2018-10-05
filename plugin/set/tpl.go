@@ -361,6 +361,24 @@ func (set *{{ .SetName }}) DoUntilError(f func({{ .TypeName }}) error) error {
 	return nil
 }
 
+func (set *{{ .SetName }}) All(f func({{ .TypeName }}) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *{{ .SetName }}) Any(f func({{ .TypeName }}) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func (set *{{ .SetName }}) FindBy(f func({{ .TypeName }}) bool) *{{ .TypeName }} {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	for _, item := range set.elementSequence {

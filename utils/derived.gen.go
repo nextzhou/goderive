@@ -243,6 +243,24 @@ func (set *StrSet) DoUntilError(f func(Str) error) error {
 	return nil
 }
 
+func (set *StrSet) All(f func(Str) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *StrSet) Any(f func(Str) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func (set *StrSet) FindBy(f func(Str) bool) *Str {
 	for _, item := range set.elementSequence {
 		if f(item) {
@@ -536,6 +554,24 @@ func (set *StrOrderSet) DoUntilError(f func(Str2) error) error {
 		}
 	}
 	return nil
+}
+
+func (set *StrOrderSet) All(f func(Str2) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *StrOrderSet) Any(f func(Str2) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (set *StrOrderSet) FindBy(f func(Str2) bool) *Str2 {
