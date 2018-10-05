@@ -44,7 +44,12 @@ type Derive struct {
 	Err         error
 	Output      string
 	Delete      bool
+	ExcludeDirs []string
+	ExcludeExts []string
 	ShowVersion bool
+
+	excludeDirs *utils.StrSet
+	excludeExts *utils.StrSet
 }
 
 func NewDerive() *Derive {
@@ -60,12 +65,16 @@ func NewDerive() *Derive {
 			if len(args) > 0 && args[0] == "help" {
 				return derive.Help(args[1:])
 			}
+			derive.excludeDirs = utils.NewStrSetFromSlice(derive.ExcludeDirs)
+			derive.excludeExts = utils.NewStrSetFromSlice(derive.ExcludeExts)
 			return derive.Run(args)
 		},
 		SilenceUsage: true,
 	}
 	derive.Cmd.Flags().StringVarP(&derive.Output, "output", "o", "derived.gen.go", "output file name")
 	derive.Cmd.Flags().BoolVarP(&derive.Delete, "delete", "d", true, "delete existing generated file when no derived type")
+	derive.Cmd.Flags().StringSliceVarP(&derive.ExcludeDirs, "exclude-dir", "D", []string{"vendor"}, "exclude the given comma separated directories")
+	derive.Cmd.Flags().StringSliceVarP(&derive.ExcludeExts, "exclude-ext", "E", []string{".gen.go"}, "exclude the files having given file name ext")
 	derive.Cmd.Flags().BoolVarP(&derive.ShowVersion, "version", "v", false, "show version information")
 	return derive
 }
@@ -98,10 +107,12 @@ Usage:
   goderive help [plugin ...]
 
 Flags:
-  -d, --delete          delete existing generated file when no derived type (default true)
-  -h, --help            help for goderive
-  -o, --output string   output file name (default "derived.gen.go")
-  -v, --version         show version information
+  -d, --delete                delete existing generated file when no derived type (default true)
+  -D, --exclude-dir strings   exclude the given comma separated directories (default [vendor])
+  -E, --exclude-ext strings   exclude the files having given file name ext (default [.gen.go])
+  -h, --help                  help for goderive
+  -o, --output string         output file name (default "derived.gen.go")
+  -v, --version               show version information
 
 Plugins:
 `)
@@ -114,7 +125,7 @@ Plugins:
 	return help.String()
 }
 
-func ListGoFiles(path string, recursive bool) ([]string, error) {
+func (d *Derive) ListGoFiles(path string, recursive bool) ([]string, error) {
 	if strings.HasSuffix(path, "/...") {
 		recursive = true
 		path = strings.TrimSuffix(path, "/...")
@@ -130,13 +141,12 @@ func ListGoFiles(path string, recursive bool) ([]string, error) {
 			return nil, err
 		}
 		for _, entry := range dirInfo {
-			// TODO more filter
-			if entry.Name()[0] == '.' {
+			if d.ExcludePath(entry.Name(), entry.IsDir()) {
 				continue
 			}
 			if entry.IsDir() {
 				if recursive {
-					subDirFiles, err := ListGoFiles(filepath.Join(path, entry.Name()), recursive)
+					subDirFiles, err := d.ListGoFiles(filepath.Join(path, entry.Name()), recursive)
 					if err != nil {
 						return nil, err
 					}
@@ -156,6 +166,18 @@ func ListGoFiles(path string, recursive bool) ([]string, error) {
 	return files, nil
 }
 
+func (d *Derive) ExcludePath(name string, isDir bool) bool {
+	// skip ".", ".." and hidden file/dir
+	if name[0] == '.' {
+		return true
+	}
+	if isDir {
+		return d.excludeDirs.Any(func(dir string) bool { return name == dir })
+	} else {
+		return d.excludeExts.Any(func(ext string) bool { return strings.HasSuffix(name, ext) })
+	}
+}
+
 func (d *Derive) Run(inputPaths []string) error {
 	// scan go source file
 	if len(inputPaths) == 0 {
@@ -163,7 +185,7 @@ func (d *Derive) Run(inputPaths []string) error {
 	}
 	files := utils.NewStrSet(0)
 	for _, path := range inputPaths {
-		fs, err := ListGoFiles(path, false)
+		fs, err := d.ListGoFiles(path, false)
 		if err != nil {
 			return err
 		}
