@@ -23,8 +23,8 @@ func TestParseOptions(t *testing.T) {
 			s = "  \t  flag1    ;  \t flag2 \t\n; key  = val1 , val2\n"
 			opts, err = ParseOptions(s)
 			So(err, ShouldBeNil)
-			So(opts.Flags["flag1"], ShouldBeTrue)
-			So(opts.Flags["flag2"], ShouldBeTrue)
+			So(opts.Flags["flag1"], ShouldEqual, utils.TriBoolTrue)
+			So(opts.Flags["flag2"], ShouldEqual, utils.TriBoolTrue)
 			So(opts.Args["key"].Values, ShouldContain, Value("val1"))
 			So(opts.Args["key"].Values, ShouldContain, Value("val2"))
 		})
@@ -34,6 +34,9 @@ func TestParseOptions(t *testing.T) {
 			So(err, ShouldBeNil)
 			So(opts.ExistingOption["flag"], ShouldEqual, OptionTypeFlag)
 			So(opts.WithFlag("flag"), ShouldBeFalse)
+			So(opts.WithNegativeFlag("flag"), ShouldBeTrue)
+			So(opts.WithFlag("NotExistedFlag"), ShouldBeFalse)
+			So(opts.WithNegativeFlag("NotExistedFlag"), ShouldBeFalse)
 
 			s = "flag!"
 			_, err = ParseOptions(s)

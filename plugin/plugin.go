@@ -39,20 +39,20 @@ func (ot OptionType) IsIdent() bool {
 // TODO arg with default value as flag
 type Options struct {
 	// TODO keep order
-	Flags          map[Flag]bool
+	Flags          map[Flag]utils.TriBool
 	Args           map[string]Arg
 	ExistingOption map[string]OptionType
 }
 
 func NewOptions() *Options {
 	return &Options{
-		Flags:          make(map[Flag]bool),
+		Flags:          make(map[Flag]utils.TriBool),
 		Args:           make(map[string]Arg),
 		ExistingOption: make(map[string]OptionType),
 	}
 }
 
-func (opts *Options) SetFlag(flag string, val bool) {
+func (opts *Options) SetFlag(flag string, val utils.TriBool) {
 	opts.Flags[Flag(flag)] = val
 	opts.ExistingOption[flag] = OptionTypeFlag
 }
@@ -94,7 +94,7 @@ func ParseOptions(optsStr string) (*Options, error) {
 			if err := ret.ValidateOption(OptionTypeFlag, opt); err != nil {
 				return nil, err
 			}
-			ret.SetFlag(opt, flagVal)
+			ret.SetFlag(opt, utils.BoolToTri(flagVal))
 			continue
 		}
 		// arg
@@ -183,8 +183,16 @@ func (arg Arg) MustGetSingleValue() Value {
 	return arg.Values[0]
 }
 
-func (opts Options) WithFlag(flag Flag) bool {
+func (opts Options) GetFlag(flag Flag) utils.TriBool {
 	return opts.Flags[flag]
+}
+
+func (opts Options) WithFlag(flag Flag) bool {
+	return opts.Flags[flag].IsTrue()
+}
+
+func (opts Options) WithNegativeFlag(flag Flag) bool {
+	return opts.Flags[flag].IsFalse()
 }
 
 func (opts Options) MustGetValue(key string) Value {
@@ -234,9 +242,9 @@ type Description struct {
 }
 
 type FlagDescription struct {
-	Key       string
-	IsDefault bool
-	Effect    string
+	Key     string
+	Default utils.TriBool
+	Effect  string
 }
 
 type ArgDescription struct {
@@ -259,7 +267,7 @@ func (desc Description) ToHelpString() string {
 		w := utils.NewTableWriter(help)
 		help.WriteString("Flags:\n")
 		for _, flag := range desc.ValidFlags {
-			if flag.IsDefault {
+			if flag.Default.IsTrue() {
 				w.Append([]string{flag.Key, flag.Effect + "(default true)"})
 			} else {
 				w.Append([]string{flag.Key, flag.Effect})
@@ -324,7 +332,7 @@ func (desc Description) validateFlags(opts *Options) error {
 		delete(uncheckedFlags, flag.Key)
 		// set default value
 		if _, ok := opts.Flags[Flag(flag.Key)]; !ok {
-			opts.Flags[Flag(flag.Key)] = flag.IsDefault
+			opts.Flags[Flag(flag.Key)] = flag.Default
 		}
 	}
 
