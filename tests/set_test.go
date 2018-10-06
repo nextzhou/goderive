@@ -67,7 +67,7 @@ func TestIntSet(t *testing.T) {
 
 func TestAppendOrderIntSet(t *testing.T) {
 	Convey("int append set", t, func() {
-		set := NewIntOrderSetFromSlice([]int{1, 2, 3})
+		set := newIntOrderSetFromSlice([]int{1, 2, 3})
 		So(set.Contains(1), ShouldBeTrue)
 		So(set.Contains(2), ShouldBeTrue)
 		So(set.Contains(3), ShouldBeTrue)

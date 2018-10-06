@@ -20,9 +20,9 @@ type {{ .SetName }} struct {
 }
 
 {{ if eq .Order "Key" -}}
-func New{{ .CapitalizeSetName }}(capacity int, cmp func(i, j {{ .TypeName }}) bool) *{{ .SetName }} {
+func {{ .New }}{{ .CapitalizeSetName }}(capacity int, cmp func(i, j {{ .TypeName }}) bool) *{{ .SetName }} {
 {{- else -}}
-func New{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
+func {{ .New }}{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
 {{- end }}
 	set := new({{ .SetName }})
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
@@ -46,11 +46,11 @@ func New{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
 }
 
 {{ if eq .Order "Key" -}}
-func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}, cmp func(i, j {{ .TypeName }}) bool) *{{ .SetName }} {
-	set := New{{ .CapitalizeSetName }}(len(items), cmp)
+func {{ .New }}{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}, cmp func(i, j {{ .TypeName }}) bool) *{{ .SetName }} {
+	set := {{ .New }}{{ .CapitalizeSetName }}(len(items), cmp)
 {{- else -}}
-func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
-	set := New{{ .CapitalizeSetName }}(len(items))
+func {{ .New }}{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
+	set := {{ .New }}{{ .CapitalizeSetName }}(len(items))
 {{- end }}
 	for _, item := range items {
 		set.Put(item)
@@ -59,20 +59,20 @@ func New{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName 
 }
 {{- if and (eq .Order "Key") .IsComparable }}
 
-func NewAscending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
-	return New{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i < j })
+func {{ .New }}Ascending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
+	return {{ .New }}{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i < j })
 }
 
-func NewDescending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
-	return New{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i > j })
+func {{ .New }}Descending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
+	return {{ .New }}{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i > j })
 }
 
-func NewAscending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
-	return New{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i < j })
+func {{ .New }}Ascending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
+	return {{ .New }}{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i < j })
 }
 
-func NewDescending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
-	return New{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i > j })
+func {{ .New }}Descending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .SetName }} {
+	return {{ .New }}{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i > j })
 }
 {{- end }}
 
@@ -155,9 +155,9 @@ func (set *{{ .SetName }}) Clear() {
 
 func (set *{{ .SetName }}) Clone() *{{ .SetName }} {
 	{{ if eq .Order "Key" -}}
-	cloned := New{{ .CapitalizeSetName }}(set.Len(), set.cmp)
+	cloned := {{ .New }}{{ .CapitalizeSetName }}(set.Len(), set.cmp)
 	{{- else -}}
-	cloned := New{{ .CapitalizeSetName }}(set.Len())
+	cloned := {{ .New }}{{ .CapitalizeSetName }}(set.Len())
 	{{- end }}
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	for idx, item := range set.elementSequence {
@@ -174,9 +174,9 @@ func (set *{{ .SetName }}) Clone() *{{ .SetName }} {
 
 func (set *{{ .SetName }}) Difference(another *{{ .SetName }}) *{{ .SetName }} {
 	{{ if eq .Order "Key" -}}
-	difference := New{{ .CapitalizeSetName }}(0, set.cmp)
+	difference := {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
 	{{- else -}}
-	difference := New{{ .CapitalizeSetName }}(0)
+	difference := {{ .New }}{{ .CapitalizeSetName }}(0)
 	{{- end }}
 	set.ForEach(func(item {{ .TypeName }}) {
 		if !another.Contains(item) {
@@ -203,9 +203,9 @@ func (set *{{ .SetName }}) Equal(another *{{ .SetName }}) bool {
 {{ end -}}
 func (set *{{ .SetName }}) Intersect(another *{{ .SetName }}) *{{ .SetName }} {
 	{{ if eq .Order "Key" -}}
-	intersection := New{{ .CapitalizeSetName }}(0, set.cmp)
+	intersection := {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
 	{{- else -}}
-	intersection := New{{ .CapitalizeSetName }}(0)
+	intersection := {{ .New }}{{ .CapitalizeSetName }}(0)
 	{{- end }}
 	if set.Len() < another.Len() {
 		for item := range set.elements {
@@ -276,9 +276,9 @@ func (set *{{ .SetName }}) ForEach(f func({{ .TypeName }})) {
 
 func (set *{{ .SetName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SetName }} {
 	{{ if eq .Order "Key" -}}
-	result := New{{ .CapitalizeSetName }}(0, set.cmp)
+	result := {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
 	{{- else -}}
-	result := New{{ .CapitalizeSetName }}(0)
+	result := {{ .New }}{{ .CapitalizeSetName }}(0)
 	{{- end }}
 	set.ForEach(func(item {{ .TypeName }}) {
 		if f(item) {
@@ -424,7 +424,7 @@ func (set *{{ .SetName }}) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	*set = *New{{ .CapitalizeSetName }}FromSlice(s)
+	*set = *{{ .New }}{{ .CapitalizeSetName }}FromSlice(s)
 	return nil
 	{{- end }}
 }
@@ -438,15 +438,9 @@ type TemplateArgs struct {
 	CapitalizeSetName string
 	Order             string
 	IsComparable      bool
+	New               string
 }
 
 func (ta TemplateArgs) GenerateTo(w io.Writer) error {
 	return tpl.Execute(w, ta)
 }
-
-/*
-
-	{{ if eq .Order "Append" -}}
-	{{- else -}}
-	{{- end }}
-*/

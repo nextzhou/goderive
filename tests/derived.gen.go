@@ -255,7 +255,7 @@ type intOrderSet struct {
 	elementSequence []Int2
 }
 
-func NewIntOrderSet(capacity int) *intOrderSet {
+func newIntOrderSet(capacity int) *intOrderSet {
 	set := new(intOrderSet)
 	if capacity > 0 {
 		set.elements = make(map[Int2]uint32, capacity)
@@ -266,8 +266,8 @@ func NewIntOrderSet(capacity int) *intOrderSet {
 	return set
 }
 
-func NewIntOrderSetFromSlice(items []Int2) *intOrderSet {
-	set := NewIntOrderSet(len(items))
+func newIntOrderSetFromSlice(items []Int2) *intOrderSet {
+	set := newIntOrderSet(len(items))
 	for _, item := range items {
 		set.Put(item)
 	}
@@ -320,7 +320,7 @@ func (set *intOrderSet) Clear() {
 }
 
 func (set *intOrderSet) Clone() *intOrderSet {
-	cloned := NewIntOrderSet(set.Len())
+	cloned := newIntOrderSet(set.Len())
 	for idx, item := range set.elementSequence {
 		cloned.elements[item] = uint32(idx)
 		cloned.elementSequence = append(cloned.elementSequence, item)
@@ -329,7 +329,7 @@ func (set *intOrderSet) Clone() *intOrderSet {
 }
 
 func (set *intOrderSet) Difference(another *intOrderSet) *intOrderSet {
-	difference := NewIntOrderSet(0)
+	difference := newIntOrderSet(0)
 	set.ForEach(func(item Int2) {
 		if !another.Contains(item) {
 			difference.Put(item)
@@ -352,7 +352,7 @@ func (set *intOrderSet) Equal(another *intOrderSet) bool {
 
 // TODO keep order
 func (set *intOrderSet) Intersect(another *intOrderSet) *intOrderSet {
-	intersection := NewIntOrderSet(0)
+	intersection := newIntOrderSet(0)
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
@@ -415,7 +415,7 @@ func (set *intOrderSet) ForEach(f func(Int2)) {
 }
 
 func (set *intOrderSet) Filter(f func(Int2) bool) *intOrderSet {
-	result := NewIntOrderSet(0)
+	result := newIntOrderSet(0)
 	set.ForEach(func(item Int2) {
 		if f(item) {
 			result.Put(item)
@@ -537,7 +537,7 @@ func (set *intOrderSet) UnmarshalJSON(b []byte) error {
 	if err != nil {
 		return err
 	}
-	*set = *NewIntOrderSetFromSlice(s)
+	*set = *newIntOrderSetFromSlice(s)
 	return nil
 }
 

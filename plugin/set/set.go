@@ -37,9 +37,14 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 	arg.SetName = typeInfo.Name + "Set"
 	if val := opt.GetValue("Rename"); !val.IsNil() {
 		if !utils.ValidateIdentName(val.Str()) {
-			return pre, &utils.InvalidIdentError{Type: "rename", Ident: val.Str()}
+			return pre, &utils.InvalidIdentError{Type: "Rename", Ident: val.Str()}
 		}
 		arg.SetName = val.Str()
+	}
+	if utils.IsExported(arg.SetName) {
+		arg.New = "New"
+	} else {
+		arg.New = "new"
 	}
 	arg.Order = string(opt.MustGetValue("Order"))
 	if arg.Order == KeyOrder.Str() {
