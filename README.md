@@ -59,6 +59,9 @@ Plugin: set
 
 set collection
 
+Flags:
+  Export         force the generated code to be exported/unexported
+
 Args:
   Rename         single value                            assign set type name manually
   Order          single value    [Unstable Append Key]   keep order(default: Unstable)
