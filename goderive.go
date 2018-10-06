@@ -245,6 +245,7 @@ func (d *Derive) Run(inputPaths []string) error {
 			continue
 		}
 		headBuf := bytes.NewBuffer(nil)
+		headBuf.WriteString(utils.HeaderComment)
 		headBuf.WriteString(fmt.Sprintf("package %s\n\n", fileInfo.PkgName))
 		imports := utils.NewAscendingStrOrderSet(0)
 		bodyBuf := bytes.NewBuffer(nil)
