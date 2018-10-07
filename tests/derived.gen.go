@@ -286,9 +286,7 @@ func (set *intOrderSet) ToSlice() []Int2 {
 		return nil
 	}
 	s := make([]Int2, set.Len())
-	for idx, item := range set.elementSequence {
-		s[idx] = item
-	}
+	copy(s, set.elementSequence)
 	return s
 }
 
@@ -590,11 +588,14 @@ func (set *Int3Set) ToSlice() []Int3 {
 	if set == nil {
 		return nil
 	}
-	s := make([]Int3, 0, set.Len())
-	set.ForEach(func(item Int3) {
-		s = append(s, item)
-	})
+	s := make([]Int3, set.Len())
+	copy(s, set.elementSequence)
 	return s
+}
+
+// NOTICE: efficient but unsafe
+func (set *Int3Set) ToSliceRef() []Int3 {
+	return set.elementSequence
 }
 
 func (set *Int3Set) Append(keys ...Int3) {

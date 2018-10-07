@@ -91,11 +91,9 @@ func (set *{{ .SetName }}) ToSlice() []{{ .TypeName }} {
 	if set == nil {
 		return nil
 	}
-	{{ if eq .Order "Append" -}}
+	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	s := make([]{{ .TypeName }}, set.Len())
-	for idx, item := range set.elementSequence {
-		s[idx] = item
-	}
+	copy(s, set.elementSequence)
 	{{- else -}}
 	s := make([]{{ .TypeName }}, 0, set.Len())
 	set.ForEach(func(item {{.TypeName}}) {
@@ -104,7 +102,7 @@ func (set *{{ .SetName }}) ToSlice() []{{ .TypeName }} {
 	{{- end }}
 	return s
 }
-{{- if eq .Order "Append" }}
+{{- if or (eq .Order "Append") (eq .Order "Key") }}
 
 // NOTICE: efficient but unsafe
 func (set *{{ .SetName }}) ToSliceRef() []{{ .TypeName }} {

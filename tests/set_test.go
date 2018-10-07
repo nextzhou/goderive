@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -123,6 +124,8 @@ func TestAppendOrderIntSet(t *testing.T) {
 		So(*found, ShouldEqual, 4)
 		*found = 6
 		So(set.String(), ShouldEqual, `[3 7 4 5]`)
+		So(fmt.Sprint(set.ToSlice()), ShouldEqual, `[3 7 4 5]`)
+		So(fmt.Sprint(set.ToSliceRef()), ShouldEqual, `[3 7 4 5]`)
 
 		found = set.FindLastBy(func(i Int2) bool {
 			return i < 5
@@ -142,6 +145,8 @@ func TestKeyOrderIntSet(t *testing.T) {
 		set.Append([]int{3, 8, 1, 5, 3, 5, 4}...)
 		So(set.Len(), ShouldEqual, 5)
 		So(set.String(), ShouldEqual, "[1 3 4 5 8]")
+		So(fmt.Sprint(set.ToSlice()), ShouldEqual, "[1 3 4 5 8]")
+		So(fmt.Sprint(set.ToSliceRef()), ShouldEqual, "[1 3 4 5 8]")
 		set.Remove(5)
 		So(set.Len(), ShouldEqual, 4)
 		So(set.String(), ShouldEqual, "[1 3 4 8]")

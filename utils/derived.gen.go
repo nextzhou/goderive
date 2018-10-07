@@ -48,9 +48,7 @@ func (set *StrSet) ToSlice() []Str {
 		return nil
 	}
 	s := make([]Str, set.Len())
-	for idx, item := range set.elementSequence {
-		s[idx] = item
-	}
+	copy(s, set.elementSequence)
 	return s
 }
 
@@ -352,11 +350,14 @@ func (set *StrOrderSet) ToSlice() []Str2 {
 	if set == nil {
 		return nil
 	}
-	s := make([]Str2, 0, set.Len())
-	set.ForEach(func(item Str2) {
-		s = append(s, item)
-	})
+	s := make([]Str2, set.Len())
+	copy(s, set.elementSequence)
 	return s
+}
+
+// NOTICE: efficient but unsafe
+func (set *StrOrderSet) ToSliceRef() []Str2 {
+	return set.elementSequence
 }
 
 func (set *StrOrderSet) Append(keys ...Str2) {

@@ -47,9 +47,7 @@ func (set *PluginSet) ToSlice() []Plugin {
 		return nil
 	}
 	s := make([]Plugin, set.Len())
-	for idx, item := range set.elementSequence {
-		s[idx] = item
-	}
+	copy(s, set.elementSequence)
 	return s
 }
 
@@ -334,9 +332,7 @@ func (set *ValueSet) ToSlice() []Value {
 		return nil
 	}
 	s := make([]Value, set.Len())
-	for idx, item := range set.elementSequence {
-		s[idx] = item
-	}
+	copy(s, set.elementSequence)
 	return s
 }
 
