@@ -53,7 +53,7 @@ func {{ .New }}{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .S
 	set := {{ .New }}{{ .CapitalizeSetName }}(len(items))
 {{- end }}
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
 }
@@ -75,12 +75,6 @@ func {{ .New }}Descending{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName 
 	return {{ .New }}{{ .CapitalizeSetName }}FromSlice(items, func(i, j {{ .TypeName }}) bool { return i > j })
 }
 {{- end }}
-
-func (set *{{ .SetName }}) Extend(items ...{{ .TypeName }}) {
-	for _, item := range items {
-		set.Put(item)
-	}
-}
 
 func (set *{{ .SetName }}) Len() int {
 	if set == nil {
@@ -118,30 +112,32 @@ func (set *{{ .SetName }}) ToSliceRef() []{{ .TypeName }} {
 }
 {{- end }}
 
-func (set *{{ .SetName }}) Put(key {{ .TypeName }}) {
-	{{ if eq .Order "Append" -}}
-	if _, ok := set.elements[key]; !ok {
-		set.elements[key] = uint32(len(set.elementSequence))
-		set.elementSequence = append(set.elementSequence, key)
-	}
-	{{- else if eq .Order "Key" -}}
-	if _, ok := set.elements[key]; !ok {
-		idx := sort.Search(len(set.elementSequence), func(i int) bool {
-			return set.cmp(key, set.elementSequence[i])
-		})
-		l := len(set.elementSequence)
-		set.elementSequence = append(set.elementSequence, key)
-		for i := l; i > idx; i-- {
-			set.elements[set.elementSequence[i]] = uint32(i + 1)
-			set.elementSequence[i] = set.elementSequence[i-1]
+func (set *{{ .SetName }}) Append(keys ...{{ .TypeName }}) {
+	for _, key := range keys {
+		{{ if eq .Order "Append" -}}
+		if _, ok := set.elements[key]; !ok {
+			set.elements[key] = uint32(len(set.elementSequence))
+			set.elementSequence = append(set.elementSequence, key)
 		}
-		set.elements[set.elementSequence[idx]] = uint32(idx + 1)
-		set.elementSequence[idx] = key
-		set.elements[key] = uint32(idx)
+		{{- else if eq .Order "Key" -}}
+		if _, ok := set.elements[key]; !ok {
+			idx := sort.Search(len(set.elementSequence), func(i int) bool {
+				return set.cmp(key, set.elementSequence[i])
+			})
+			l := len(set.elementSequence)
+			set.elementSequence = append(set.elementSequence, key)
+			for i := l; i > idx; i-- {
+				set.elements[set.elementSequence[i]] = uint32(i + 1)
+				set.elementSequence[i] = set.elementSequence[i-1]
+			}
+			set.elements[set.elementSequence[idx]] = uint32(idx + 1)
+			set.elementSequence[idx] = key
+			set.elements[key] = uint32(idx)
+		}
+		{{- else -}}
+		set.elements[key] = struct{}{}
+		{{- end }}
 	}
-	{{- else -}}
-	set.elements[key] = struct{}{}
-	{{- end }}
 }
 
 func (set *{{ .SetName }}) Clear() {
@@ -180,7 +176,7 @@ func (set *{{ .SetName }}) Difference(another *{{ .SetName }}) *{{ .SetName }} {
 	{{- end }}
 	set.ForEach(func(item {{ .TypeName }}) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -210,13 +206,13 @@ func (set *{{ .SetName }}) Intersect(another *{{ .SetName }}) *{{ .SetName }} {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -231,7 +227,7 @@ func (set *{{ .SetName }}) Union(another *{{ .SetName }}) *{{ .SetName }} {
 
 func (set *{{ .SetName }}) InPlaceUnion(another *{{ .SetName }}) {
 	another.ForEach(func(item {{ .TypeName }}) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -282,7 +278,7 @@ func (set *{{ .SetName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SetName }} 
 	{{- end }}
 	set.ForEach(func(item {{ .TypeName }}) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result

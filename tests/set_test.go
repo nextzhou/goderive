@@ -26,7 +26,7 @@ func TestIntSet(t *testing.T) {
 		So(set.Len(), ShouldEqual, 2)
 		So(set.IsEmpty(), ShouldBeFalse)
 
-		set.Put(4)
+		set.Append(4)
 		So(set.Len(), ShouldEqual, 3)
 		So(set.Contains(4), ShouldBeTrue)
 
@@ -86,14 +86,14 @@ func TestAppendOrderIntSet(t *testing.T) {
 		So(set.Len(), ShouldEqual, 2)
 		So(set.IsEmpty(), ShouldBeFalse)
 
-		set.Put(4)
+		set.Append(4)
 		So(set.Len(), ShouldEqual, 3)
 		So(set.Contains(4), ShouldBeTrue)
 		So(set.String(), ShouldEqual, "[2 3 4]")
 
-		set.Put(3)
+		set.Append(3)
 		So(set.String(), ShouldEqual, "[2 3 4]")
-		set.Put(1)
+		set.Append(1)
 		So(set.String(), ShouldEqual, "[2 3 4 1]")
 
 		even := set.Filter(func(i Int) bool { return i%2 == 0 })
@@ -139,13 +139,13 @@ func TestAppendOrderIntSet(t *testing.T) {
 func TestKeyOrderIntSet(t *testing.T) {
 	Convey("int key order set", t, func() {
 		set := NewAscendingInt3Set(0)
-		set.Extend([]int{3, 8, 1, 5, 3, 5, 4}...)
+		set.Append([]int{3, 8, 1, 5, 3, 5, 4}...)
 		So(set.Len(), ShouldEqual, 5)
 		So(set.String(), ShouldEqual, "[1 3 4 5 8]")
 		set.Remove(5)
 		So(set.Len(), ShouldEqual, 4)
 		So(set.String(), ShouldEqual, "[1 3 4 8]")
-		set.Put(2)
+		set.Append(2)
 		So(set.String(), ShouldEqual, "[1 2 3 4 8]")
 		union := set.Union(NewInt3SetFromSlice([]int{2, 4, 6, 8, 10}, func(i, j Int3) bool { return i < j }))
 		So(union.String(), ShouldEqual, "[1 2 3 4 6 8 10]")

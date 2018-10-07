@@ -25,15 +25,9 @@ func NewIntSet(capacity int) *IntSet {
 func NewIntSetFromSlice(items []Int) *IntSet {
 	set := NewIntSet(len(items))
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
-}
-
-func (set *IntSet) Extend(items ...Int) {
-	for _, item := range items {
-		set.Put(item)
-	}
 }
 
 func (set *IntSet) Len() int {
@@ -58,8 +52,10 @@ func (set *IntSet) ToSlice() []Int {
 	return s
 }
 
-func (set *IntSet) Put(key Int) {
-	set.elements[key] = struct{}{}
+func (set *IntSet) Append(keys ...Int) {
+	for _, key := range keys {
+		set.elements[key] = struct{}{}
+	}
 }
 
 func (set *IntSet) Clear() {
@@ -78,7 +74,7 @@ func (set *IntSet) Difference(another *IntSet) *IntSet {
 	difference := NewIntSet(0)
 	set.ForEach(func(item Int) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -101,13 +97,13 @@ func (set *IntSet) Intersect(another *IntSet) *IntSet {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -122,7 +118,7 @@ func (set *IntSet) Union(another *IntSet) *IntSet {
 
 func (set *IntSet) InPlaceUnion(another *IntSet) {
 	another.ForEach(func(item Int) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -163,7 +159,7 @@ func (set *IntSet) Filter(f func(Int) bool) *IntSet {
 	result := NewIntSet(0)
 	set.ForEach(func(item Int) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result
@@ -269,15 +265,9 @@ func newIntOrderSet(capacity int) *intOrderSet {
 func newIntOrderSetFromSlice(items []Int2) *intOrderSet {
 	set := newIntOrderSet(len(items))
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
-}
-
-func (set *intOrderSet) Extend(items ...Int2) {
-	for _, item := range items {
-		set.Put(item)
-	}
 }
 
 func (set *intOrderSet) Len() int {
@@ -307,10 +297,12 @@ func (set *intOrderSet) ToSliceRef() []Int2 {
 	return set.elementSequence
 }
 
-func (set *intOrderSet) Put(key Int2) {
-	if _, ok := set.elements[key]; !ok {
-		set.elements[key] = uint32(len(set.elementSequence))
-		set.elementSequence = append(set.elementSequence, key)
+func (set *intOrderSet) Append(keys ...Int2) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			set.elements[key] = uint32(len(set.elementSequence))
+			set.elementSequence = append(set.elementSequence, key)
+		}
 	}
 }
 
@@ -332,7 +324,7 @@ func (set *intOrderSet) Difference(another *intOrderSet) *intOrderSet {
 	difference := newIntOrderSet(0)
 	set.ForEach(func(item Int2) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -356,13 +348,13 @@ func (set *intOrderSet) Intersect(another *intOrderSet) *intOrderSet {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -377,7 +369,7 @@ func (set *intOrderSet) Union(another *intOrderSet) *intOrderSet {
 
 func (set *intOrderSet) InPlaceUnion(another *intOrderSet) {
 	another.ForEach(func(item Int2) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -418,7 +410,7 @@ func (set *intOrderSet) Filter(f func(Int2) bool) *intOrderSet {
 	result := newIntOrderSet(0)
 	set.ForEach(func(item Int2) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result
@@ -562,7 +554,7 @@ func NewInt3Set(capacity int, cmp func(i, j Int3) bool) *Int3Set {
 func NewInt3SetFromSlice(items []Int3, cmp func(i, j Int3) bool) *Int3Set {
 	set := NewInt3Set(len(items), cmp)
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
 }
@@ -581,12 +573,6 @@ func NewAscendingInt3SetFromSlice(items []Int3) *Int3Set {
 
 func NewDescendingInt3SetFromSlice(items []Int3) *Int3Set {
 	return NewInt3SetFromSlice(items, func(i, j Int3) bool { return i > j })
-}
-
-func (set *Int3Set) Extend(items ...Int3) {
-	for _, item := range items {
-		set.Put(item)
-	}
 }
 
 func (set *Int3Set) Len() int {
@@ -611,20 +597,22 @@ func (set *Int3Set) ToSlice() []Int3 {
 	return s
 }
 
-func (set *Int3Set) Put(key Int3) {
-	if _, ok := set.elements[key]; !ok {
-		idx := sort.Search(len(set.elementSequence), func(i int) bool {
-			return set.cmp(key, set.elementSequence[i])
-		})
-		l := len(set.elementSequence)
-		set.elementSequence = append(set.elementSequence, key)
-		for i := l; i > idx; i-- {
-			set.elements[set.elementSequence[i]] = uint32(i + 1)
-			set.elementSequence[i] = set.elementSequence[i-1]
+func (set *Int3Set) Append(keys ...Int3) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			idx := sort.Search(len(set.elementSequence), func(i int) bool {
+				return set.cmp(key, set.elementSequence[i])
+			})
+			l := len(set.elementSequence)
+			set.elementSequence = append(set.elementSequence, key)
+			for i := l; i > idx; i-- {
+				set.elements[set.elementSequence[i]] = uint32(i + 1)
+				set.elementSequence[i] = set.elementSequence[i-1]
+			}
+			set.elements[set.elementSequence[idx]] = uint32(idx + 1)
+			set.elementSequence[idx] = key
+			set.elements[key] = uint32(idx)
 		}
-		set.elements[set.elementSequence[idx]] = uint32(idx + 1)
-		set.elementSequence[idx] = key
-		set.elements[key] = uint32(idx)
 	}
 }
 
@@ -646,7 +634,7 @@ func (set *Int3Set) Difference(another *Int3Set) *Int3Set {
 	difference := NewInt3Set(0, set.cmp)
 	set.ForEach(func(item Int3) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -669,13 +657,13 @@ func (set *Int3Set) Intersect(another *Int3Set) *Int3Set {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -690,7 +678,7 @@ func (set *Int3Set) Union(another *Int3Set) *Int3Set {
 
 func (set *Int3Set) InPlaceUnion(another *Int3Set) {
 	another.ForEach(func(item Int3) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -731,7 +719,7 @@ func (set *Int3Set) Filter(f func(Int3) bool) *Int3Set {
 	result := NewInt3Set(0, set.cmp)
 	set.ForEach(func(item Int3) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result

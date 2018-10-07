@@ -80,7 +80,7 @@ func NewDerive() *Derive {
 }
 
 func (d *Derive) RegisterPlugin(plugins ...plugin.Plugin) {
-	d.Plugins.Extend(plugins...)
+	d.Plugins.Append(plugins...)
 }
 
 func (d *Derive) Execute() error {
@@ -189,7 +189,7 @@ func (d *Derive) Run(inputPaths []string) error {
 		if err != nil {
 			return err
 		}
-		files.Extend(fs...)
+		files.Append(fs...)
 	}
 
 	// extract type info, and group them by package(path)
@@ -258,7 +258,7 @@ func (d *Derive) Run(inputPaths []string) error {
 					// TODO log file path of type
 					return fmt.Errorf("failed to generate code of type %s: %v", typ.Name, err)
 				}
-				imports.Extend(prerequisites.Imports...)
+				imports.Append(prerequisites.Imports...)
 			}
 		}
 		// TODO write file after all generating

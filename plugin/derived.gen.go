@@ -26,15 +26,9 @@ func NewPluginSet(capacity int) *PluginSet {
 func NewPluginSetFromSlice(items []Plugin) *PluginSet {
 	set := NewPluginSet(len(items))
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
-}
-
-func (set *PluginSet) Extend(items ...Plugin) {
-	for _, item := range items {
-		set.Put(item)
-	}
 }
 
 func (set *PluginSet) Len() int {
@@ -64,10 +58,12 @@ func (set *PluginSet) ToSliceRef() []Plugin {
 	return set.elementSequence
 }
 
-func (set *PluginSet) Put(key Plugin) {
-	if _, ok := set.elements[key]; !ok {
-		set.elements[key] = uint32(len(set.elementSequence))
-		set.elementSequence = append(set.elementSequence, key)
+func (set *PluginSet) Append(keys ...Plugin) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			set.elements[key] = uint32(len(set.elementSequence))
+			set.elementSequence = append(set.elementSequence, key)
+		}
 	}
 }
 
@@ -89,7 +85,7 @@ func (set *PluginSet) Difference(another *PluginSet) *PluginSet {
 	difference := NewPluginSet(0)
 	set.ForEach(func(item Plugin) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -113,13 +109,13 @@ func (set *PluginSet) Intersect(another *PluginSet) *PluginSet {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -134,7 +130,7 @@ func (set *PluginSet) Union(another *PluginSet) *PluginSet {
 
 func (set *PluginSet) InPlaceUnion(another *PluginSet) {
 	another.ForEach(func(item Plugin) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -175,7 +171,7 @@ func (set *PluginSet) Filter(f func(Plugin) bool) *PluginSet {
 	result := NewPluginSet(0)
 	set.ForEach(func(item Plugin) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result
@@ -317,15 +313,9 @@ func NewValueSet(capacity int) *ValueSet {
 func NewValueSetFromSlice(items []Value) *ValueSet {
 	set := NewValueSet(len(items))
 	for _, item := range items {
-		set.Put(item)
+		set.Append(item)
 	}
 	return set
-}
-
-func (set *ValueSet) Extend(items ...Value) {
-	for _, item := range items {
-		set.Put(item)
-	}
 }
 
 func (set *ValueSet) Len() int {
@@ -355,10 +345,12 @@ func (set *ValueSet) ToSliceRef() []Value {
 	return set.elementSequence
 }
 
-func (set *ValueSet) Put(key Value) {
-	if _, ok := set.elements[key]; !ok {
-		set.elements[key] = uint32(len(set.elementSequence))
-		set.elementSequence = append(set.elementSequence, key)
+func (set *ValueSet) Append(keys ...Value) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			set.elements[key] = uint32(len(set.elementSequence))
+			set.elementSequence = append(set.elementSequence, key)
+		}
 	}
 }
 
@@ -380,7 +372,7 @@ func (set *ValueSet) Difference(another *ValueSet) *ValueSet {
 	difference := NewValueSet(0)
 	set.ForEach(func(item Value) {
 		if !another.Contains(item) {
-			difference.Put(item)
+			difference.Append(item)
 		}
 	})
 	return difference
@@ -404,13 +396,13 @@ func (set *ValueSet) Intersect(another *ValueSet) *ValueSet {
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	} else {
 		for item := range another.elements {
 			if set.Contains(item) {
-				intersection.Put(item)
+				intersection.Append(item)
 			}
 		}
 	}
@@ -425,7 +417,7 @@ func (set *ValueSet) Union(another *ValueSet) *ValueSet {
 
 func (set *ValueSet) InPlaceUnion(another *ValueSet) {
 	another.ForEach(func(item Value) {
-		set.Put(item)
+		set.Append(item)
 	})
 }
 
@@ -466,7 +458,7 @@ func (set *ValueSet) Filter(f func(Value) bool) *ValueSet {
 	result := NewValueSet(0)
 	set.ForEach(func(item Value) {
 		if f(item) {
-			result.Put(item)
+			result.Append(item)
 		}
 	})
 	return result
