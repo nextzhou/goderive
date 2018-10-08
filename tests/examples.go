@@ -24,5 +24,5 @@ type h = http.Handler
 type T = t.Time
 
 // from this package
-// derive-set
+// derive-set: !Export
 type A struct{ s string }

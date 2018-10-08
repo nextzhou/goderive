@@ -10,12 +10,12 @@ import (
 	t "time"
 )
 
-type ASet struct {
+type aSet struct {
 	elements map[A]struct{}
 }
 
-func NewASet(capacity int) *ASet {
-	set := new(ASet)
+func newASet(capacity int) *aSet {
+	set := new(aSet)
 	if capacity > 0 {
 		set.elements = make(map[A]struct{}, capacity)
 	} else {
@@ -24,26 +24,26 @@ func NewASet(capacity int) *ASet {
 	return set
 }
 
-func NewASetFromSlice(items []A) *ASet {
-	set := NewASet(len(items))
+func newASetFromSlice(items []A) *aSet {
+	set := newASet(len(items))
 	for _, item := range items {
 		set.Append(item)
 	}
 	return set
 }
 
-func (set *ASet) Len() int {
+func (set *aSet) Len() int {
 	if set == nil {
 		return 0
 	}
 	return len(set.elements)
 }
 
-func (set *ASet) IsEmpty() bool {
+func (set *aSet) IsEmpty() bool {
 	return set.Len() == 0
 }
 
-func (set *ASet) ToSlice() []A {
+func (set *aSet) ToSlice() []A {
 	if set == nil {
 		return nil
 	}
@@ -54,26 +54,26 @@ func (set *ASet) ToSlice() []A {
 	return s
 }
 
-func (set *ASet) Append(keys ...A) {
+func (set *aSet) Append(keys ...A) {
 	for _, key := range keys {
 		set.elements[key] = struct{}{}
 	}
 }
 
-func (set *ASet) Clear() {
+func (set *aSet) Clear() {
 	set.elements = make(map[A]struct{})
 }
 
-func (set *ASet) Clone() *ASet {
-	cloned := NewASet(set.Len())
+func (set *aSet) Clone() *aSet {
+	cloned := newASet(set.Len())
 	for item := range set.elements {
 		cloned.elements[item] = struct{}{}
 	}
 	return cloned
 }
 
-func (set *ASet) Difference(another *ASet) *ASet {
-	difference := NewASet(0)
+func (set *aSet) Difference(another *aSet) *aSet {
+	difference := newASet(0)
 	set.ForEach(func(item A) {
 		if !another.Contains(item) {
 			difference.Append(item)
@@ -82,7 +82,7 @@ func (set *ASet) Difference(another *ASet) *ASet {
 	return difference
 }
 
-func (set *ASet) Equal(another *ASet) bool {
+func (set *aSet) Equal(another *aSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
@@ -94,8 +94,8 @@ func (set *ASet) Equal(another *ASet) bool {
 	return true
 }
 
-func (set *ASet) Intersect(another *ASet) *ASet {
-	intersection := NewASet(0)
+func (set *aSet) Intersect(another *aSet) *aSet {
+	intersection := newASet(0)
 	if set.Len() < another.Len() {
 		for item := range set.elements {
 			if another.Contains(item) {
@@ -112,27 +112,27 @@ func (set *ASet) Intersect(another *ASet) *ASet {
 	return intersection
 }
 
-func (set *ASet) Union(another *ASet) *ASet {
+func (set *aSet) Union(another *aSet) *aSet {
 	union := set.Clone()
 	union.InPlaceUnion(another)
 	return union
 }
 
-func (set *ASet) InPlaceUnion(another *ASet) {
+func (set *aSet) InPlaceUnion(another *aSet) {
 	another.ForEach(func(item A) {
 		set.Append(item)
 	})
 }
 
-func (set *ASet) IsProperSubsetOf(another *ASet) bool {
+func (set *aSet) IsProperSubsetOf(another *aSet) bool {
 	return !set.Equal(another) && set.IsSubsetOf(another)
 }
 
-func (set *ASet) IsProperSupersetOf(another *ASet) bool {
+func (set *aSet) IsProperSupersetOf(another *aSet) bool {
 	return !set.Equal(another) && set.IsSupersetOf(another)
 }
 
-func (set *ASet) IsSubsetOf(another *ASet) bool {
+func (set *aSet) IsSubsetOf(another *aSet) bool {
 	if set.Len() > another.Len() {
 		return false
 	}
@@ -144,11 +144,11 @@ func (set *ASet) IsSubsetOf(another *ASet) bool {
 	return true
 }
 
-func (set *ASet) IsSupersetOf(another *ASet) bool {
+func (set *aSet) IsSupersetOf(another *aSet) bool {
 	return another.IsSubsetOf(set)
 }
 
-func (set *ASet) ForEach(f func(A)) {
+func (set *aSet) ForEach(f func(A)) {
 	if set.IsEmpty() {
 		return
 	}
@@ -157,8 +157,8 @@ func (set *ASet) ForEach(f func(A)) {
 	}
 }
 
-func (set *ASet) Filter(f func(A) bool) *ASet {
-	result := NewASet(0)
+func (set *aSet) Filter(f func(A) bool) *aSet {
+	result := newASet(0)
 	set.ForEach(func(item A) {
 		if f(item) {
 			result.Append(item)
@@ -167,16 +167,16 @@ func (set *ASet) Filter(f func(A) bool) *ASet {
 	return result
 }
 
-func (set *ASet) Remove(key A) {
+func (set *aSet) Remove(key A) {
 	delete(set.elements, key)
 }
 
-func (set *ASet) Contains(key A) bool {
+func (set *aSet) Contains(key A) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set *ASet) ContainsAny(keys ...A) bool {
+func (set *aSet) ContainsAny(keys ...A) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -185,7 +185,7 @@ func (set *ASet) ContainsAny(keys ...A) bool {
 	return false
 }
 
-func (set *ASet) ContainsAll(keys ...A) bool {
+func (set *aSet) ContainsAll(keys ...A) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
@@ -194,7 +194,7 @@ func (set *ASet) ContainsAll(keys ...A) bool {
 	return true
 }
 
-func (set *ASet) DoUntilError(f func(A) error) error {
+func (set *aSet) DoUntilError(f func(A) error) error {
 	for item := range set.elements {
 		if err := f(item); err != nil {
 			return err
@@ -203,7 +203,7 @@ func (set *ASet) DoUntilError(f func(A) error) error {
 	return nil
 }
 
-func (set *ASet) All(f func(A) bool) bool {
+func (set *aSet) All(f func(A) bool) bool {
 	for item := range set.elements {
 		if !f(item) {
 			return false
@@ -212,7 +212,7 @@ func (set *ASet) All(f func(A) bool) bool {
 	return true
 }
 
-func (set *ASet) Any(f func(A) bool) bool {
+func (set *aSet) Any(f func(A) bool) bool {
 	for item := range set.elements {
 		if f(item) {
 			return true
@@ -221,7 +221,7 @@ func (set *ASet) Any(f func(A) bool) bool {
 	return false
 }
 
-func (set *ASet) FindBy(f func(A) bool) *A {
+func (set *aSet) FindBy(f func(A) bool) *A {
 	for item := range set.elements {
 		if f(item) {
 			return &item
@@ -230,7 +230,7 @@ func (set *ASet) FindBy(f func(A) bool) *A {
 	return nil
 }
 
-func (set *ASet) CountBy(f func(A) bool) int {
+func (set *aSet) CountBy(f func(A) bool) int {
 	count := 0
 	set.ForEach(func(item A) {
 		if f(item) {
@@ -240,21 +240,21 @@ func (set *ASet) CountBy(f func(A) bool) int {
 	return count
 }
 
-func (set *ASet) String() string {
+func (set *aSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *ASet) MarshalJSON() ([]byte, error) {
+func (set *aSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
-func (set *ASet) UnmarshalJSON(b []byte) error {
+func (set *aSet) UnmarshalJSON(b []byte) error {
 	s := make([]A, 0)
 	err := json.Unmarshal(b, &s)
 	if err != nil {
 		return err
 	}
-	*set = *NewASetFromSlice(s)
+	*set = *newASetFromSlice(s)
 	return nil
 }
 
