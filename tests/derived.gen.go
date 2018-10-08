@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"sort"
 	t "time"
+
+	"github.com/nextzhou/goderive/plugin"
 )
 
 type aSet struct {
@@ -2289,5 +2291,307 @@ func (set *hSet) UnmarshalJSON(b []byte) error {
 		return err
 	}
 	*set = *newHSetFromSlice(s)
+	return nil
+}
+
+type PSet struct {
+	elements map[plugin.Plugin]struct{}
+}
+
+func NewPSet(capacity int) *PSet {
+	set := new(PSet)
+	if capacity > 0 {
+		set.elements = make(map[plugin.Plugin]struct{}, capacity)
+	} else {
+		set.elements = make(map[plugin.Plugin]struct{})
+	}
+	return set
+}
+
+func NewPSetFromSlice(items []plugin.Plugin) *PSet {
+	set := NewPSet(len(items))
+	for _, item := range items {
+		set.Append(item)
+	}
+	return set
+}
+
+func (set *PSet) Len() int {
+	if set == nil {
+		return 0
+	}
+	return len(set.elements)
+}
+
+func (set *PSet) IsEmpty() bool {
+	return set.Len() == 0
+}
+
+func (set *PSet) ToSlice() []plugin.Plugin {
+	if set == nil {
+		return nil
+	}
+	s := make([]plugin.Plugin, 0, set.Len())
+	set.ForEach(func(item plugin.Plugin) {
+		s = append(s, item)
+	})
+	return s
+}
+
+func (set *PSet) Append(keys ...plugin.Plugin) {
+	for _, key := range keys {
+		set.elements[key] = struct{}{}
+	}
+}
+
+func (set *PSet) Clear() {
+	set.elements = make(map[plugin.Plugin]struct{})
+}
+
+func (set *PSet) Clone() *PSet {
+	cloned := NewPSet(set.Len())
+	for item := range set.elements {
+		cloned.elements[item] = struct{}{}
+	}
+	return cloned
+}
+
+func (set *PSet) Difference(another *PSet) *PSet {
+	difference := NewPSet(0)
+	set.ForEach(func(item plugin.Plugin) {
+		if !another.Contains(item) {
+			difference.Append(item)
+		}
+	})
+	return difference
+}
+
+func (set *PSet) Equal(another *PSet) bool {
+	if set.Len() != another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *PSet) Intersect(another *PSet) *PSet {
+	intersection := NewPSet(0)
+	if set.Len() < another.Len() {
+		for item := range set.elements {
+			if another.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	} else {
+		for item := range another.elements {
+			if set.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	}
+	return intersection
+}
+
+func (set *PSet) Union(another *PSet) *PSet {
+	union := set.Clone()
+	union.InPlaceUnion(another)
+	return union
+}
+
+func (set *PSet) InPlaceUnion(another *PSet) {
+	another.ForEach(func(item plugin.Plugin) {
+		set.Append(item)
+	})
+}
+
+func (set *PSet) IsProperSubsetOf(another *PSet) bool {
+	return !set.Equal(another) && set.IsSubsetOf(another)
+}
+
+func (set *PSet) IsProperSupersetOf(another *PSet) bool {
+	return !set.Equal(another) && set.IsSupersetOf(another)
+}
+
+func (set *PSet) IsSubsetOf(another *PSet) bool {
+	if set.Len() > another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *PSet) IsSupersetOf(another *PSet) bool {
+	return another.IsSubsetOf(set)
+}
+
+func (set *PSet) ForEach(f func(plugin.Plugin)) {
+	if set.IsEmpty() {
+		return
+	}
+	for item := range set.elements {
+		f(item)
+	}
+}
+
+func (set *PSet) Filter(f func(plugin.Plugin) bool) *PSet {
+	result := NewPSet(0)
+	set.ForEach(func(item plugin.Plugin) {
+		if f(item) {
+			result.Append(item)
+		}
+	})
+	return result
+}
+
+func (set *PSet) Remove(key plugin.Plugin) {
+	delete(set.elements, key)
+}
+
+func (set *PSet) Contains(key plugin.Plugin) bool {
+	_, ok := set.elements[key]
+	return ok
+}
+
+func (set *PSet) ContainsAny(keys ...plugin.Plugin) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *PSet) ContainsAll(keys ...plugin.Plugin) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *PSet) DoUntilError(f func(plugin.Plugin) error) error {
+	for item := range set.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (set *PSet) All(f func(plugin.Plugin) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *PSet) Any(f func(plugin.Plugin) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *PSet) FindBy(f func(plugin.Plugin) bool) *plugin.Plugin {
+	for item := range set.elements {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *PSet) CountBy(f func(plugin.Plugin) bool) int {
+	count := 0
+	set.ForEach(func(item plugin.Plugin) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (set *PSet) GroupByBool(f func(plugin.Plugin) bool) (trueGroup *PSet, falseGroup *PSet) {
+	trueGroup, falseGroup = NewPSet(0), NewPSet(0)
+	set.ForEach(func(item plugin.Plugin) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *PSet) GroupByStr(f func(plugin.Plugin) string) map[string]*PSet {
+	groups := make(map[string]*PSet)
+	set.ForEach(func(item plugin.Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *PSet) GroupByInt(f func(plugin.Plugin) int) map[int]*PSet {
+	groups := make(map[int]*PSet)
+	set.ForEach(func(item plugin.Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *PSet) GroupBy(f func(plugin.Plugin) interface{}) map[interface{}]*PSet {
+	groups := make(map[interface{}]*PSet)
+	set.ForEach(func(item plugin.Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *PSet) String() string {
+	return fmt.Sprint(set.ToSlice())
+}
+
+func (set *PSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(set.ToSlice())
+}
+
+func (set *PSet) UnmarshalJSON(b []byte) error {
+	s := make([]plugin.Plugin, 0)
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return err
+	}
+	*set = *NewPSetFromSlice(s)
 	return nil
 }

@@ -4,6 +4,8 @@ package tests
 import (
 	"net/http"
 	t "time"
+
+	"github.com/nextzhou/goderive/plugin"
 )
 
 // derive-set
@@ -19,7 +21,7 @@ type Int3 = int
 // derive-set
 type h = http.Handler
 
-// from rename imported package
+// from renamed imported package
 // derive-set
 type T = t.Time
 
@@ -29,3 +31,7 @@ type A struct{ s string }
 
 // derive-set:Order=Key
 type S = string
+
+// from remote package
+// derive-set: Export
+type p = plugin.Plugin

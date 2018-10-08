@@ -49,3 +49,7 @@ func IsExported(ident string) bool {
 func IsSelectorExpr(expr string) bool {
 	return strings.IndexByte(expr, '.') > 0
 }
+
+func IsLocalPath(path string) bool {
+	return !strings.ContainsRune(strings.SplitN(path, "/", 2)[0], '.')
+}

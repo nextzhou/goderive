@@ -260,14 +260,21 @@ func (d *Derive) Run(inputPaths []string) error {
 		case 1:
 			headBuf.WriteString(fmt.Sprintf("import %s\n", imports.ToSliceRef()[0]))
 		default:
-			// TODO group imports
 			headBuf.WriteString("import (\n")
-			imports.ForEach(func(i plugin.Import) {
+			localPkgs, remotePkgs := imports.GroupByBool(func(i plugin.Import) bool {
+				return utils.IsLocalPath(i.Path)
+			})
+			writeImport := func(i plugin.Import) {
 				if i.Path == "" {
 					return
 				}
 				headBuf.WriteString(fmt.Sprintf("\t%s\n", i))
-			})
+			}
+			localPkgs.ForEach(writeImport)
+			if !(localPkgs.IsEmpty() || remotePkgs.IsEmpty()) {
+				headBuf.WriteByte('\n')
+			}
+			remotePkgs.ForEach(writeImport)
 			headBuf.WriteString(")\n")
 		}
 
