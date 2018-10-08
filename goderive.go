@@ -74,7 +74,7 @@ func NewDerive() *Derive {
 	derive.Cmd.Flags().StringVarP(&derive.Output, "output", "o", "derived.gen.go", "output file name")
 	derive.Cmd.Flags().BoolVarP(&derive.Delete, "delete", "d", true, "delete existing generated file when no derived type")
 	derive.Cmd.Flags().StringSliceVarP(&derive.ExcludeDirs, "exclude-dir", "D", []string{"vendor"}, "exclude the given comma separated directories")
-	derive.Cmd.Flags().StringSliceVarP(&derive.ExcludeExts, "exclude-ext", "E", []string{".gen.go"}, "exclude the files having given file name ext")
+	derive.Cmd.Flags().StringSliceVarP(&derive.ExcludeExts, "exclude-ext", "E", []string{".gen.go", "_test.go"}, "exclude the files having given file name ext")
 	derive.Cmd.Flags().BoolVarP(&derive.ShowVersion, "version", "v", false, "show version information")
 	return derive
 }
@@ -109,7 +109,7 @@ Usage:
 Flags:
   -d, --delete                delete existing generated file when no derived type (default true)
   -D, --exclude-dir strings   exclude the given comma separated directories (default [vendor])
-  -E, --exclude-ext strings   exclude the files having given file name ext (default [.gen.go])
+  -E, --exclude-ext strings   exclude the files having given file name ext (default [.gen.go,_test.go])
   -h, --help                  help for goderive
   -o, --output string         output file name (default "derived.gen.go")
   -v, --version               show version information

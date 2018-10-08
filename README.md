@@ -42,7 +42,7 @@ Usage:
 Flags:
   -d, --delete                delete existing generated file when no derived type (default true)
   -D, --exclude-dir strings   exclude the given comma separated directories (default [vendor])
-  -E, --exclude-ext strings   exclude the files having given file name ext (default [.gen.go])
+  -E, --exclude-ext strings   exclude the files having given file name ext (default [.gen.go,_test.go])
   -h, --help                  help for goderive
   -o, --output string         output file name (default "derived.gen.go")
   -v, --version               show version information
