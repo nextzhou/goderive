@@ -94,12 +94,7 @@ func (set *StrSet) Equal(another *StrSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 // TODO keep order
@@ -407,12 +402,7 @@ func (set *StrOrderSet) Equal(another *StrOrderSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 func (set *StrOrderSet) Intersect(another *StrOrderSet) *StrOrderSet {

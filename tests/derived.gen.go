@@ -332,12 +332,7 @@ func (set *intOrderSet) Equal(another *intOrderSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 // TODO keep order
@@ -645,12 +640,7 @@ func (set *Int3Set) Equal(another *Int3Set) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 func (set *Int3Set) Intersect(another *Int3Set) *Int3Set {

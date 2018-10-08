@@ -184,12 +184,16 @@ func (set *{{ .SetName }}) Equal(another *{{ .SetName }}) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
+	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
+	return set.ContainsAll(another.elementSequence...)
+	{{- else -}}
 	for item := range set.elements {
 		if !another.Contains(item) {
 			return false
 		}
 	}
 	return true
+	{{- end }}
 }
 
 {{ if eq .Order "Append" -}}

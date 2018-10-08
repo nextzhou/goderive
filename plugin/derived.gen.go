@@ -93,12 +93,7 @@ func (set *PluginSet) Equal(another *PluginSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 // TODO keep order
@@ -378,12 +373,7 @@ func (set *ValueSet) Equal(another *ValueSet) bool {
 	if set.Len() != another.Len() {
 		return false
 	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
+	return set.ContainsAll(another.elementSequence...)
 }
 
 // TODO keep order
