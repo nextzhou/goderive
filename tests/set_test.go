@@ -63,6 +63,8 @@ func TestIntSet(t *testing.T) {
 		So(set.All(func(i Int) bool { return i > 3 }), ShouldBeFalse)
 		So(set.Any(func(i Int) bool { return i%2 == 0 }), ShouldBeTrue)
 		So(set.Any(func(i Int) bool { return i%5 == 0 }), ShouldBeFalse)
+
+		So(set.CountBy(func(i Int) bool { return i%2 == 1 }), ShouldEqual, 2)
 	})
 }
 
@@ -126,6 +128,7 @@ func TestAppendOrderIntSet(t *testing.T) {
 		So(set.String(), ShouldEqual, `[3 7 4 5]`)
 		So(fmt.Sprint(set.ToSlice()), ShouldEqual, `[3 7 4 5]`)
 		So(fmt.Sprint(set.ToSliceRef()), ShouldEqual, `[3 7 4 5]`)
+		So(set.CountBy(func(i int) bool { return i%2 == 1 }), ShouldEqual, 3)
 
 		found = set.FindLastBy(func(i Int2) bool {
 			return i < 5
@@ -162,5 +165,7 @@ func TestKeyOrderIntSet(t *testing.T) {
 		So(set.All(func(i int) bool { return i > 3 }), ShouldBeFalse)
 		So(set.Any(func(i int) bool { return i > 3 }), ShouldBeTrue)
 		So(set.Any(func(i int) bool { return i > 9 }), ShouldBeFalse)
+
+		So(set.CountBy(func(i int) bool { return i%2 == 1 }), ShouldEqual, 2)
 	})
 }

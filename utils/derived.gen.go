@@ -270,6 +270,16 @@ func (set *StrSet) FindLastBy(f func(Str) bool) *Str {
 	return nil
 }
 
+func (set *StrSet) CountBy(f func(Str) bool) int {
+	count := 0
+	set.ForEach(func(item Str) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
 func (set *StrSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -575,6 +585,16 @@ func (set *StrOrderSet) FindLastBy(f func(Str2) bool) *Str2 {
 		}
 	}
 	return nil
+}
+
+func (set *StrOrderSet) CountBy(f func(Str2) bool) int {
+	count := 0
+	set.ForEach(func(item Str2) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
 }
 
 func (set *StrOrderSet) String() string {

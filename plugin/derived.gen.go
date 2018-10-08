@@ -269,6 +269,16 @@ func (set *PluginSet) FindLastBy(f func(Plugin) bool) *Plugin {
 	return nil
 }
 
+func (set *PluginSet) CountBy(f func(Plugin) bool) int {
+	count := 0
+	set.ForEach(func(item Plugin) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
 func (set *PluginSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -547,6 +557,16 @@ func (set *ValueSet) FindLastBy(f func(Value) bool) *Value {
 		}
 	}
 	return nil
+}
+
+func (set *ValueSet) CountBy(f func(Value) bool) int {
+	count := 0
+	set.ForEach(func(item Value) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
 }
 
 func (set *ValueSet) String() string {

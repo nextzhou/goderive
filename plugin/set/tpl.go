@@ -401,6 +401,16 @@ func (set *{{ .SetName }}) FindLastBy(f func({{ .TypeName }}) bool) *{{ .TypeNam
 }
 {{- end }}
 
+func (set *{{ .SetName }}) CountBy(f func({{ .TypeName }}) bool) int {
+	count := 0
+	set.ForEach(func(item {{ .TypeName }}) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	return fmt.Sprint(set.elementSequence)

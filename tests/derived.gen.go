@@ -228,6 +228,16 @@ func (set *IntSet) FindBy(f func(Int) bool) *Int {
 	return nil
 }
 
+func (set *IntSet) CountBy(f func(Int) bool) int {
+	count := 0
+	set.ForEach(func(item Int) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
 func (set *IntSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -506,6 +516,16 @@ func (set *intOrderSet) FindLastBy(f func(Int2) bool) *Int2 {
 		}
 	}
 	return nil
+}
+
+func (set *intOrderSet) CountBy(f func(Int2) bool) int {
+	count := 0
+	set.ForEach(func(item Int2) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
 }
 
 func (set *intOrderSet) String() string {
@@ -813,6 +833,16 @@ func (set *Int3Set) FindLastBy(f func(Int3) bool) *Int3 {
 		}
 	}
 	return nil
+}
+
+func (set *Int3Set) CountBy(f func(Int3) bool) int {
+	count := 0
+	set.ForEach(func(item Int3) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
 }
 
 func (set *Int3Set) String() string {
