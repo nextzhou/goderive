@@ -26,3 +26,6 @@ type T = t.Time
 // from this package
 // derive-set: !Export
 type A struct{ s string }
+
+// derive-set:Order=Key
+type S = string

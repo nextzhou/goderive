@@ -240,6 +240,60 @@ func (set *aSet) CountBy(f func(A) bool) int {
 	return count
 }
 
+func (set *aSet) GroupByBool(f func(A) bool) (trueGroup *aSet, falseGroup *aSet) {
+	trueGroup, falseGroup = newASet(0), newASet(0)
+	set.ForEach(func(item A) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *aSet) GroupByStr(f func(A) string) map[string]*aSet {
+	groups := make(map[string]*aSet)
+	set.ForEach(func(item A) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newASet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *aSet) GroupByInt(f func(A) int) map[int]*aSet {
+	groups := make(map[int]*aSet)
+	set.ForEach(func(item A) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newASet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *aSet) GroupBy(f func(A) interface{}) map[interface{}]*aSet {
+	groups := make(map[interface{}]*aSet)
+	set.ForEach(func(item A) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newASet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (set *aSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -486,6 +540,60 @@ func (set *IntSet) CountBy(f func(int) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *IntSet) GroupByBool(f func(int) bool) (trueGroup *IntSet, falseGroup *IntSet) {
+	trueGroup, falseGroup = NewIntSet(0), NewIntSet(0)
+	set.ForEach(func(item int) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *IntSet) GroupByStr(f func(int) string) map[string]*IntSet {
+	groups := make(map[string]*IntSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *IntSet) GroupByInt(f func(int) int) map[int]*IntSet {
+	groups := make(map[int]*IntSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *IntSet) GroupBy(f func(int) interface{}) map[interface{}]*IntSet {
+	groups := make(map[interface{}]*IntSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *IntSet) String() string {
@@ -776,6 +884,60 @@ func (set *intOrderSet) CountBy(f func(int) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *intOrderSet) GroupByBool(f func(int) bool) (trueGroup *intOrderSet, falseGroup *intOrderSet) {
+	trueGroup, falseGroup = newIntOrderSet(0), newIntOrderSet(0)
+	set.ForEach(func(item int) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *intOrderSet) GroupByStr(f func(int) string) map[string]*intOrderSet {
+	groups := make(map[string]*intOrderSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newIntOrderSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *intOrderSet) GroupByInt(f func(int) int) map[int]*intOrderSet {
+	groups := make(map[int]*intOrderSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newIntOrderSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *intOrderSet) GroupBy(f func(int) interface{}) map[interface{}]*intOrderSet {
+	groups := make(map[interface{}]*intOrderSet)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newIntOrderSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *intOrderSet) String() string {
@@ -1095,6 +1257,60 @@ func (set *Int3Set) CountBy(f func(int) bool) int {
 	return count
 }
 
+func (set *Int3Set) GroupByBool(f func(int) bool) (trueGroup *Int3Set, falseGroup *Int3Set) {
+	trueGroup, falseGroup = NewInt3Set(0, set.cmp), NewInt3Set(0, set.cmp)
+	set.ForEach(func(item int) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *Int3Set) GroupByStr(f func(int) string) map[string]*Int3Set {
+	groups := make(map[string]*Int3Set)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewInt3Set(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *Int3Set) GroupByInt(f func(int) int) map[int]*Int3Set {
+	groups := make(map[int]*Int3Set)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewInt3Set(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *Int3Set) GroupBy(f func(int) interface{}) map[interface{}]*Int3Set {
+	groups := make(map[interface{}]*Int3Set)
+	set.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewInt3Set(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (set *Int3Set) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -1104,6 +1320,371 @@ func (set *Int3Set) MarshalJSON() ([]byte, error) {
 }
 
 func (set *Int3Set) UnmarshalJSON(b []byte) error {
+	return fmt.Errorf("unsupported")
+}
+
+type SSet struct {
+	cmp             func(i, j string) bool
+	elements        map[string]uint32
+	elementSequence []string
+}
+
+func NewSSet(capacity int, cmp func(i, j string) bool) *SSet {
+	set := new(SSet)
+	if capacity > 0 {
+		set.elements = make(map[string]uint32, capacity)
+		set.elementSequence = make([]string, 0, capacity)
+	} else {
+		set.elements = make(map[string]uint32)
+	}
+	set.cmp = cmp
+	return set
+}
+
+func NewSSetFromSlice(items []string, cmp func(i, j string) bool) *SSet {
+	set := NewSSet(len(items), cmp)
+	for _, item := range items {
+		set.Append(item)
+	}
+	return set
+}
+
+func NewAscendingSSet(capacity int) *SSet {
+	return NewSSet(capacity, func(i, j string) bool { return i < j })
+}
+
+func NewDescendingSSet(capacity int) *SSet {
+	return NewSSet(capacity, func(i, j string) bool { return i > j })
+}
+
+func NewAscendingSSetFromSlice(items []string) *SSet {
+	return NewSSetFromSlice(items, func(i, j string) bool { return i < j })
+}
+
+func NewDescendingSSetFromSlice(items []string) *SSet {
+	return NewSSetFromSlice(items, func(i, j string) bool { return i > j })
+}
+
+func (set *SSet) Len() int {
+	if set == nil {
+		return 0
+	}
+	return len(set.elements)
+}
+
+func (set *SSet) IsEmpty() bool {
+	return set.Len() == 0
+}
+
+func (set *SSet) ToSlice() []string {
+	if set == nil {
+		return nil
+	}
+	s := make([]string, set.Len())
+	copy(s, set.elementSequence)
+	return s
+}
+
+// NOTICE: efficient but unsafe
+func (set *SSet) ToSliceRef() []string {
+	return set.elementSequence
+}
+
+func (set *SSet) Append(keys ...string) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			idx := sort.Search(len(set.elementSequence), func(i int) bool {
+				return set.cmp(key, set.elementSequence[i])
+			})
+			l := len(set.elementSequence)
+			set.elementSequence = append(set.elementSequence, key)
+			for i := l; i > idx; i-- {
+				set.elements[set.elementSequence[i]] = uint32(i + 1)
+				set.elementSequence[i] = set.elementSequence[i-1]
+			}
+			set.elements[set.elementSequence[idx]] = uint32(idx + 1)
+			set.elementSequence[idx] = key
+			set.elements[key] = uint32(idx)
+		}
+	}
+}
+
+func (set *SSet) Clear() {
+	set.elements = make(map[string]uint32)
+	set.elementSequence = set.elementSequence[:0]
+}
+
+func (set *SSet) Clone() *SSet {
+	cloned := NewSSet(set.Len(), set.cmp)
+	for idx, item := range set.elementSequence {
+		cloned.elements[item] = uint32(idx)
+		cloned.elementSequence = append(cloned.elementSequence, item)
+	}
+	return cloned
+}
+
+func (set *SSet) Difference(another *SSet) *SSet {
+	difference := NewSSet(0, set.cmp)
+	set.ForEach(func(item string) {
+		if !another.Contains(item) {
+			difference.Append(item)
+		}
+	})
+	return difference
+}
+
+func (set *SSet) Equal(another *SSet) bool {
+	if set.Len() != another.Len() {
+		return false
+	}
+	return set.ContainsAll(another.elementSequence...)
+}
+
+func (set *SSet) Intersect(another *SSet) *SSet {
+	intersection := NewSSet(0, set.cmp)
+	if set.Len() < another.Len() {
+		for item := range set.elements {
+			if another.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	} else {
+		for item := range another.elements {
+			if set.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	}
+	return intersection
+}
+
+func (set *SSet) Union(another *SSet) *SSet {
+	union := set.Clone()
+	union.InPlaceUnion(another)
+	return union
+}
+
+func (set *SSet) InPlaceUnion(another *SSet) {
+	another.ForEach(func(item string) {
+		set.Append(item)
+	})
+}
+
+func (set *SSet) IsProperSubsetOf(another *SSet) bool {
+	return !set.Equal(another) && set.IsSubsetOf(another)
+}
+
+func (set *SSet) IsProperSupersetOf(another *SSet) bool {
+	return !set.Equal(another) && set.IsSupersetOf(another)
+}
+
+func (set *SSet) IsSubsetOf(another *SSet) bool {
+	if set.Len() > another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *SSet) IsSupersetOf(another *SSet) bool {
+	return another.IsSubsetOf(set)
+}
+
+func (set *SSet) ForEach(f func(string)) {
+	if set.IsEmpty() {
+		return
+	}
+	for _, item := range set.elementSequence {
+		f(item)
+	}
+}
+
+func (set *SSet) Filter(f func(string) bool) *SSet {
+	result := NewSSet(0, set.cmp)
+	set.ForEach(func(item string) {
+		if f(item) {
+			result.Append(item)
+		}
+	})
+	return result
+}
+
+func (set *SSet) Remove(key string) {
+	if idx, ok := set.elements[key]; ok {
+		l := set.Len()
+		delete(set.elements, key)
+		for ; idx < uint32(l-1); idx++ {
+			item := set.elementSequence[idx+1]
+			set.elementSequence[idx] = item
+			set.elements[item] = idx
+		}
+		set.elementSequence = set.elementSequence[:l-1]
+	}
+}
+
+func (set *SSet) Contains(key string) bool {
+	_, ok := set.elements[key]
+	return ok
+}
+
+func (set *SSet) ContainsAny(keys ...string) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *SSet) ContainsAll(keys ...string) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *SSet) DoUntil(f func(string) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *SSet) DoWhile(f func(string) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *SSet) DoUntilError(f func(string) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (set *SSet) All(f func(string) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *SSet) Any(f func(string) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *SSet) FindBy(f func(string) bool) *string {
+	for _, item := range set.elementSequence {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *SSet) FindLastBy(f func(string) bool) *string {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *SSet) CountBy(f func(string) bool) int {
+	count := 0
+	set.ForEach(func(item string) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (set *SSet) GroupByBool(f func(string) bool) (trueGroup *SSet, falseGroup *SSet) {
+	trueGroup, falseGroup = NewSSet(0, set.cmp), NewSSet(0, set.cmp)
+	set.ForEach(func(item string) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *SSet) GroupByStr(f func(string) string) map[string]*SSet {
+	groups := make(map[string]*SSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewSSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *SSet) GroupByInt(f func(string) int) map[int]*SSet {
+	groups := make(map[int]*SSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewSSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *SSet) GroupBy(f func(string) interface{}) map[interface{}]*SSet {
+	groups := make(map[interface{}]*SSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewSSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *SSet) String() string {
+	return fmt.Sprint(set.elementSequence)
+}
+
+func (set *SSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(set.ToSlice())
+}
+
+func (set *SSet) UnmarshalJSON(b []byte) error {
 	return fmt.Errorf("unsupported")
 }
 
@@ -1335,6 +1916,60 @@ func (set *TSet) CountBy(f func(t.Time) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *TSet) GroupByBool(f func(t.Time) bool) (trueGroup *TSet, falseGroup *TSet) {
+	trueGroup, falseGroup = NewTSet(0), NewTSet(0)
+	set.ForEach(func(item t.Time) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *TSet) GroupByStr(f func(t.Time) string) map[string]*TSet {
+	groups := make(map[string]*TSet)
+	set.ForEach(func(item t.Time) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewTSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *TSet) GroupByInt(f func(t.Time) int) map[int]*TSet {
+	groups := make(map[int]*TSet)
+	set.ForEach(func(item t.Time) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewTSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *TSet) GroupBy(f func(t.Time) interface{}) map[interface{}]*TSet {
+	groups := make(map[interface{}]*TSet)
+	set.ForEach(func(item t.Time) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewTSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *TSet) String() string {
@@ -1583,6 +2218,60 @@ func (set *hSet) CountBy(f func(http.Handler) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *hSet) GroupByBool(f func(http.Handler) bool) (trueGroup *hSet, falseGroup *hSet) {
+	trueGroup, falseGroup = newHSet(0), newHSet(0)
+	set.ForEach(func(item http.Handler) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *hSet) GroupByStr(f func(http.Handler) string) map[string]*hSet {
+	groups := make(map[string]*hSet)
+	set.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *hSet) GroupByInt(f func(http.Handler) int) map[int]*hSet {
+	groups := make(map[int]*hSet)
+	set.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *hSet) GroupBy(f func(http.Handler) interface{}) map[interface{}]*hSet {
+	groups := make(map[interface{}]*hSet)
+	set.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *hSet) String() string {

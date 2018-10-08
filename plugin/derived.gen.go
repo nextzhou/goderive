@@ -291,6 +291,60 @@ func (set *ImportSet) CountBy(f func(Import) bool) int {
 	return count
 }
 
+func (set *ImportSet) GroupByBool(f func(Import) bool) (trueGroup *ImportSet, falseGroup *ImportSet) {
+	trueGroup, falseGroup = NewImportSet(0, set.cmp), NewImportSet(0, set.cmp)
+	set.ForEach(func(item Import) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *ImportSet) GroupByStr(f func(Import) string) map[string]*ImportSet {
+	groups := make(map[string]*ImportSet)
+	set.ForEach(func(item Import) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewImportSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *ImportSet) GroupByInt(f func(Import) int) map[int]*ImportSet {
+	groups := make(map[int]*ImportSet)
+	set.ForEach(func(item Import) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewImportSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *ImportSet) GroupBy(f func(Import) interface{}) map[interface{}]*ImportSet {
+	groups := make(map[interface{}]*ImportSet)
+	set.ForEach(func(item Import) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewImportSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (set *ImportSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -573,6 +627,60 @@ func (set *PluginSet) CountBy(f func(Plugin) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *PluginSet) GroupByBool(f func(Plugin) bool) (trueGroup *PluginSet, falseGroup *PluginSet) {
+	trueGroup, falseGroup = NewPluginSet(0), NewPluginSet(0)
+	set.ForEach(func(item Plugin) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *PluginSet) GroupByStr(f func(Plugin) string) map[string]*PluginSet {
+	groups := make(map[string]*PluginSet)
+	set.ForEach(func(item Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPluginSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *PluginSet) GroupByInt(f func(Plugin) int) map[int]*PluginSet {
+	groups := make(map[int]*PluginSet)
+	set.ForEach(func(item Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPluginSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *PluginSet) GroupBy(f func(Plugin) interface{}) map[interface{}]*PluginSet {
+	groups := make(map[interface{}]*PluginSet)
+	set.ForEach(func(item Plugin) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewPluginSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *PluginSet) String() string {
@@ -863,6 +971,60 @@ func (set *ValueSet) CountBy(f func(Value) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *ValueSet) GroupByBool(f func(Value) bool) (trueGroup *ValueSet, falseGroup *ValueSet) {
+	trueGroup, falseGroup = NewValueSet(0), NewValueSet(0)
+	set.ForEach(func(item Value) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *ValueSet) GroupByStr(f func(Value) string) map[string]*ValueSet {
+	groups := make(map[string]*ValueSet)
+	set.ForEach(func(item Value) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewValueSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *ValueSet) GroupByInt(f func(Value) int) map[int]*ValueSet {
+	groups := make(map[int]*ValueSet)
+	set.ForEach(func(item Value) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewValueSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *ValueSet) GroupBy(f func(Value) interface{}) map[interface{}]*ValueSet {
+	groups := make(map[interface{}]*ValueSet)
+	set.ForEach(func(item Value) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewValueSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *ValueSet) String() string {

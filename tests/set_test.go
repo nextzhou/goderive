@@ -3,6 +3,7 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"strings"
 	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
@@ -167,5 +168,37 @@ func TestKeyOrderIntSet(t *testing.T) {
 		So(set.Any(func(i int) bool { return i > 9 }), ShouldBeFalse)
 
 		So(set.CountBy(func(i int) bool { return i%2 == 1 }), ShouldEqual, 2)
+	})
+}
+
+func TestGroupBy(t *testing.T) {
+	Convey("group by", t, func() {
+		set := NewAscendingSSet(0)
+		set.Append("bbbb", "abc", "bcd", "a", "defghi")
+		containsA, notContainsA := set.GroupByBool(func(s string) bool { return strings.Contains(s, "a") })
+		So(containsA.String(), ShouldEqual, `[a abc]`)
+		So(notContainsA.String(), ShouldEqual, `[bbbb bcd defghi]`)
+
+		lenGroups := set.GroupByInt(func(s string) int { return len(s) })
+		So(lenGroups[1].String(), ShouldEqual, `[a]`)
+		So(lenGroups[2].IsEmpty(), ShouldBeTrue)
+		So(lenGroups[3].String(), ShouldEqual, `[abc bcd]`)
+		So(lenGroups[4].String(), ShouldEqual, `[bbbb]`)
+		So(lenGroups[6].String(), ShouldEqual, `[defghi]`)
+
+		intialGroups := set.GroupByStr(func(s string) string { return string(s[0]) })
+		So(intialGroups["a"].String(), ShouldEqual, `[a abc]`)
+		So(intialGroups["b"].String(), ShouldEqual, `[bbbb bcd]`)
+
+		lenOrSelfGroup := set.GroupBy(func(s string) interface{} {
+			if len(s) <= 3 {
+				return len(s)
+			}
+			return s
+		})
+		So(lenOrSelfGroup[1].String(), ShouldEqual, `[a]`)
+		So(lenOrSelfGroup[3].String(), ShouldEqual, `[abc bcd]`)
+		So(lenOrSelfGroup["bbbb"].String(), ShouldEqual, `[bbbb]`)
+		So(lenOrSelfGroup["defghi"].String(), ShouldEqual, `[defghi]`)
 	})
 }

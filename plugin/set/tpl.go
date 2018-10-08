@@ -411,6 +411,76 @@ func (set *{{ .SetName }}) CountBy(f func({{ .TypeName }}) bool) int {
 	return count
 }
 
+func (set *{{ .SetName }}) GroupByBool(f func({{ .TypeName }}) bool) (trueGroup *{{ .SetName }}, falseGroup *{{ .SetName }}) {
+	{{ if eq .Order "Key" -}}
+	trueGroup, falseGroup = {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp), {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
+	{{- else -}}
+	trueGroup, falseGroup = {{ .New }}{{ .CapitalizeSetName }}(0), {{ .New }}{{ .CapitalizeSetName }}(0)
+	{{- end }}
+	set.ForEach(func(item {{ .TypeName }}) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *{{ .SetName }}) GroupByStr(f func({{ .TypeName }}) string) map[string]*{{ .SetName }} {
+	groups := make(map[string]*{{ .SetName }})
+	set.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			{{ if eq .Order "Key" -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
+			{{- else -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0)
+			{{- end }}
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *{{ .SetName }}) GroupByInt(f func({{ .TypeName }}) int) map[int]*{{ .SetName }} {
+	groups := make(map[int]*{{ .SetName }})
+	set.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			{{ if eq .Order "Key" -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
+			{{- else -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0)
+			{{- end }}
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *{{ .SetName }}) GroupBy(f func({{ .TypeName }}) interface{}) map[interface{}]*{{ .SetName }} {
+	groups := make(map[interface{}]*{{ .SetName }})
+	set.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			{{ if eq .Order "Key" -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0, set.cmp)
+			{{- else -}}
+			group = {{ .New }}{{ .CapitalizeSetName }}(0)
+			{{- end }}
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	return fmt.Sprint(set.elementSequence)

@@ -280,6 +280,60 @@ func (set *StrSet) CountBy(f func(string) bool) int {
 	return count
 }
 
+func (set *StrSet) GroupByBool(f func(string) bool) (trueGroup *StrSet, falseGroup *StrSet) {
+	trueGroup, falseGroup = NewStrSet(0), NewStrSet(0)
+	set.ForEach(func(item string) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *StrSet) GroupByStr(f func(string) string) map[string]*StrSet {
+	groups := make(map[string]*StrSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *StrSet) GroupByInt(f func(string) int) map[int]*StrSet {
+	groups := make(map[int]*StrSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *StrSet) GroupBy(f func(string) interface{}) map[interface{}]*StrSet {
+	groups := make(map[interface{}]*StrSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (set *StrSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -595,6 +649,60 @@ func (set *StrOrderSet) CountBy(f func(string) bool) int {
 		}
 	})
 	return count
+}
+
+func (set *StrOrderSet) GroupByBool(f func(string) bool) (trueGroup *StrOrderSet, falseGroup *StrOrderSet) {
+	trueGroup, falseGroup = NewStrOrderSet(0, set.cmp), NewStrOrderSet(0, set.cmp)
+	set.ForEach(func(item string) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *StrOrderSet) GroupByStr(f func(string) string) map[string]*StrOrderSet {
+	groups := make(map[string]*StrOrderSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrOrderSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *StrOrderSet) GroupByInt(f func(string) int) map[int]*StrOrderSet {
+	groups := make(map[int]*StrOrderSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrOrderSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *StrOrderSet) GroupBy(f func(string) interface{}) map[interface{}]*StrOrderSet {
+	groups := make(map[interface{}]*StrOrderSet)
+	set.ForEach(func(item string) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewStrOrderSet(0, set.cmp)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (set *StrOrderSet) String() string {
