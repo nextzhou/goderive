@@ -193,42 +193,34 @@ func (d *Derive) Run(inputPaths []string) error {
 	}
 
 	// extract type info, and group them by package(path)
-	groupFileInfoByPath := make(map[string]*FileInfo)
+	groupTypesByPath := make(map[string][]TypeInfo)
 	err := files.DoUntilError(func(file string) error {
 		path, err := filepath.Abs(filepath.Dir(file))
 		if err != nil {
 			panic(err)
 		}
-		fi, ok := groupFileInfoByPath[path]
-		if !ok {
-			fi = new(FileInfo)
-			groupFileInfoByPath[path] = fi
-
-		}
+		pkgTypes := groupTypesByPath[path]
 
 		src, err := ioutil.ReadFile(file)
 		if err != nil {
 			return fmt.Errorf("read %#v : %s", file, err.Error())
 		}
-		fileInfo, err := ExtractTypes(src)
+		fileTypes, err := ExtractTypes(src)
 		if err != nil {
 			return fmt.Errorf("%s: %s", file, err.Error())
 		}
-		if fileInfo.PkgName == "" || len(fileInfo.Types) == 0 {
+		if len(fileTypes) == 0 {
 			return nil
 		}
-		for _, typ := range fileInfo.Types {
+		for _, typ := range fileTypes {
 			for pluginID, opts := range typ.Plugins {
 				if err := d.ValidatePluginOptions(pluginID, opts); err != nil {
 					return fmt.Errorf("%#v: type %s: %v", file, typ.Name, err)
 				}
 			}
 		}
-		if fi.PkgName == "" {
-			fi.PkgName = fileInfo.PkgName
-		}
-		fi.Types = append(fi.Types, fileInfo.Types...)
-		groupFileInfoByPath[path] = fi
+		pkgTypes = append(pkgTypes, fileTypes...)
+		groupTypesByPath[path] = pkgTypes
 		return nil
 	})
 	if err != nil {
@@ -236,9 +228,9 @@ func (d *Derive) Run(inputPaths []string) error {
 	}
 
 	var shouldDeletedFiles []string
-	for path, fileInfo := range groupFileInfoByPath {
+	for path, types := range groupTypesByPath {
 		filename := filepath.Join(path, d.Output)
-		if fileInfo.PkgName == "" {
+		if len(types) == 0 {
 			if d.Delete {
 				shouldDeletedFiles = append(shouldDeletedFiles, filename)
 			}
@@ -246,27 +238,35 @@ func (d *Derive) Run(inputPaths []string) error {
 		}
 		headBuf := bytes.NewBuffer(nil)
 		headBuf.WriteString(utils.HeaderComment)
-		headBuf.WriteString(fmt.Sprintf("package %s\n\n", fileInfo.PkgName))
-		imports := utils.NewAscendingStrOrderSet(0)
+		headBuf.WriteString(fmt.Sprintf("package %s\n\n", types[0].Env.PkgName))
+		imports := plugin.NewImportSet(0, func(i, j plugin.Import) bool { return i.String() < j.String() })
 		bodyBuf := bytes.NewBuffer(nil)
-		for _, typ := range fileInfo.Types {
+		for _, typ := range types {
 			for pluginID, opts := range typ.Plugins {
 				p, _ := d.GetPlugin(pluginID)
 				typeInfo := plugin.TypeInfo{Name: typ.Name, Ast: typ.Ast, Assigned: typ.Assigned}
-				prerequisites, err := p.GenerateTo(bodyBuf, typeInfo, *opts)
+				prerequisites, err := p.GenerateTo(bodyBuf, typ.Env, typeInfo, *opts)
 				if err != nil {
 					// TODO log file path of type
 					return fmt.Errorf("failed to generate code of type %s: %v", typ.Name, err)
 				}
-				imports.Append(prerequisites.Imports...)
+				imports.InPlaceUnion(prerequisites.Imports)
 			}
 		}
 		// TODO write file after all generating
 
-		if !imports.IsEmpty() {
+		switch imports.Len() {
+		case 0:
+		case 1:
+			headBuf.WriteString(fmt.Sprintf("import %s\n", imports.ToSliceRef()[0]))
+		default:
+			// TODO group imports
 			headBuf.WriteString("import (\n")
-			imports.ForEach(func(s string) {
-				headBuf.WriteString(fmt.Sprintf("\t%#v\n", s))
+			imports.ForEach(func(i plugin.Import) {
+				if i.Path == "" {
+					return
+				}
+				headBuf.WriteString(fmt.Sprintf("\t%s\n", i))
 			})
 			headBuf.WriteString(")\n")
 		}

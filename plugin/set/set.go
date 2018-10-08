@@ -30,12 +30,21 @@ func (set Set) Describe() plugin.Description {
 	}
 }
 
-func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Options) (plugin.Prerequisites, error) {
+func (set Set) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo, opt plugin.Options) (plugin.Prerequisites, error) {
 	var arg TemplateArgs
-	var pre plugin.Prerequisites
+	pre := plugin.MakePrerequisites()
 	forceExport := opt.GetFlag("Export")
-	pre.Imports = []string{"fmt", "encoding/json"}
+	pre.Imports.Append(plugin.MakeImport("fmt"), plugin.MakeImport("encoding/json"))
 	arg.TypeName = typeInfo.Name
+
+	// use assigned type as type name
+	if typeInfo.Assigned != "" {
+		i := env.SelectImportForType(typeInfo.Assigned)
+		if i != nil {
+			arg.TypeName = typeInfo.Assigned
+			pre.Imports.Append(*i)
+		}
+	}
 
 	if forceExport.UnwrapOr(utils.IsExported(typeInfo.Name)) {
 		arg.SetName = utils.ToExported(typeInfo.Name) + "Set"
@@ -58,7 +67,7 @@ func (set Set) GenerateTo(w io.Writer, typeInfo plugin.TypeInfo, opt plugin.Opti
 
 	arg.Order = string(opt.MustGetValue("Order"))
 	if arg.Order == KeyOrder.Str() {
-		pre.Imports = append(pre.Imports, "sort")
+		pre.Imports.Append(plugin.MakeImport("sort"))
 	}
 	arg.CapitalizeSetName = utils.Capitalize(arg.SetName)
 	arg.IsComparable = utils.IsComparableType(typeInfo.Assigned)

@@ -9,22 +9,22 @@ import (
 )
 
 type StrSet struct {
-	elements        map[Str]uint32
-	elementSequence []Str
+	elements        map[string]uint32
+	elementSequence []string
 }
 
 func NewStrSet(capacity int) *StrSet {
 	set := new(StrSet)
 	if capacity > 0 {
-		set.elements = make(map[Str]uint32, capacity)
-		set.elementSequence = make([]Str, 0, capacity)
+		set.elements = make(map[string]uint32, capacity)
+		set.elementSequence = make([]string, 0, capacity)
 	} else {
-		set.elements = make(map[Str]uint32)
+		set.elements = make(map[string]uint32)
 	}
 	return set
 }
 
-func NewStrSetFromSlice(items []Str) *StrSet {
+func NewStrSetFromSlice(items []string) *StrSet {
 	set := NewStrSet(len(items))
 	for _, item := range items {
 		set.Append(item)
@@ -43,21 +43,21 @@ func (set *StrSet) IsEmpty() bool {
 	return set.Len() == 0
 }
 
-func (set *StrSet) ToSlice() []Str {
+func (set *StrSet) ToSlice() []string {
 	if set == nil {
 		return nil
 	}
-	s := make([]Str, set.Len())
+	s := make([]string, set.Len())
 	copy(s, set.elementSequence)
 	return s
 }
 
 // NOTICE: efficient but unsafe
-func (set *StrSet) ToSliceRef() []Str {
+func (set *StrSet) ToSliceRef() []string {
 	return set.elementSequence
 }
 
-func (set *StrSet) Append(keys ...Str) {
+func (set *StrSet) Append(keys ...string) {
 	for _, key := range keys {
 		if _, ok := set.elements[key]; !ok {
 			set.elements[key] = uint32(len(set.elementSequence))
@@ -67,7 +67,7 @@ func (set *StrSet) Append(keys ...Str) {
 }
 
 func (set *StrSet) Clear() {
-	set.elements = make(map[Str]uint32)
+	set.elements = make(map[string]uint32)
 	set.elementSequence = set.elementSequence[:0]
 }
 
@@ -82,7 +82,7 @@ func (set *StrSet) Clone() *StrSet {
 
 func (set *StrSet) Difference(another *StrSet) *StrSet {
 	difference := NewStrSet(0)
-	set.ForEach(func(item Str) {
+	set.ForEach(func(item string) {
 		if !another.Contains(item) {
 			difference.Append(item)
 		}
@@ -123,7 +123,7 @@ func (set *StrSet) Union(another *StrSet) *StrSet {
 }
 
 func (set *StrSet) InPlaceUnion(another *StrSet) {
-	another.ForEach(func(item Str) {
+	another.ForEach(func(item string) {
 		set.Append(item)
 	})
 }
@@ -152,7 +152,7 @@ func (set *StrSet) IsSupersetOf(another *StrSet) bool {
 	return another.IsSubsetOf(set)
 }
 
-func (set *StrSet) ForEach(f func(Str)) {
+func (set *StrSet) ForEach(f func(string)) {
 	if set.IsEmpty() {
 		return
 	}
@@ -161,9 +161,9 @@ func (set *StrSet) ForEach(f func(Str)) {
 	}
 }
 
-func (set *StrSet) Filter(f func(Str) bool) *StrSet {
+func (set *StrSet) Filter(f func(string) bool) *StrSet {
 	result := NewStrSet(0)
-	set.ForEach(func(item Str) {
+	set.ForEach(func(item string) {
 		if f(item) {
 			result.Append(item)
 		}
@@ -171,7 +171,7 @@ func (set *StrSet) Filter(f func(Str) bool) *StrSet {
 	return result
 }
 
-func (set *StrSet) Remove(key Str) {
+func (set *StrSet) Remove(key string) {
 	if idx, ok := set.elements[key]; ok {
 		l := set.Len()
 		delete(set.elements, key)
@@ -184,12 +184,12 @@ func (set *StrSet) Remove(key Str) {
 	}
 }
 
-func (set *StrSet) Contains(key Str) bool {
+func (set *StrSet) Contains(key string) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set *StrSet) ContainsAny(keys ...Str) bool {
+func (set *StrSet) ContainsAny(keys ...string) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -198,7 +198,7 @@ func (set *StrSet) ContainsAny(keys ...Str) bool {
 	return false
 }
 
-func (set *StrSet) ContainsAll(keys ...Str) bool {
+func (set *StrSet) ContainsAll(keys ...string) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
@@ -207,7 +207,7 @@ func (set *StrSet) ContainsAll(keys ...Str) bool {
 	return true
 }
 
-func (set *StrSet) DoUntil(f func(Str) bool) int {
+func (set *StrSet) DoUntil(f func(string) bool) int {
 	for idx, item := range set.elementSequence {
 		if f(item) {
 			return idx
@@ -216,7 +216,7 @@ func (set *StrSet) DoUntil(f func(Str) bool) int {
 	return -1
 }
 
-func (set *StrSet) DoWhile(f func(Str) bool) int {
+func (set *StrSet) DoWhile(f func(string) bool) int {
 	for idx, item := range set.elementSequence {
 		if !f(item) {
 			return idx
@@ -225,7 +225,7 @@ func (set *StrSet) DoWhile(f func(Str) bool) int {
 	return -1
 }
 
-func (set *StrSet) DoUntilError(f func(Str) error) error {
+func (set *StrSet) DoUntilError(f func(string) error) error {
 	for _, item := range set.elementSequence {
 		if err := f(item); err != nil {
 			return err
@@ -234,7 +234,7 @@ func (set *StrSet) DoUntilError(f func(Str) error) error {
 	return nil
 }
 
-func (set *StrSet) All(f func(Str) bool) bool {
+func (set *StrSet) All(f func(string) bool) bool {
 	for item := range set.elements {
 		if !f(item) {
 			return false
@@ -243,7 +243,7 @@ func (set *StrSet) All(f func(Str) bool) bool {
 	return true
 }
 
-func (set *StrSet) Any(f func(Str) bool) bool {
+func (set *StrSet) Any(f func(string) bool) bool {
 	for item := range set.elements {
 		if f(item) {
 			return true
@@ -252,7 +252,7 @@ func (set *StrSet) Any(f func(Str) bool) bool {
 	return false
 }
 
-func (set *StrSet) FindBy(f func(Str) bool) *Str {
+func (set *StrSet) FindBy(f func(string) bool) *string {
 	for _, item := range set.elementSequence {
 		if f(item) {
 			return &item
@@ -261,7 +261,7 @@ func (set *StrSet) FindBy(f func(Str) bool) *Str {
 	return nil
 }
 
-func (set *StrSet) FindLastBy(f func(Str) bool) *Str {
+func (set *StrSet) FindLastBy(f func(string) bool) *string {
 	for i := set.Len() - 1; i >= 0; i-- {
 		if item := set.elementSequence[i]; f(item) {
 			return &item
@@ -270,9 +270,9 @@ func (set *StrSet) FindLastBy(f func(Str) bool) *Str {
 	return nil
 }
 
-func (set *StrSet) CountBy(f func(Str) bool) int {
+func (set *StrSet) CountBy(f func(string) bool) int {
 	count := 0
-	set.ForEach(func(item Str) {
+	set.ForEach(func(item string) {
 		if f(item) {
 			count++
 		}
@@ -289,7 +289,7 @@ func (set *StrSet) MarshalJSON() ([]byte, error) {
 }
 
 func (set *StrSet) UnmarshalJSON(b []byte) error {
-	s := make([]Str, 0)
+	s := make([]string, 0)
 	err := json.Unmarshal(b, &s)
 	if err != nil {
 		return err
@@ -299,24 +299,24 @@ func (set *StrSet) UnmarshalJSON(b []byte) error {
 }
 
 type StrOrderSet struct {
-	cmp             func(i, j Str2) bool
-	elements        map[Str2]uint32
-	elementSequence []Str2
+	cmp             func(i, j string) bool
+	elements        map[string]uint32
+	elementSequence []string
 }
 
-func NewStrOrderSet(capacity int, cmp func(i, j Str2) bool) *StrOrderSet {
+func NewStrOrderSet(capacity int, cmp func(i, j string) bool) *StrOrderSet {
 	set := new(StrOrderSet)
 	if capacity > 0 {
-		set.elements = make(map[Str2]uint32, capacity)
-		set.elementSequence = make([]Str2, 0, capacity)
+		set.elements = make(map[string]uint32, capacity)
+		set.elementSequence = make([]string, 0, capacity)
 	} else {
-		set.elements = make(map[Str2]uint32)
+		set.elements = make(map[string]uint32)
 	}
 	set.cmp = cmp
 	return set
 }
 
-func NewStrOrderSetFromSlice(items []Str2, cmp func(i, j Str2) bool) *StrOrderSet {
+func NewStrOrderSetFromSlice(items []string, cmp func(i, j string) bool) *StrOrderSet {
 	set := NewStrOrderSet(len(items), cmp)
 	for _, item := range items {
 		set.Append(item)
@@ -325,19 +325,19 @@ func NewStrOrderSetFromSlice(items []Str2, cmp func(i, j Str2) bool) *StrOrderSe
 }
 
 func NewAscendingStrOrderSet(capacity int) *StrOrderSet {
-	return NewStrOrderSet(capacity, func(i, j Str2) bool { return i < j })
+	return NewStrOrderSet(capacity, func(i, j string) bool { return i < j })
 }
 
 func NewDescendingStrOrderSet(capacity int) *StrOrderSet {
-	return NewStrOrderSet(capacity, func(i, j Str2) bool { return i > j })
+	return NewStrOrderSet(capacity, func(i, j string) bool { return i > j })
 }
 
-func NewAscendingStrOrderSetFromSlice(items []Str2) *StrOrderSet {
-	return NewStrOrderSetFromSlice(items, func(i, j Str2) bool { return i < j })
+func NewAscendingStrOrderSetFromSlice(items []string) *StrOrderSet {
+	return NewStrOrderSetFromSlice(items, func(i, j string) bool { return i < j })
 }
 
-func NewDescendingStrOrderSetFromSlice(items []Str2) *StrOrderSet {
-	return NewStrOrderSetFromSlice(items, func(i, j Str2) bool { return i > j })
+func NewDescendingStrOrderSetFromSlice(items []string) *StrOrderSet {
+	return NewStrOrderSetFromSlice(items, func(i, j string) bool { return i > j })
 }
 
 func (set *StrOrderSet) Len() int {
@@ -351,21 +351,21 @@ func (set *StrOrderSet) IsEmpty() bool {
 	return set.Len() == 0
 }
 
-func (set *StrOrderSet) ToSlice() []Str2 {
+func (set *StrOrderSet) ToSlice() []string {
 	if set == nil {
 		return nil
 	}
-	s := make([]Str2, set.Len())
+	s := make([]string, set.Len())
 	copy(s, set.elementSequence)
 	return s
 }
 
 // NOTICE: efficient but unsafe
-func (set *StrOrderSet) ToSliceRef() []Str2 {
+func (set *StrOrderSet) ToSliceRef() []string {
 	return set.elementSequence
 }
 
-func (set *StrOrderSet) Append(keys ...Str2) {
+func (set *StrOrderSet) Append(keys ...string) {
 	for _, key := range keys {
 		if _, ok := set.elements[key]; !ok {
 			idx := sort.Search(len(set.elementSequence), func(i int) bool {
@@ -385,7 +385,7 @@ func (set *StrOrderSet) Append(keys ...Str2) {
 }
 
 func (set *StrOrderSet) Clear() {
-	set.elements = make(map[Str2]uint32)
+	set.elements = make(map[string]uint32)
 	set.elementSequence = set.elementSequence[:0]
 }
 
@@ -400,7 +400,7 @@ func (set *StrOrderSet) Clone() *StrOrderSet {
 
 func (set *StrOrderSet) Difference(another *StrOrderSet) *StrOrderSet {
 	difference := NewStrOrderSet(0, set.cmp)
-	set.ForEach(func(item Str2) {
+	set.ForEach(func(item string) {
 		if !another.Contains(item) {
 			difference.Append(item)
 		}
@@ -440,7 +440,7 @@ func (set *StrOrderSet) Union(another *StrOrderSet) *StrOrderSet {
 }
 
 func (set *StrOrderSet) InPlaceUnion(another *StrOrderSet) {
-	another.ForEach(func(item Str2) {
+	another.ForEach(func(item string) {
 		set.Append(item)
 	})
 }
@@ -469,7 +469,7 @@ func (set *StrOrderSet) IsSupersetOf(another *StrOrderSet) bool {
 	return another.IsSubsetOf(set)
 }
 
-func (set *StrOrderSet) ForEach(f func(Str2)) {
+func (set *StrOrderSet) ForEach(f func(string)) {
 	if set.IsEmpty() {
 		return
 	}
@@ -478,9 +478,9 @@ func (set *StrOrderSet) ForEach(f func(Str2)) {
 	}
 }
 
-func (set *StrOrderSet) Filter(f func(Str2) bool) *StrOrderSet {
+func (set *StrOrderSet) Filter(f func(string) bool) *StrOrderSet {
 	result := NewStrOrderSet(0, set.cmp)
-	set.ForEach(func(item Str2) {
+	set.ForEach(func(item string) {
 		if f(item) {
 			result.Append(item)
 		}
@@ -488,7 +488,7 @@ func (set *StrOrderSet) Filter(f func(Str2) bool) *StrOrderSet {
 	return result
 }
 
-func (set *StrOrderSet) Remove(key Str2) {
+func (set *StrOrderSet) Remove(key string) {
 	if idx, ok := set.elements[key]; ok {
 		l := set.Len()
 		delete(set.elements, key)
@@ -501,12 +501,12 @@ func (set *StrOrderSet) Remove(key Str2) {
 	}
 }
 
-func (set *StrOrderSet) Contains(key Str2) bool {
+func (set *StrOrderSet) Contains(key string) bool {
 	_, ok := set.elements[key]
 	return ok
 }
 
-func (set *StrOrderSet) ContainsAny(keys ...Str2) bool {
+func (set *StrOrderSet) ContainsAny(keys ...string) bool {
 	for _, key := range keys {
 		if set.Contains(key) {
 			return true
@@ -515,7 +515,7 @@ func (set *StrOrderSet) ContainsAny(keys ...Str2) bool {
 	return false
 }
 
-func (set *StrOrderSet) ContainsAll(keys ...Str2) bool {
+func (set *StrOrderSet) ContainsAll(keys ...string) bool {
 	for _, key := range keys {
 		if !set.Contains(key) {
 			return false
@@ -524,7 +524,7 @@ func (set *StrOrderSet) ContainsAll(keys ...Str2) bool {
 	return true
 }
 
-func (set *StrOrderSet) DoUntil(f func(Str2) bool) int {
+func (set *StrOrderSet) DoUntil(f func(string) bool) int {
 	for idx, item := range set.elementSequence {
 		if f(item) {
 			return idx
@@ -533,7 +533,7 @@ func (set *StrOrderSet) DoUntil(f func(Str2) bool) int {
 	return -1
 }
 
-func (set *StrOrderSet) DoWhile(f func(Str2) bool) int {
+func (set *StrOrderSet) DoWhile(f func(string) bool) int {
 	for idx, item := range set.elementSequence {
 		if !f(item) {
 			return idx
@@ -542,7 +542,7 @@ func (set *StrOrderSet) DoWhile(f func(Str2) bool) int {
 	return -1
 }
 
-func (set *StrOrderSet) DoUntilError(f func(Str2) error) error {
+func (set *StrOrderSet) DoUntilError(f func(string) error) error {
 	for _, item := range set.elementSequence {
 		if err := f(item); err != nil {
 			return err
@@ -551,7 +551,7 @@ func (set *StrOrderSet) DoUntilError(f func(Str2) error) error {
 	return nil
 }
 
-func (set *StrOrderSet) All(f func(Str2) bool) bool {
+func (set *StrOrderSet) All(f func(string) bool) bool {
 	for item := range set.elements {
 		if !f(item) {
 			return false
@@ -560,7 +560,7 @@ func (set *StrOrderSet) All(f func(Str2) bool) bool {
 	return true
 }
 
-func (set *StrOrderSet) Any(f func(Str2) bool) bool {
+func (set *StrOrderSet) Any(f func(string) bool) bool {
 	for item := range set.elements {
 		if f(item) {
 			return true
@@ -569,7 +569,7 @@ func (set *StrOrderSet) Any(f func(Str2) bool) bool {
 	return false
 }
 
-func (set *StrOrderSet) FindBy(f func(Str2) bool) *Str2 {
+func (set *StrOrderSet) FindBy(f func(string) bool) *string {
 	for _, item := range set.elementSequence {
 		if f(item) {
 			return &item
@@ -578,7 +578,7 @@ func (set *StrOrderSet) FindBy(f func(Str2) bool) *Str2 {
 	return nil
 }
 
-func (set *StrOrderSet) FindLastBy(f func(Str2) bool) *Str2 {
+func (set *StrOrderSet) FindLastBy(f func(string) bool) *string {
 	for i := set.Len() - 1; i >= 0; i-- {
 		if item := set.elementSequence[i]; f(item) {
 			return &item
@@ -587,9 +587,9 @@ func (set *StrOrderSet) FindLastBy(f func(Str2) bool) *Str2 {
 	return nil
 }
 
-func (set *StrOrderSet) CountBy(f func(Str2) bool) int {
+func (set *StrOrderSet) CountBy(f func(string) bool) int {
 	count := 0
-	set.ForEach(func(item Str2) {
+	set.ForEach(func(item string) {
 		if f(item) {
 			count++
 		}

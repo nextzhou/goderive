@@ -2,7 +2,9 @@
 package utils
 
 import (
+	"go/ast"
 	"io"
+	"strings"
 	"unicode"
 
 	"github.com/olekukonko/tablewriter"
@@ -62,4 +64,29 @@ func ToUnexported(ident string) string {
 		return ident
 	}
 	return string(unicode.ToLower(rune(ident[0]))) + ident[1:]
+}
+
+// time.Time => (time, Time)
+func SplitSelectorExpr(expr string) (string, string) {
+	dotIdx := strings.IndexByte(expr, '.')
+	if dotIdx > 0 {
+		return expr[:dotIdx], expr[dotIdx+1:]
+	}
+	return "", expr
+}
+
+func SelectorExprString(se *ast.SelectorExpr) string {
+	return se.X.(*ast.Ident).Name + "." + se.Sel.Name
+}
+
+// a/b/c.v5 => c
+func PkgNameFromPath(path string) string {
+	path = strings.Trim(path, `"`)
+	terms := strings.Split(path, "/")
+	name := terms[len(terms)-1]
+	dotIdx := strings.IndexByte(name, '.')
+	if dotIdx == -1 {
+		return name
+	}
+	return name[:dotIdx]
 }

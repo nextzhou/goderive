@@ -5,7 +5,303 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
+	"sort"
 )
+
+type ImportSet struct {
+	cmp             func(i, j Import) bool
+	elements        map[Import]uint32
+	elementSequence []Import
+}
+
+func NewImportSet(capacity int, cmp func(i, j Import) bool) *ImportSet {
+	set := new(ImportSet)
+	if capacity > 0 {
+		set.elements = make(map[Import]uint32, capacity)
+		set.elementSequence = make([]Import, 0, capacity)
+	} else {
+		set.elements = make(map[Import]uint32)
+	}
+	set.cmp = cmp
+	return set
+}
+
+func NewImportSetFromSlice(items []Import, cmp func(i, j Import) bool) *ImportSet {
+	set := NewImportSet(len(items), cmp)
+	for _, item := range items {
+		set.Append(item)
+	}
+	return set
+}
+
+func (set *ImportSet) Len() int {
+	if set == nil {
+		return 0
+	}
+	return len(set.elements)
+}
+
+func (set *ImportSet) IsEmpty() bool {
+	return set.Len() == 0
+}
+
+func (set *ImportSet) ToSlice() []Import {
+	if set == nil {
+		return nil
+	}
+	s := make([]Import, set.Len())
+	copy(s, set.elementSequence)
+	return s
+}
+
+// NOTICE: efficient but unsafe
+func (set *ImportSet) ToSliceRef() []Import {
+	return set.elementSequence
+}
+
+func (set *ImportSet) Append(keys ...Import) {
+	for _, key := range keys {
+		if _, ok := set.elements[key]; !ok {
+			idx := sort.Search(len(set.elementSequence), func(i int) bool {
+				return set.cmp(key, set.elementSequence[i])
+			})
+			l := len(set.elementSequence)
+			set.elementSequence = append(set.elementSequence, key)
+			for i := l; i > idx; i-- {
+				set.elements[set.elementSequence[i]] = uint32(i + 1)
+				set.elementSequence[i] = set.elementSequence[i-1]
+			}
+			set.elements[set.elementSequence[idx]] = uint32(idx + 1)
+			set.elementSequence[idx] = key
+			set.elements[key] = uint32(idx)
+		}
+	}
+}
+
+func (set *ImportSet) Clear() {
+	set.elements = make(map[Import]uint32)
+	set.elementSequence = set.elementSequence[:0]
+}
+
+func (set *ImportSet) Clone() *ImportSet {
+	cloned := NewImportSet(set.Len(), set.cmp)
+	for idx, item := range set.elementSequence {
+		cloned.elements[item] = uint32(idx)
+		cloned.elementSequence = append(cloned.elementSequence, item)
+	}
+	return cloned
+}
+
+func (set *ImportSet) Difference(another *ImportSet) *ImportSet {
+	difference := NewImportSet(0, set.cmp)
+	set.ForEach(func(item Import) {
+		if !another.Contains(item) {
+			difference.Append(item)
+		}
+	})
+	return difference
+}
+
+func (set *ImportSet) Equal(another *ImportSet) bool {
+	if set.Len() != another.Len() {
+		return false
+	}
+	return set.ContainsAll(another.elementSequence...)
+}
+
+func (set *ImportSet) Intersect(another *ImportSet) *ImportSet {
+	intersection := NewImportSet(0, set.cmp)
+	if set.Len() < another.Len() {
+		for item := range set.elements {
+			if another.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	} else {
+		for item := range another.elements {
+			if set.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	}
+	return intersection
+}
+
+func (set *ImportSet) Union(another *ImportSet) *ImportSet {
+	union := set.Clone()
+	union.InPlaceUnion(another)
+	return union
+}
+
+func (set *ImportSet) InPlaceUnion(another *ImportSet) {
+	another.ForEach(func(item Import) {
+		set.Append(item)
+	})
+}
+
+func (set *ImportSet) IsProperSubsetOf(another *ImportSet) bool {
+	return !set.Equal(another) && set.IsSubsetOf(another)
+}
+
+func (set *ImportSet) IsProperSupersetOf(another *ImportSet) bool {
+	return !set.Equal(another) && set.IsSupersetOf(another)
+}
+
+func (set *ImportSet) IsSubsetOf(another *ImportSet) bool {
+	if set.Len() > another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *ImportSet) IsSupersetOf(another *ImportSet) bool {
+	return another.IsSubsetOf(set)
+}
+
+func (set *ImportSet) ForEach(f func(Import)) {
+	if set.IsEmpty() {
+		return
+	}
+	for _, item := range set.elementSequence {
+		f(item)
+	}
+}
+
+func (set *ImportSet) Filter(f func(Import) bool) *ImportSet {
+	result := NewImportSet(0, set.cmp)
+	set.ForEach(func(item Import) {
+		if f(item) {
+			result.Append(item)
+		}
+	})
+	return result
+}
+
+func (set *ImportSet) Remove(key Import) {
+	if idx, ok := set.elements[key]; ok {
+		l := set.Len()
+		delete(set.elements, key)
+		for ; idx < uint32(l-1); idx++ {
+			item := set.elementSequence[idx+1]
+			set.elementSequence[idx] = item
+			set.elements[item] = idx
+		}
+		set.elementSequence = set.elementSequence[:l-1]
+	}
+}
+
+func (set *ImportSet) Contains(key Import) bool {
+	_, ok := set.elements[key]
+	return ok
+}
+
+func (set *ImportSet) ContainsAny(keys ...Import) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *ImportSet) ContainsAll(keys ...Import) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *ImportSet) DoUntil(f func(Import) bool) int {
+	for idx, item := range set.elementSequence {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *ImportSet) DoWhile(f func(Import) bool) int {
+	for idx, item := range set.elementSequence {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (set *ImportSet) DoUntilError(f func(Import) error) error {
+	for _, item := range set.elementSequence {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (set *ImportSet) All(f func(Import) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *ImportSet) Any(f func(Import) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *ImportSet) FindBy(f func(Import) bool) *Import {
+	for _, item := range set.elementSequence {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *ImportSet) FindLastBy(f func(Import) bool) *Import {
+	for i := set.Len() - 1; i >= 0; i-- {
+		if item := set.elementSequence[i]; f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *ImportSet) CountBy(f func(Import) bool) int {
+	count := 0
+	set.ForEach(func(item Import) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (set *ImportSet) String() string {
+	return fmt.Sprint(set.elementSequence)
+}
+
+func (set *ImportSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(set.ToSlice())
+}
+
+func (set *ImportSet) UnmarshalJSON(b []byte) error {
+	return fmt.Errorf("unsupported")
+}
 
 type PluginSet struct {
 	elements        map[Plugin]uint32

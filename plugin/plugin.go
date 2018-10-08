@@ -224,12 +224,16 @@ func (opts Options) GetValuesOrEmpty(key string) []Value {
 // derive-set: Order=Append
 type Plugin interface {
 	Describe() Description
-	GenerateTo(w io.Writer, typeInfo TypeInfo, opt Options) (Prerequisites, error)
+	GenerateTo(w io.Writer, env Env, typeInfo TypeInfo, opt Options) (Prerequisites, error)
 }
 
 type Prerequisites struct {
-	Imports []string
+	Imports *ImportSet
 	// TODO depending plugins
+}
+
+func MakePrerequisites() Prerequisites {
+	return Prerequisites{Imports: NewImportSet(0, func(i, j Import) bool { return i.String() < j.String() })}
 }
 
 type Description struct {
@@ -392,4 +396,86 @@ type TypeInfo struct {
 	Name     string
 	Assigned string
 	Ast      ast.TypeSpec
+}
+
+// derive-set: Order=Key
+type Import struct {
+	Name string
+	Path string
+}
+
+func MakeImport(path string) Import {
+	return Import{Name: "", Path: strings.Trim(path, `"`)}
+}
+
+func MakeRenameImport(name, path string) Import {
+	return Import{Name: name, Path: strings.Trim(path, `"`)}
+}
+
+func (i Import) String() string {
+	if i.Name == "" {
+		return fmt.Sprintf("%#v", i.Path)
+	}
+	return fmt.Sprintf("%s %#v", i.Name, i.Path)
+}
+
+func (i Import) PkgName() (string, bool) {
+	switch i.Name {
+	case ".":
+		return "", true
+	case "_":
+		return "", false
+	case "":
+		return utils.PkgNameFromPath(i.Path), true
+	default:
+		return i.Name, true
+	}
+}
+
+func MakeInportFromAst(i *ast.ImportSpec) Import {
+	ret := Import{}
+	if i.Name != nil {
+		ret.Name = i.Name.Name
+	}
+	ret.Path = strings.Trim(i.Path.Value, `"`)
+	return ret
+}
+
+type Env struct {
+	PkgName string
+	Imports *ImportSet
+}
+
+func MakeEnv(pkgName string) Env {
+	return Env{
+		PkgName: pkgName,
+		Imports: NewImportSet(0, func(i, j Import) bool { return i.String() < j.String() }),
+	}
+}
+
+func (e Env) SelectImportForType(typ string) *Import {
+	selector, typ := utils.SplitSelectorExpr(typ)
+	if selector != "" {
+		// must find
+		i := new(Import)
+		*i = *e.Imports.FindBy(func(i Import) bool {
+			pkg, ok := i.PkgName()
+			return ok && selector == pkg
+		})
+		return i
+	}
+	// base type
+	if utils.IsBaseType(typ) {
+		return &Import{}
+	}
+	// unexported type, from this package
+	if !utils.IsExported(typ) {
+		return &Import{}
+	}
+	// existing dot import, exported type may be from this package
+	if e.Imports.Any(func(i Import) bool { return i.Name == "." }) {
+		return nil
+	}
+	// from this package
+	return &Import{}
 }
