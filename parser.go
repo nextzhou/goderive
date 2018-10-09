@@ -35,7 +35,7 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 	env := plugin.MakeEnv(pkg.Name)
 
 	for _, i := range file.Imports {
-		env.Imports.Append(plugin.MakeInportFromAst(i))
+		env.Imports.Append(plugin.MakeImportFromAst(i))
 	}
 
 	// select types with 'derive' marker

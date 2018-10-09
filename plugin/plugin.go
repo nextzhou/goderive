@@ -408,7 +408,7 @@ func MakeImport(path string) Import {
 	return Import{Name: "", Path: strings.Trim(path, `"`)}
 }
 
-func MakeRenameImport(name, path string) Import {
+func MakeRenamedImport(name, path string) Import {
 	return Import{Name: name, Path: strings.Trim(path, `"`)}
 }
 
@@ -432,7 +432,7 @@ func (i Import) PkgName() (string, bool) {
 	}
 }
 
-func MakeInportFromAst(i *ast.ImportSpec) Import {
+func MakeImportFromAst(i *ast.ImportSpec) Import {
 	ret := Import{}
 	if i.Name != nil {
 		ret.Name = i.Name.Name
