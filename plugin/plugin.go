@@ -379,6 +379,8 @@ func (desc Description) validateArgs(opts *Options) error {
 		} else if validArg.DefaultValue != nil {
 			// set default value
 			opts.Args[validArg.Key] = Arg{Key: validArg.Key, Values: []Value{*validArg.DefaultValue}}
+		} else if !validArg.AllowEmpty {
+			return &utils.ArgEmptyValueError{ArgKey: validArg.Key}
 		}
 	}
 
