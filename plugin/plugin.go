@@ -233,7 +233,12 @@ type Prerequisites struct {
 }
 
 func MakePrerequisites() Prerequisites {
-	return Prerequisites{Imports: NewImportSet(0, func(i, j Import) bool { return i.String() < j.String() })}
+	return Prerequisites{Imports: NewImportSet(0, func(i, j Import) bool {
+		if i.Path == j.Path {
+			return i.Name < j.Name
+		}
+		return i.Path < j.Path
+	})}
 }
 
 type Description struct {
