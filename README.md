@@ -48,7 +48,8 @@ Flags:
   -v, --version               show version information
 
 Plugins:
-  set    set collection
+  set            set collection
+  access         access fields for struct type
 ```
 
 ## Plugins
@@ -65,4 +66,14 @@ Flags:
 Args:
   Rename         single value                            assign set type name manually
   Order          single value    [Unstable Append Key]   keep order(default: Unstable)
+```
+
+```
+$ goderive help access
+Plugin: access
+
+access fields for struct type
+
+Args:
+  Receiver       single value            receiver of methods
 ```
