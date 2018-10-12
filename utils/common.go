@@ -7,6 +7,8 @@ import (
 	"strings"
 	"unicode"
 
+	"reflect"
+
 	"github.com/olekukonko/tablewriter"
 )
 
@@ -89,4 +91,174 @@ func PkgNameFromPath(path string) string {
 		return name
 	}
 	return name[:dotIdx]
+}
+
+type NameWithPkg struct {
+	Name string
+	Pkgs *StrSet
+}
+
+func NewNameWithPkg(name string) *NameWithPkg {
+	return &NameWithPkg{
+		Name: name,
+		Pkgs: NewStrSet(0),
+	}
+}
+
+func TypeNameWithPkg(expr ast.Expr) *NameWithPkg {
+	ret := NewNameWithPkg("")
+	switch e := expr.(type) {
+	case *ast.Ident:
+		ret.Name = e.Name
+	case *ast.StarExpr:
+		s := TypeNameWithPkg(e.X)
+		if s == nil {
+			return nil
+		}
+		ret.Name = "*" + s.Name
+		ret.Pkgs.InPlaceUnion(s.Pkgs)
+	case *ast.SelectorExpr:
+		s := TypeNameWithPkg(e.X)
+		if s == nil {
+			return nil
+		}
+		ret.Pkgs.Append(s.Name)
+		ret.Pkgs.InPlaceUnion(s.Pkgs)
+		ret.Name = s.Name + "." + e.Sel.Name
+	case *ast.SliceExpr:
+		s := TypeNameWithPkg(e.X)
+		if s == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(s.Pkgs)
+		ret.Name = "[]" + s.Name
+	case *ast.MapType:
+		k, v := TypeNameWithPkg(e.Key), TypeNameWithPkg(e.Value)
+		if k == nil || v == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(k.Pkgs)
+		ret.Pkgs.InPlaceUnion(v.Pkgs)
+		ret.Name = "map[" + k.Name + "]" + v.Name
+	case *ast.ArrayType:
+		elem := TypeNameWithPkg(e.Elt)
+		if elem == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(elem.Pkgs)
+		if e.Len == nil {
+			ret.Name = "[]" + elem.Name
+			break
+		}
+		l := TypeNameWithPkg(e.Len)
+		if l == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(l.Pkgs)
+		ret.Name = "[" + l.Name + "]" + elem.Name
+	case *ast.BasicLit:
+		ret.Name = e.Value
+	case *ast.ChanType:
+		elem := TypeNameWithPkg(e.Value)
+		if elem == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(elem.Pkgs)
+		if !e.Arrow.IsValid() {
+			ret.Name = "chan " + elem.Name
+			break
+		}
+		if e.Arrow == e.Begin {
+			ret.Name = "<-chan " + elem.Name
+			break
+		}
+		ret.Name = "chan<- " + elem.Name
+	case *ast.FuncType:
+		return FuncTypeNameWithPkg(*e)
+	default:
+		return nil
+	}
+	return ret
+}
+
+func FuncTypeNameWithPkg(e ast.FuncType) *NameWithPkg {
+	ret := NewNameWithPkg("")
+	ret.Name = "func("
+	for idx, param := range e.Params.List {
+		if idx != 0 {
+			ret.Name += ", "
+		}
+		for idx, name := range param.Names {
+			if idx != 0 {
+				ret.Name += ", "
+			}
+			ret.Name += name.Name
+		}
+		p := TypeNameWithPkg(param.Type)
+		if p == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(p.Pkgs)
+		if idx != 0 || len(param.Names) > 0 {
+			ret.Name += " "
+		}
+		ret.Name += p.Name
+	}
+	ret.Name += ")"
+	switch len(e.Results.List) {
+	case 0:
+		break
+	case 1:
+		ret.Name += " "
+		item := e.Results.List[0]
+		r := TypeNameWithPkg(item.Type)
+		if r == nil {
+			return nil
+		}
+		ret.Pkgs.InPlaceUnion(r.Pkgs)
+		if len(item.Names) > 0 {
+			ret.Name += "("
+			for idx, name := range item.Names {
+				if idx != 0 {
+					ret.Name += ", "
+				}
+				ret.Name += name.Name
+			}
+			ret.Name += " " + r.Name + ")"
+		} else {
+			ret.Name += r.Name
+		}
+	default:
+		ret.Name += " ("
+		for idx, result := range e.Results.List {
+			if idx != 0 {
+				ret.Name += ", "
+			}
+			for idx, name := range result.Names {
+				if idx != 0 {
+					ret.Name += ", "
+				}
+				ret.Name += name.Name
+			}
+			r := TypeNameWithPkg(result.Type)
+			if r == nil {
+				return nil
+			}
+			ret.Pkgs.InPlaceUnion(r.Pkgs)
+			if idx != 0 || len(result.Names) > 0 {
+				ret.Name += " "
+			}
+			ret.Name += r.Name
+		}
+		ret.Name += ")"
+	}
+	return ret
+}
+
+func ExprTypeStr(expr ast.Expr) string {
+	s := reflect.TypeOf(expr).String()
+	s = strings.TrimPrefix(s, "*ast.")
+	s = strings.TrimSuffix(s, "Expr")
+	s = strings.TrimSuffix(s, "Type")
+	return s
 }

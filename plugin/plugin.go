@@ -397,7 +397,7 @@ func (desc Description) validateArgs(opts *Options) error {
 type TypeInfo struct {
 	Name     string
 	Assigned string
-	Ast      ast.TypeSpec
+	Ast      ast.Expr
 }
 
 // derive-set: Order=Key

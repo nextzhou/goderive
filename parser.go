@@ -17,7 +17,7 @@ type TypeInfo struct {
 	Assigned string
 	// TODO keep order
 	Plugins map[string]*plugin.Options
-	Ast     ast.TypeSpec
+	Ast     ast.Expr
 	Env     plugin.Env
 }
 
@@ -54,14 +54,14 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 			if typeInfo.Name == "" {
 				typeInfo.Name = typ.Name
 				typeInfo.Plugins = make(map[string]*plugin.Options)
-				typeInfo.Ast = *typ.Decl.Specs[0].(*ast.TypeSpec)
-				if typeInfo.Ast.Assign.IsValid() {
-					assignType := typeInfo.Ast.Name.Obj.Decl.(*ast.TypeSpec).Type
-					switch assignType.(type) {
+				spec := typ.Decl.Specs[0].(*ast.TypeSpec)
+				typeInfo.Ast = spec.Name.Obj.Decl.(*ast.TypeSpec).Type
+				if spec.Assign.IsValid() {
+					switch assigned := typeInfo.Ast.(type) {
 					case *ast.Ident:
-						typeInfo.Assigned = assignType.(*ast.Ident).Name
+						typeInfo.Assigned = assigned.Name
 					case *ast.SelectorExpr:
-						typeInfo.Assigned = utils.SelectorExprString(assignType.(*ast.SelectorExpr))
+						typeInfo.Assigned = utils.SelectorExprString(assigned)
 					}
 				}
 			}

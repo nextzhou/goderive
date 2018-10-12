@@ -12,306 +12,36 @@ import (
 	"github.com/nextzhou/goderive/plugin"
 )
 
-type aSet struct {
-	elements map[A]struct{}
-}
-
-func newASet(capacity int) *aSet {
-	set := new(aSet)
-	if capacity > 0 {
-		set.elements = make(map[A]struct{}, capacity)
-	} else {
-		set.elements = make(map[A]struct{})
+func (a *AA) getB() *b {
+	if a == nil {
+		var defaultVal *b
+		return defaultVal
 	}
-	return set
+	return a.b
 }
 
-func newASetFromSlice(items []A) *aSet {
-	set := newASet(len(items))
-	for _, item := range items {
-		set.Append(item)
+func (a *AA) GetB() *b {
+	if a == nil {
+		var defaultVal *b
+		return defaultVal
 	}
-	return set
+	return a.B
 }
 
-func (set *aSet) Len() int {
-	if set == nil {
-		return 0
+func (a *AA) getC() *c {
+	if a == nil {
+		var defaultVal *c
+		return defaultVal
 	}
-	return len(set.elements)
+	return a.c
 }
 
-func (set *aSet) IsEmpty() bool {
-	return set.Len() == 0
-}
-
-func (set *aSet) ToSlice() []A {
-	if set == nil {
-		return nil
+func (a *AA) GetC() *c {
+	if a == nil {
+		var defaultVal *c
+		return defaultVal
 	}
-	s := make([]A, 0, set.Len())
-	set.ForEach(func(item A) {
-		s = append(s, item)
-	})
-	return s
-}
-
-func (set *aSet) Append(keys ...A) {
-	for _, key := range keys {
-		set.elements[key] = struct{}{}
-	}
-}
-
-func (set *aSet) Clear() {
-	set.elements = make(map[A]struct{})
-}
-
-func (set *aSet) Clone() *aSet {
-	cloned := newASet(set.Len())
-	for item := range set.elements {
-		cloned.elements[item] = struct{}{}
-	}
-	return cloned
-}
-
-func (set *aSet) Difference(another *aSet) *aSet {
-	difference := newASet(0)
-	set.ForEach(func(item A) {
-		if !another.Contains(item) {
-			difference.Append(item)
-		}
-	})
-	return difference
-}
-
-func (set *aSet) Equal(another *aSet) bool {
-	if set.Len() != another.Len() {
-		return false
-	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
-}
-
-func (set *aSet) Intersect(another *aSet) *aSet {
-	intersection := newASet(0)
-	if set.Len() < another.Len() {
-		for item := range set.elements {
-			if another.Contains(item) {
-				intersection.Append(item)
-			}
-		}
-	} else {
-		for item := range another.elements {
-			if set.Contains(item) {
-				intersection.Append(item)
-			}
-		}
-	}
-	return intersection
-}
-
-func (set *aSet) Union(another *aSet) *aSet {
-	union := set.Clone()
-	union.InPlaceUnion(another)
-	return union
-}
-
-func (set *aSet) InPlaceUnion(another *aSet) {
-	another.ForEach(func(item A) {
-		set.Append(item)
-	})
-}
-
-func (set *aSet) IsProperSubsetOf(another *aSet) bool {
-	return !set.Equal(another) && set.IsSubsetOf(another)
-}
-
-func (set *aSet) IsProperSupersetOf(another *aSet) bool {
-	return !set.Equal(another) && set.IsSupersetOf(another)
-}
-
-func (set *aSet) IsSubsetOf(another *aSet) bool {
-	if set.Len() > another.Len() {
-		return false
-	}
-	for item := range set.elements {
-		if !another.Contains(item) {
-			return false
-		}
-	}
-	return true
-}
-
-func (set *aSet) IsSupersetOf(another *aSet) bool {
-	return another.IsSubsetOf(set)
-}
-
-func (set *aSet) ForEach(f func(A)) {
-	if set.IsEmpty() {
-		return
-	}
-	for item := range set.elements {
-		f(item)
-	}
-}
-
-func (set *aSet) Filter(f func(A) bool) *aSet {
-	result := newASet(0)
-	set.ForEach(func(item A) {
-		if f(item) {
-			result.Append(item)
-		}
-	})
-	return result
-}
-
-func (set *aSet) Remove(key A) {
-	delete(set.elements, key)
-}
-
-func (set *aSet) Contains(key A) bool {
-	_, ok := set.elements[key]
-	return ok
-}
-
-func (set *aSet) ContainsAny(keys ...A) bool {
-	for _, key := range keys {
-		if set.Contains(key) {
-			return true
-		}
-	}
-	return false
-}
-
-func (set *aSet) ContainsAll(keys ...A) bool {
-	for _, key := range keys {
-		if !set.Contains(key) {
-			return false
-		}
-	}
-	return true
-}
-
-func (set *aSet) DoUntilError(f func(A) error) error {
-	for item := range set.elements {
-		if err := f(item); err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
-func (set *aSet) All(f func(A) bool) bool {
-	for item := range set.elements {
-		if !f(item) {
-			return false
-		}
-	}
-	return true
-}
-
-func (set *aSet) Any(f func(A) bool) bool {
-	for item := range set.elements {
-		if f(item) {
-			return true
-		}
-	}
-	return false
-}
-
-func (set *aSet) FindBy(f func(A) bool) *A {
-	for item := range set.elements {
-		if f(item) {
-			return &item
-		}
-	}
-	return nil
-}
-
-func (set *aSet) CountBy(f func(A) bool) int {
-	count := 0
-	set.ForEach(func(item A) {
-		if f(item) {
-			count++
-		}
-	})
-	return count
-}
-
-func (set *aSet) GroupByBool(f func(A) bool) (trueGroup *aSet, falseGroup *aSet) {
-	trueGroup, falseGroup = newASet(0), newASet(0)
-	set.ForEach(func(item A) {
-		if f(item) {
-			trueGroup.Append(item)
-		} else {
-			falseGroup.Append(item)
-		}
-	})
-	return trueGroup, falseGroup
-}
-
-func (set *aSet) GroupByStr(f func(A) string) map[string]*aSet {
-	groups := make(map[string]*aSet)
-	set.ForEach(func(item A) {
-		key := f(item)
-		group := groups[key]
-		if group == nil {
-			group = newASet(0)
-			groups[key] = group
-		}
-		group.Append(item)
-	})
-	return groups
-}
-
-func (set *aSet) GroupByInt(f func(A) int) map[int]*aSet {
-	groups := make(map[int]*aSet)
-	set.ForEach(func(item A) {
-		key := f(item)
-		group := groups[key]
-		if group == nil {
-			group = newASet(0)
-			groups[key] = group
-		}
-		group.Append(item)
-	})
-	return groups
-}
-
-func (set *aSet) GroupBy(f func(A) interface{}) map[interface{}]*aSet {
-	groups := make(map[interface{}]*aSet)
-	set.ForEach(func(item A) {
-		key := f(item)
-		group := groups[key]
-		if group == nil {
-			group = newASet(0)
-			groups[key] = group
-		}
-		group.Append(item)
-	})
-	return groups
-}
-
-func (set *aSet) String() string {
-	return fmt.Sprint(set.ToSlice())
-}
-
-func (set *aSet) MarshalJSON() ([]byte, error) {
-	return json.Marshal(set.ToSlice())
-}
-
-func (set *aSet) UnmarshalJSON(b []byte) error {
-	s := make([]A, 0)
-	err := json.Unmarshal(b, &s)
-	if err != nil {
-		return err
-	}
-	*set = *newASetFromSlice(s)
-	return nil
+	return a.C
 }
 
 type IntSet struct {
@@ -1325,6 +1055,308 @@ func (set *Int3Set) UnmarshalJSON(b []byte) error {
 	return fmt.Errorf("unsupported")
 }
 
+type myTypeSet struct {
+	elements map[MyType]struct{}
+}
+
+func newMyTypeSet(capacity int) *myTypeSet {
+	set := new(myTypeSet)
+	if capacity > 0 {
+		set.elements = make(map[MyType]struct{}, capacity)
+	} else {
+		set.elements = make(map[MyType]struct{})
+	}
+	return set
+}
+
+func newMyTypeSetFromSlice(items []MyType) *myTypeSet {
+	set := newMyTypeSet(len(items))
+	for _, item := range items {
+		set.Append(item)
+	}
+	return set
+}
+
+func (set *myTypeSet) Len() int {
+	if set == nil {
+		return 0
+	}
+	return len(set.elements)
+}
+
+func (set *myTypeSet) IsEmpty() bool {
+	return set.Len() == 0
+}
+
+func (set *myTypeSet) ToSlice() []MyType {
+	if set == nil {
+		return nil
+	}
+	s := make([]MyType, 0, set.Len())
+	set.ForEach(func(item MyType) {
+		s = append(s, item)
+	})
+	return s
+}
+
+func (set *myTypeSet) Append(keys ...MyType) {
+	for _, key := range keys {
+		set.elements[key] = struct{}{}
+	}
+}
+
+func (set *myTypeSet) Clear() {
+	set.elements = make(map[MyType]struct{})
+}
+
+func (set *myTypeSet) Clone() *myTypeSet {
+	cloned := newMyTypeSet(set.Len())
+	for item := range set.elements {
+		cloned.elements[item] = struct{}{}
+	}
+	return cloned
+}
+
+func (set *myTypeSet) Difference(another *myTypeSet) *myTypeSet {
+	difference := newMyTypeSet(0)
+	set.ForEach(func(item MyType) {
+		if !another.Contains(item) {
+			difference.Append(item)
+		}
+	})
+	return difference
+}
+
+func (set *myTypeSet) Equal(another *myTypeSet) bool {
+	if set.Len() != another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *myTypeSet) Intersect(another *myTypeSet) *myTypeSet {
+	intersection := newMyTypeSet(0)
+	if set.Len() < another.Len() {
+		for item := range set.elements {
+			if another.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	} else {
+		for item := range another.elements {
+			if set.Contains(item) {
+				intersection.Append(item)
+			}
+		}
+	}
+	return intersection
+}
+
+func (set *myTypeSet) Union(another *myTypeSet) *myTypeSet {
+	union := set.Clone()
+	union.InPlaceUnion(another)
+	return union
+}
+
+func (set *myTypeSet) InPlaceUnion(another *myTypeSet) {
+	another.ForEach(func(item MyType) {
+		set.Append(item)
+	})
+}
+
+func (set *myTypeSet) IsProperSubsetOf(another *myTypeSet) bool {
+	return !set.Equal(another) && set.IsSubsetOf(another)
+}
+
+func (set *myTypeSet) IsProperSupersetOf(another *myTypeSet) bool {
+	return !set.Equal(another) && set.IsSupersetOf(another)
+}
+
+func (set *myTypeSet) IsSubsetOf(another *myTypeSet) bool {
+	if set.Len() > another.Len() {
+		return false
+	}
+	for item := range set.elements {
+		if !another.Contains(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *myTypeSet) IsSupersetOf(another *myTypeSet) bool {
+	return another.IsSubsetOf(set)
+}
+
+func (set *myTypeSet) ForEach(f func(MyType)) {
+	if set.IsEmpty() {
+		return
+	}
+	for item := range set.elements {
+		f(item)
+	}
+}
+
+func (set *myTypeSet) Filter(f func(MyType) bool) *myTypeSet {
+	result := newMyTypeSet(0)
+	set.ForEach(func(item MyType) {
+		if f(item) {
+			result.Append(item)
+		}
+	})
+	return result
+}
+
+func (set *myTypeSet) Remove(key MyType) {
+	delete(set.elements, key)
+}
+
+func (set *myTypeSet) Contains(key MyType) bool {
+	_, ok := set.elements[key]
+	return ok
+}
+
+func (set *myTypeSet) ContainsAny(keys ...MyType) bool {
+	for _, key := range keys {
+		if set.Contains(key) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *myTypeSet) ContainsAll(keys ...MyType) bool {
+	for _, key := range keys {
+		if !set.Contains(key) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *myTypeSet) DoUntilError(f func(MyType) error) error {
+	for item := range set.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (set *myTypeSet) All(f func(MyType) bool) bool {
+	for item := range set.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (set *myTypeSet) Any(f func(MyType) bool) bool {
+	for item := range set.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (set *myTypeSet) FindBy(f func(MyType) bool) *MyType {
+	for item := range set.elements {
+		if f(item) {
+			return &item
+		}
+	}
+	return nil
+}
+
+func (set *myTypeSet) CountBy(f func(MyType) bool) int {
+	count := 0
+	set.ForEach(func(item MyType) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (set *myTypeSet) GroupByBool(f func(MyType) bool) (trueGroup *myTypeSet, falseGroup *myTypeSet) {
+	trueGroup, falseGroup = newMyTypeSet(0), newMyTypeSet(0)
+	set.ForEach(func(item MyType) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (set *myTypeSet) GroupByStr(f func(MyType) string) map[string]*myTypeSet {
+	groups := make(map[string]*myTypeSet)
+	set.ForEach(func(item MyType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newMyTypeSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *myTypeSet) GroupByInt(f func(MyType) int) map[int]*myTypeSet {
+	groups := make(map[int]*myTypeSet)
+	set.ForEach(func(item MyType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newMyTypeSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *myTypeSet) GroupBy(f func(MyType) interface{}) map[interface{}]*myTypeSet {
+	groups := make(map[interface{}]*myTypeSet)
+	set.ForEach(func(item MyType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newMyTypeSet(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (set *myTypeSet) String() string {
+	return fmt.Sprint(set.ToSlice())
+}
+
+func (set *myTypeSet) MarshalJSON() ([]byte, error) {
+	return json.Marshal(set.ToSlice())
+}
+
+func (set *myTypeSet) UnmarshalJSON(b []byte) error {
+	s := make([]MyType, 0)
+	err := json.Unmarshal(b, &s)
+	if err != nil {
+		return err
+	}
+	*set = *newMyTypeSetFromSlice(s)
+	return nil
+}
+
 type SSet struct {
 	cmp             func(i, j string) bool
 	elements        map[string]uint32
@@ -1990,6 +2022,102 @@ func (set *TSet) UnmarshalJSON(b []byte) error {
 	}
 	*set = *NewTSetFromSlice(s)
 	return nil
+}
+
+func (b *b) getC() *c {
+	if b == nil {
+		var defaultVal *c
+		return defaultVal
+	}
+	return b.c
+}
+
+func (b *b) GetC() *c {
+	if b == nil {
+		var defaultVal *c
+		return defaultVal
+	}
+	return b.C
+}
+
+func (c *c) getAbc() string {
+	if c == nil {
+		var defaultVal string
+		return defaultVal
+	}
+	return c.abc
+}
+
+func (c *c) GetDef() *int {
+	if c == nil {
+		var defaultVal *int
+		return defaultVal
+	}
+	return c.Def
+}
+
+func (c *c) getA() t.Time {
+	if c == nil {
+		var defaultVal t.Time
+		return defaultVal
+	}
+	return c.a
+}
+
+func (c *c) getB() []string {
+	if c == nil {
+		var defaultVal []string
+		return defaultVal
+	}
+	return c.b
+}
+
+func (c *c) getBb() [3]string {
+	if c == nil {
+		var defaultVal [3]string
+		return defaultVal
+	}
+	return c.bb
+}
+
+func (c *c) getC() map[int]string {
+	if c == nil {
+		var defaultVal map[int]string
+		return defaultVal
+	}
+	return c.c
+}
+
+func (c *c) getD() chan int {
+	if c == nil {
+		var defaultVal chan int
+		return defaultVal
+	}
+	return c.d
+}
+
+func (c *c) getE() chan<- int {
+	if c == nil {
+		var defaultVal chan<- int
+		return defaultVal
+	}
+	return c.e
+}
+
+func (c *c) getF() <-chan int {
+	if c == nil {
+		var defaultVal <-chan int
+		return defaultVal
+	}
+	return c.f
+}
+
+func (c *c) getFf() func(int, string, c, d t.Time) (a, b bool, e error) {
+	if c == nil {
+		var defaultVal func(int, string, c, d t.Time) (a, b bool, e error)
+		return defaultVal
+	}
+	return c.ff
 }
 
 type hSet struct {

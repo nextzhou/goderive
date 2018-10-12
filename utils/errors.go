@@ -32,6 +32,15 @@ func (e *UnexpectedError) Error() string {
 	return fmt.Sprintf("unexpected %s %#v", e.Type, e.Idents)
 }
 
+type OnlySupportError struct {
+	Supported string
+	Got       string
+}
+
+func (e *OnlySupportError) Error() string {
+	return fmt.Sprintf("support only %s, not %s", e.Supported, e.Got)
+}
+
 type UnsupportedError struct {
 	Type   string
 	Idents []string
