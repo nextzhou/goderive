@@ -362,6 +362,76 @@ func (set *StrSet) Map(f interface{}) interface{} {
 	return result.Interface()
 }
 
+// f: func(string) *T
+//    func(string) (T, bool)
+//    func(string) (T, error)
+// return: []T
+func (set *StrSet) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(string) *T / func(string) (T, bool) / func(string) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(string)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(string) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(string) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(string) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item string) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
+	})
+	return result.Interface()
+}
+
 func (set *StrSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -756,6 +826,76 @@ func (set *StrOrderSet) Map(f interface{}) interface{} {
 	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
 	set.ForEach(func(item string) {
 		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
+// f: func(string) *T
+//    func(string) (T, bool)
+//    func(string) (T, error)
+// return: []T
+func (set *StrOrderSet) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(string) *T / func(string) (T, bool) / func(string) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(string)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(string) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(string) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(string) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item string) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
 	})
 	return result.Interface()
 }

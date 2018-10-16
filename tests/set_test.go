@@ -2,6 +2,7 @@ package tests
 
 import (
 	"encoding/json"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -218,4 +219,41 @@ func TestMapping(t *testing.T) {
 		So(func() { set.Map(func(string) string { return "" }) }, ShouldPanic)
 		So(func() { set.Map(func(int) (string, string) { return "", "" }) }, ShouldPanic)
 	})
+}
+
+func TestFilterMap(t *testing.T) {
+	Convey("FilterMap", t, func() {
+		set := NewAscendingInt3SetFromSlice([]int{1, 2, 3})
+		// func(int) *string
+		result := set.FilterMap(func(i int) *string {
+			if i%2 == 0 {
+				return nil
+			}
+			s := strconv.Itoa(i * 2)
+			return &s
+		}).([]string)
+		So(strings.Join(result, ""), ShouldEqual, "26")
+
+		// func(int) (string, bool)
+		result = set.FilterMap(func(i int) (string, bool) {
+			if i%2 == 0 {
+				return "", false
+			}
+			return strconv.Itoa(i * 2), true
+		}).([]string)
+		So(strings.Join(result, ""), ShouldEqual, "26")
+
+		// func(int) (string, error)
+		result = set.FilterMap(func(i int) (string, error) {
+			if i%2 == 0 {
+				return "", errors.New("skipped")
+			}
+			return strconv.Itoa(i * 2), nil
+		}).([]string)
+		So(strings.Join(result, ""), ShouldEqual, "26")
+
+		So(func() { set.FilterMap(func(int) string { return "" }) }, ShouldPanic)
+		So(func() { set.FilterMap(func(int) (string, string) { return "", "" }) }, ShouldPanic)
+	})
+
 }

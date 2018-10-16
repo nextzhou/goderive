@@ -373,6 +373,76 @@ func (set *ImportSet) Map(f interface{}) interface{} {
 	return result.Interface()
 }
 
+// f: func(Import) *T
+//    func(Import) (T, bool)
+//    func(Import) (T, error)
+// return: []T
+func (set *ImportSet) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(Import) *T / func(Import) (T, bool) / func(Import) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(Import)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(Import) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(Import) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(Import) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Import) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
+	})
+	return result.Interface()
+}
+
 func (set *ImportSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -734,6 +804,76 @@ func (set *PluginSet) Map(f interface{}) interface{} {
 	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
 	set.ForEach(func(item Plugin) {
 		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
+// f: func(Plugin) *T
+//    func(Plugin) (T, bool)
+//    func(Plugin) (T, error)
+// return: []T
+func (set *PluginSet) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(Plugin) *T / func(Plugin) (T, bool) / func(Plugin) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(Plugin)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(Plugin) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(Plugin) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(Plugin) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Plugin) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
 	})
 	return result.Interface()
 }
@@ -1105,6 +1245,76 @@ func (set *ValueSet) Map(f interface{}) interface{} {
 	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
 	set.ForEach(func(item Value) {
 		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
+// f: func(Value) *T
+//    func(Value) (T, bool)
+//    func(Value) (T, error)
+// return: []T
+func (set *ValueSet) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(Value) *T / func(Value) (T, bool) / func(Value) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(Value)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(Value) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(Value) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(Value) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Value) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
 	})
 	return result.Interface()
 }
