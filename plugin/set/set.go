@@ -34,7 +34,9 @@ func (set Set) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo,
 	var arg TemplateArgs
 	pre := plugin.MakePrerequisites()
 	forceExport := opt.GetFlag("Export")
-	pre.Imports.Append(plugin.MakeImport("fmt"), plugin.MakeImport("encoding/json"))
+	pre.Imports.Append(plugin.MakeImport("fmt"),
+		plugin.MakeImport("encoding/json"),
+		plugin.MakeImport("reflect"))
 	arg.TypeName = typeInfo.Name
 
 	// use assigned type as type name

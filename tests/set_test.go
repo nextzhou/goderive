@@ -3,6 +3,7 @@ package tests
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 	"strings"
 	"testing"
 
@@ -200,5 +201,21 @@ func TestGroupBy(t *testing.T) {
 		So(lenOrSelfGroup[3].String(), ShouldEqual, `[abc bcd]`)
 		So(lenOrSelfGroup["bbbb"].String(), ShouldEqual, `[bbbb]`)
 		So(lenOrSelfGroup["defghi"].String(), ShouldEqual, `[defghi]`)
+	})
+}
+
+func TestMapping(t *testing.T) {
+	Convey("mapping", t, func() {
+		set := NewAscendingInt3SetFromSlice([]int{1, 2, 3})
+		result := set.Map(func(i int) string {
+			return strconv.Itoa(i * 2)
+		}).([]string)
+		So(result, ShouldContain, "2")
+		So(result, ShouldContain, "4")
+		So(result, ShouldContain, "6")
+		So(strings.Join(result, ""), ShouldEqual, "246")
+
+		So(func() { set.Map(func(string) string { return "" }) }, ShouldPanic)
+		So(func() { set.Map(func(int) (string, string) { return "", "" }) }, ShouldPanic)
 	})
 }

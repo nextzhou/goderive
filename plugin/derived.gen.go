@@ -5,6 +5,7 @@ package plugin
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 )
 
@@ -345,6 +346,33 @@ func (set *ImportSet) GroupBy(f func(Import) interface{}) map[interface{}]*Impor
 	return groups
 }
 
+// f: func(Import) T
+// return: []T
+func (set *ImportSet) Map(f interface{}) interface{} {
+	expected := "f should be func(Import)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(Import)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Import) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
 func (set *ImportSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -681,6 +709,33 @@ func (set *PluginSet) GroupBy(f func(Plugin) interface{}) map[interface{}]*Plugi
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(Plugin) T
+// return: []T
+func (set *PluginSet) Map(f interface{}) interface{} {
+	expected := "f should be func(Plugin)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(Plugin)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Plugin) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *PluginSet) String() string {
@@ -1025,6 +1080,33 @@ func (set *ValueSet) GroupBy(f func(Value) interface{}) map[interface{}]*ValueSe
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(Value) T
+// return: []T
+func (set *ValueSet) Map(f interface{}) interface{} {
+	expected := "f should be func(Value)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(Value)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item Value) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *ValueSet) String() string {

@@ -481,6 +481,33 @@ func (set *{{ .SetName }}) GroupBy(f func({{ .TypeName }}) interface{}) map[inte
 	return groups
 }
 
+// f: func({{ .TypeName }}) T
+// return: []T
+func (set *{{ .SetName }}) Map(f interface{}) interface{} {
+	expected := "f should be func({{ .TypeName }})T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new({{ .TypeName }})).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item {{ .TypeName }}) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	return fmt.Sprint(set.elementSequence)

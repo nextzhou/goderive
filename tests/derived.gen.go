@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"reflect"
 	"sort"
 	t "time"
 
@@ -326,6 +327,33 @@ func (set *IntSet) GroupBy(f func(int) interface{}) map[interface{}]*IntSet {
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(int) T
+// return: []T
+func (set *IntSet) Map(f interface{}) interface{} {
+	expected := "f should be func(int)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(int)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item int) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *IntSet) String() string {
@@ -670,6 +698,33 @@ func (set *intOrderSet) GroupBy(f func(int) interface{}) map[interface{}]*intOrd
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(int) T
+// return: []T
+func (set *intOrderSet) Map(f interface{}) interface{} {
+	expected := "f should be func(int)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(int)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item int) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *intOrderSet) String() string {
@@ -1043,6 +1098,33 @@ func (set *Int3Set) GroupBy(f func(int) interface{}) map[interface{}]*Int3Set {
 	return groups
 }
 
+// f: func(int) T
+// return: []T
+func (set *Int3Set) Map(f interface{}) interface{} {
+	expected := "f should be func(int)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(int)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item int) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
 func (set *Int3Set) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -1337,6 +1419,33 @@ func (set *myTypeSet) GroupBy(f func(MyType) interface{}) map[interface{}]*myTyp
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(MyType) T
+// return: []T
+func (set *myTypeSet) Map(f interface{}) interface{} {
+	expected := "f should be func(MyType)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(MyType)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item MyType) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *myTypeSet) String() string {
@@ -1710,6 +1819,33 @@ func (set *SSet) GroupBy(f func(string) interface{}) map[interface{}]*SSet {
 	return groups
 }
 
+// f: func(string) T
+// return: []T
+func (set *SSet) Map(f interface{}) interface{} {
+	expected := "f should be func(string)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(string)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item string) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
 func (set *SSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -2004,6 +2140,33 @@ func (set *TSet) GroupBy(f func(t.Time) interface{}) map[interface{}]*TSet {
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(t.Time) T
+// return: []T
+func (set *TSet) Map(f interface{}) interface{} {
+	expected := "f should be func(t.Time)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(t.Time)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item t.Time) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *TSet) String() string {
@@ -2404,6 +2567,33 @@ func (set *hSet) GroupBy(f func(http.Handler) interface{}) map[interface{}]*hSet
 	return groups
 }
 
+// f: func(http.Handler) T
+// return: []T
+func (set *hSet) Map(f interface{}) interface{} {
+	expected := "f should be func(http.Handler)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(http.Handler)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item http.Handler) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
 func (set *hSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -2704,6 +2894,33 @@ func (set *PSet) GroupBy(f func(plugin.Plugin) interface{}) map[interface{}]*PSe
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(plugin.Plugin) T
+// return: []T
+func (set *PSet) Map(f interface{}) interface{} {
+	expected := "f should be func(plugin.Plugin)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(plugin.Plugin)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item plugin.Plugin) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *PSet) String() string {

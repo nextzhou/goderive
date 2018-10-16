@@ -5,6 +5,7 @@ package utils
 import (
 	"encoding/json"
 	"fmt"
+	"reflect"
 	"sort"
 )
 
@@ -332,6 +333,33 @@ func (set *StrSet) GroupBy(f func(string) interface{}) map[interface{}]*StrSet {
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(string) T
+// return: []T
+func (set *StrSet) Map(f interface{}) interface{} {
+	expected := "f should be func(string)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(string)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item string) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *StrSet) String() string {
@@ -703,6 +731,33 @@ func (set *StrOrderSet) GroupBy(f func(string) interface{}) map[interface{}]*Str
 		group.Append(item)
 	})
 	return groups
+}
+
+// f: func(string) T
+// return: []T
+func (set *StrOrderSet) Map(f interface{}) interface{} {
+	expected := "f should be func(string)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(string)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, set.Len())
+	set.ForEach(func(item string) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
 }
 
 func (set *StrOrderSet) String() string {
