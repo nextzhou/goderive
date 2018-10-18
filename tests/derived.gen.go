@@ -444,6 +444,60 @@ func (set *IntSet) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type IntSlice struct {
+	elements []int
+}
+
+func NewIntSlice(capacity int) *IntSlice {
+	return &IntSlice{
+		elements: make([]int, 0, capacity),
+	}
+}
+
+func NewIntSliceFromSlice(slice []int) *IntSlice {
+	return &IntSlice{
+		elements: slice,
+	}
+}
+
+func (s *IntSlice) Len() int {
+	return len(s.elements)
+}
+
+func (s *IntSlice) Append(items ...int) {
+	s.elements = append(s.elements, items...)
+}
+
+func (s *IntSlice) Clone() *IntSlice {
+	cloned := &IntSlice{
+		elements: make([]int, s.Len()),
+	}
+	copy(cloned.elements, s.elements)
+	return cloned
+}
+
+func (s *IntSlice) ToSlice() []int {
+	slice := make([]int, s.Len())
+	copy(slice, s.elements)
+	return slice
+}
+
+func (s *IntSlice) ToSliceRef() []int {
+	return s.elements
+}
+
+func (s *IntSlice) String() string {
+	return fmt.Sprint(s.elements)
+}
+
+func (s *IntSlice) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.elements)
+}
+
+func (s *IntSlice) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.elements)
+}
+
 type intOrderSet struct {
 	elements        map[int]uint32
 	elementSequence []int
@@ -3100,6 +3154,60 @@ func (set *hSet) UnmarshalJSON(b []byte) error {
 	}
 	*set = *newHSetFromSlice(s)
 	return nil
+}
+
+type hSlice struct {
+	elements []http.Handler
+}
+
+func newHSlice(capacity int) *hSlice {
+	return &hSlice{
+		elements: make([]http.Handler, 0, capacity),
+	}
+}
+
+func newHSliceFromSlice(slice []http.Handler) *hSlice {
+	return &hSlice{
+		elements: slice,
+	}
+}
+
+func (s *hSlice) Len() int {
+	return len(s.elements)
+}
+
+func (s *hSlice) Append(items ...http.Handler) {
+	s.elements = append(s.elements, items...)
+}
+
+func (s *hSlice) Clone() *hSlice {
+	cloned := &hSlice{
+		elements: make([]http.Handler, s.Len()),
+	}
+	copy(cloned.elements, s.elements)
+	return cloned
+}
+
+func (s *hSlice) ToSlice() []http.Handler {
+	slice := make([]http.Handler, s.Len())
+	copy(slice, s.elements)
+	return slice
+}
+
+func (s *hSlice) ToSliceRef() []http.Handler {
+	return s.elements
+}
+
+func (s *hSlice) String() string {
+	return fmt.Sprint(s.elements)
+}
+
+func (s *hSlice) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.elements)
+}
+
+func (s *hSlice) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.elements)
 }
 
 type PSet struct {

@@ -9,6 +9,7 @@ import (
 )
 
 // derive-set
+// derive-slice
 type Int = int
 
 // derive-set:Rename=intOrderSet;Order=Append
@@ -19,6 +20,7 @@ type Int3 = int
 
 // unexported type, from imported package
 // derive-set
+// derive-slice
 type h = http.Handler
 
 // from renamed imported package

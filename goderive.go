@@ -13,6 +13,7 @@ import (
 	"github.com/nextzhou/goderive/plugin"
 	"github.com/nextzhou/goderive/plugin/access"
 	"github.com/nextzhou/goderive/plugin/set"
+	"github.com/nextzhou/goderive/plugin/slice"
 	"github.com/nextzhou/goderive/utils"
 	"github.com/spf13/cobra"
 )
@@ -35,6 +36,7 @@ func main() {
 	derive := NewDerive()
 	derive.RegisterPlugin(set.Set{})
 	derive.RegisterPlugin(access.Access{})
+	derive.RegisterPlugin(slice.Slice{})
 
 	if err := derive.Execute(); err != nil {
 		os.Exit(1)
