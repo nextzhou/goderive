@@ -50,6 +50,8 @@ Flags:
 Plugins:
   set            set collection
   access         access fields for struct type
+  slice          slice extension
+
 ```
 
 ## Plugins
@@ -76,4 +78,16 @@ access fields for struct type
 
 Args:
   Receiver       single value            receiver of methods
+```
+
+```
+Plugin: slice
+
+slice extension
+
+Flags:
+  Export         force the generated code to be exported/unexported
+
+Args:
+  Rename         single value            assign set type name manually
 ```
