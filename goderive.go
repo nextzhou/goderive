@@ -3,6 +3,7 @@ package main
 import (
 	"bytes"
 	"fmt"
+	"go/format"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -282,7 +283,12 @@ func (d *Derive) Run(inputPaths []string) error {
 
 		headBuf.Write(bodyBuf.Bytes())
 
-		err := ioutil.WriteFile(filename, headBuf.Bytes(), 0644)
+		generatedSrc, err := format.Source(headBuf.Bytes())
+		if err != nil {
+			panic(fmt.Sprintf("invalid generated code: %s", err.Error()))
+		}
+
+		err = ioutil.WriteFile(filename, generatedSrc, 0644)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "write %#v error : %s\n", filename, err.Error())
 			os.Exit(1)
