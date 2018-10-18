@@ -177,7 +177,7 @@ func (d *Derive) ExcludePath(name string, isDir bool) bool {
 		return true
 	}
 	if isDir {
-		return d.excludeDirs.Any(func(dir string) bool { return name == dir })
+		return d.excludeDirs.Contains(name)
 	} else {
 		return d.excludeExts.Any(func(ext string) bool { return strings.HasSuffix(name, ext) })
 	}
