@@ -31,7 +31,7 @@ func (s *{{ .SliceName }}) Append(items ...{{ .TypeName }}) {
 }
 
 func (s *{{ .SliceName }}) Clone() *{{ .SliceName }} {
-	cloned := &{{ .SliceName }} {
+	cloned := &{{ .SliceName }}{
 		elements: make([]{{ .TypeName }}, s.Len()),
 	}
 	copy(cloned.elements, s.elements)

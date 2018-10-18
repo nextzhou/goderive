@@ -287,7 +287,8 @@ func (d *Derive) Run(inputPaths []string) error {
 
 		generatedSrc, err := format.Source(headBuf.Bytes())
 		if err != nil {
-			panic(fmt.Sprintf("invalid generated code: %s", err.Error()))
+			ioutil.WriteFile(filename, headBuf.Bytes(), 0644)
+			panic(fmt.Sprintf("%s: invalid generated code: %s", filename, err.Error()))
 		}
 
 		err = ioutil.WriteFile(filename, generatedSrc, 0644)
