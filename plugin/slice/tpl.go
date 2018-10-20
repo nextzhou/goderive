@@ -23,6 +23,9 @@ func {{ .New }}{{ .CapitalizeSliceName }}FromSlice(slice []{{ .TypeName }}) *{{ 
 }
 
 func (s *{{ .SliceName }}) Len() int {
+	if s == nil {
+		return 0
+	}
 	return len(s.elements)
 }
 

@@ -9,7 +9,11 @@ import (
 
 func TestIntSlice(t *testing.T) {
 	Convey("int slice", t, func() {
-		s := NewIntSlice(0)
+		var s *IntSlice
+		So(s, ShouldBeNil)
+		So(s.Len(), ShouldEqual, 0)
+
+		s = NewIntSlice(0)
 		So(s.Len(), ShouldEqual, 0)
 		So(s.String(), ShouldEqual, "[]")
 

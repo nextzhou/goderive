@@ -461,6 +461,9 @@ func NewIntSliceFromSlice(slice []int) *IntSlice {
 }
 
 func (s *IntSlice) Len() int {
+	if s == nil {
+		return 0
+	}
 	return len(s.elements)
 }
 
@@ -3173,6 +3176,9 @@ func newHSliceFromSlice(slice []http.Handler) *hSlice {
 }
 
 func (s *hSlice) Len() int {
+	if s == nil {
+		return 0
+	}
 	return len(s.elements)
 }
 
