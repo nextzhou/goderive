@@ -29,6 +29,10 @@ func (s *{{ .SliceName }}) Len() int {
 	return len(s.elements)
 }
 
+func (s *{{ .SliceName }}) IsEmpty() bool {
+	return s.Len() == 0
+}
+
 func (s *{{ .SliceName }}) Append(items ...{{ .TypeName }}) {
 	s.elements = append(s.elements, items...)
 }
@@ -50,6 +54,91 @@ func (s *{{ .SliceName }}) ToSlice() []{{ .TypeName }} {
 func (s *{{ .SliceName }}) ToSliceRef() []{{ .TypeName }} {
 	return s.elements
 }
+
+func (s *{{ .SliceName }}) Clear() {
+	s.elements = s.elements[:0]
+}
+
+func (s *{{ .SliceName }}) Equal(another *{{ .SliceName }}) bool {
+	if s.Len() != another.Len() {
+		return false
+	}
+	for idx, item := range s.elements {
+		if item != another.elements[idx] {
+			return false
+		}
+	}
+	return false
+}
+
+func (s *{{ .SliceName }}) Insert(idx int, items ...{{ .TypeName }}) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	items = append(s.elements[idx:])
+	s.elements = append(s.elements[:idx], items...)
+}
+
+func (s *{{ .SliceName }}) Remove(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = append(s.elements[:idx], s.elements[idx+1:]...)
+}
+
+func (s *{{ .SliceName }}) RemoveRange(from, to int) {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	s.elements = append(s.elements[:from], s.elements[to+1:]...)
+}
+
+func (s *{{ .SliceName }}) RemoveFrom(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[:idx]
+}
+
+func (s *{{ .SliceName }}) RemoveTo(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[idx + 1:]
+}
+
+func (s *{{ .SliceName }}) Concat(another {{ .SliceName }}) *{{ .SliceName }} {
+	result := s.Clone()
+	result.Append(another.elements...)
+	return result
+}
+
+func (s *{{ .SliceName }}) InPlaceConcat(another {{ .SliceName }}) {
+	s.Append(another.elements...)
+}
+
+func (s *{{ .SliceName }}) ForEach(f func({{ .TypeName }})) {
+	if s.IsEmpty() {
+		return
+	}
+	for _, item := range s.elements {
+		f(item)
+	}
+}
+
+func (s *{{ .SliceName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SliceName }} {
+	result := {{ .New }}{{ .CapitalizeSliceName }}(0)
+	for _, item := range s.elements {
+		if f(item) {
+			result.Append(item)
+		}
+	}
+	return result
+}
+
 
 func (s *{{ .SliceName }}) String() string {
 	return fmt.Sprint(s.elements)

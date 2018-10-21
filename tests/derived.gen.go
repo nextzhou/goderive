@@ -467,6 +467,10 @@ func (s *IntSlice) Len() int {
 	return len(s.elements)
 }
 
+func (s *IntSlice) IsEmpty() bool {
+	return s.Len() == 0
+}
+
 func (s *IntSlice) Append(items ...int) {
 	s.elements = append(s.elements, items...)
 }
@@ -487,6 +491,90 @@ func (s *IntSlice) ToSlice() []int {
 
 func (s *IntSlice) ToSliceRef() []int {
 	return s.elements
+}
+
+func (s *IntSlice) Clear() {
+	s.elements = s.elements[:0]
+}
+
+func (s *IntSlice) Equal(another *IntSlice) bool {
+	if s.Len() != another.Len() {
+		return false
+	}
+	for idx, item := range s.elements {
+		if item != another.elements[idx] {
+			return false
+		}
+	}
+	return false
+}
+
+func (s *IntSlice) Insert(idx int, items ...int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	items = append(s.elements[idx:])
+	s.elements = append(s.elements[:idx], items...)
+}
+
+func (s *IntSlice) Remove(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = append(s.elements[:idx], s.elements[idx+1:]...)
+}
+
+func (s *IntSlice) RemoveRange(from, to int) {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	s.elements = append(s.elements[:from], s.elements[to+1:]...)
+}
+
+func (s *IntSlice) RemoveFrom(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[:idx]
+}
+
+func (s *IntSlice) RemoveTo(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[idx+1:]
+}
+
+func (s *IntSlice) Concat(another IntSlice) *IntSlice {
+	result := s.Clone()
+	result.Append(another.elements...)
+	return result
+}
+
+func (s *IntSlice) InPlaceConcat(another IntSlice) {
+	s.Append(another.elements...)
+}
+
+func (s *IntSlice) ForEach(f func(int)) {
+	if s.IsEmpty() {
+		return
+	}
+	for _, item := range s.elements {
+		f(item)
+	}
+}
+
+func (s *IntSlice) Filter(f func(int) bool) *IntSlice {
+	result := NewIntSlice(0)
+	for _, item := range s.elements {
+		if f(item) {
+			result.Append(item)
+		}
+	}
+	return result
 }
 
 func (s *IntSlice) String() string {
@@ -3182,6 +3270,10 @@ func (s *hSlice) Len() int {
 	return len(s.elements)
 }
 
+func (s *hSlice) IsEmpty() bool {
+	return s.Len() == 0
+}
+
 func (s *hSlice) Append(items ...http.Handler) {
 	s.elements = append(s.elements, items...)
 }
@@ -3202,6 +3294,90 @@ func (s *hSlice) ToSlice() []http.Handler {
 
 func (s *hSlice) ToSliceRef() []http.Handler {
 	return s.elements
+}
+
+func (s *hSlice) Clear() {
+	s.elements = s.elements[:0]
+}
+
+func (s *hSlice) Equal(another *hSlice) bool {
+	if s.Len() != another.Len() {
+		return false
+	}
+	for idx, item := range s.elements {
+		if item != another.elements[idx] {
+			return false
+		}
+	}
+	return false
+}
+
+func (s *hSlice) Insert(idx int, items ...http.Handler) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	items = append(s.elements[idx:])
+	s.elements = append(s.elements[:idx], items...)
+}
+
+func (s *hSlice) Remove(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = append(s.elements[:idx], s.elements[idx+1:]...)
+}
+
+func (s *hSlice) RemoveRange(from, to int) {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	s.elements = append(s.elements[:from], s.elements[to+1:]...)
+}
+
+func (s *hSlice) RemoveFrom(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[:idx]
+}
+
+func (s *hSlice) RemoveTo(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[idx+1:]
+}
+
+func (s *hSlice) Concat(another hSlice) *hSlice {
+	result := s.Clone()
+	result.Append(another.elements...)
+	return result
+}
+
+func (s *hSlice) InPlaceConcat(another hSlice) {
+	s.Append(another.elements...)
+}
+
+func (s *hSlice) ForEach(f func(http.Handler)) {
+	if s.IsEmpty() {
+		return
+	}
+	for _, item := range s.elements {
+		f(item)
+	}
+}
+
+func (s *hSlice) Filter(f func(http.Handler) bool) *hSlice {
+	result := newHSlice(0)
+	for _, item := range s.elements {
+		if f(item) {
+			result.Append(item)
+		}
+	}
+	return result
 }
 
 func (s *hSlice) String() string {
