@@ -89,5 +89,5 @@ Flags:
   Export         force the generated code to be exported/unexported
 
 Args:
-  Rename         single value            assign set type name manually
+  Rename         single value            assign set slice name manually
 ```

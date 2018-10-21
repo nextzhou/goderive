@@ -19,7 +19,7 @@ func (s Slice) Describe() plugin.Description {
 			{Key: "Export", Default: utils.TriBoolUndefined, Effect: "force the generated code to be exported/unexported"},
 		},
 		ValidArgs: []plugin.ArgDescription{
-			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign set type name manually"},
+			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign slice type name manually"},
 		},
 		AllowUnexpectedlyFlag: false,
 		AllowUnexpectedlyArg:  false,
