@@ -75,8 +75,20 @@ func (s *{{ .SliceName }}) Insert(idx int, items ...{{ .TypeName }}) {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	items = append(s.elements[idx:])
-	s.elements = append(s.elements[:idx], items...)
+	if l := len(s.elements) + len(items); l > cap(s.elements) {
+		// reallocate
+		result := make([]{{ .TypeName }}, l)
+		copy(result, s.elements[:idx])
+		copy(result[idx:], items)
+		copy(result[idx+len(items):], s.elements[idx:])
+		s.elements = result
+		return
+	}
+
+	l := s.Len()
+	s.elements = append(s.elements, items...)
+	copy(s.elements[idx+len(items):], s.elements[idx:l])
+	copy(s.elements[idx:], items)
 }
 
 func (s *{{ .SliceName }}) Remove(idx int) {

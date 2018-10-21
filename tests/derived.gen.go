@@ -513,8 +513,20 @@ func (s *IntSlice) Insert(idx int, items ...int) {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	items = append(s.elements[idx:])
-	s.elements = append(s.elements[:idx], items...)
+	if l := len(s.elements) + len(items); l > cap(s.elements) {
+		// reallocate
+		result := make([]int, l)
+		copy(result, s.elements[:idx])
+		copy(result[idx:], items)
+		copy(result[idx+len(items):], s.elements[idx:])
+		s.elements = result
+		return
+	}
+
+	l := s.Len()
+	s.elements = append(s.elements, items...)
+	copy(s.elements[idx+len(items):], s.elements[idx:l])
+	copy(s.elements[idx:], items)
 }
 
 func (s *IntSlice) Remove(idx int) {
@@ -3316,8 +3328,20 @@ func (s *hSlice) Insert(idx int, items ...http.Handler) {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	items = append(s.elements[idx:])
-	s.elements = append(s.elements[:idx], items...)
+	if l := len(s.elements) + len(items); l > cap(s.elements) {
+		// reallocate
+		result := make([]http.Handler, l)
+		copy(result, s.elements[:idx])
+		copy(result[idx:], items)
+		copy(result[idx+len(items):], s.elements[idx:])
+		s.elements = result
+		return
+	}
+
+	l := s.Len()
+	s.elements = append(s.elements, items...)
+	copy(s.elements[idx+len(items):], s.elements[idx:l])
+	copy(s.elements[idx:], items)
 }
 
 func (s *hSlice) Remove(idx int) {

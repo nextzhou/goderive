@@ -45,5 +45,22 @@ func TestIntSlice(t *testing.T) {
 		err = json.Unmarshal(j, s)
 		So(err, ShouldBeNil)
 		So(s.String(), ShouldEqual, "[3 2 1]")
+
+		Convey("insert", func() {
+			s := NewIntSliceFromSlice([]int{1, 3, 5})
+
+			// "-1" equal "s.Len()-1"
+			s.Insert(-1, 4)
+			So(s.String(), ShouldEqual, "[1 3 4 5]")
+
+			s.Insert(1, 2)
+			So(s.String(), ShouldEqual, "[1 2 3 4 5]")
+
+			s.Insert(1, []int{1, 1, 2, 2}...)
+			So(s.String(), ShouldEqual, "[1 1 1 2 2 2 3 4 5]")
+
+			s.Insert(0, []int{0, 0, 0}...)
+			So(s.String(), ShouldEqual, "[0 0 0 1 1 1 2 2 2 3 4 5]")
+		})
 	})
 }
