@@ -157,6 +157,152 @@ func (s *{{ .SliceName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SliceName }
 	return result
 }
 
+func (s *{{ .SliceName }}) Index(idx int) *{{ .TypeName }} {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return &s.elements[idx]
+}
+
+func (s *{{ .SliceName }}) IndexRange(from, to int) []{{ .TypeName }} {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	return s.elements[from:to]
+}
+
+func (s *{{ .SliceName }}) IndexFrom(idx int) []{{ .TypeName }} {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[idx:]
+}
+
+func (s *{{ .SliceName }}) IndexTo(idx int) []{{ .TypeName }} {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[:idx]
+}
+
+func (s *{{ .SliceName }}) Find(item {{ .TypeName }}) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if n == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) FindLast(item {{ .TypeName }}) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if s.elements[idx] == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) FindBy(f func({{ .TypeName }}) bool) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if f(n) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) FindLastBy(f func({{ .TypeName }}) bool) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if f(s.elements[idx]) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) Count(item {{ .TypeName }}) uint {
+	count := uint(0)
+	s.ForEach(func(n {{ .TypeName }}) {
+		if n == item {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *{{ .SliceName }}) CountBy(f func({{ .TypeName }}) bool) uint {
+	count := uint(0)
+	s.ForEach(func(item {{ .TypeName }}) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *{{ .SliceName }}) GroupByBool(f func({{ .TypeName }}) bool) (trueGroup, falseGroup *{{ .SliceName }}) {
+	trueGroup, falseGroup = {{ .New }}{{ .CapitalizeSliceName }}(0), {{ .New }}{{ .CapitalizeSliceName }}(0)
+	s.ForEach(func(item {{ .TypeName }}) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (s {{ .SliceName }}) GroupByStr(f func({{ .TypeName }}) string) map[string]*{{ .SliceName }} {
+	groups := make(map[string]*{{ .SliceName }})
+	s.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = {{ .New }}{{ .CapitalizeSliceName }}(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s {{ .SliceName }}) GroupByInt(f func({{ .TypeName }}) int) map[int]*{{ .SliceName }} {
+	groups := make(map[int]*{{ .SliceName }})
+	s.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = {{ .New }}{{ .CapitalizeSliceName }}(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s *{{ .SliceName }}) GroupBy(f func({{ .TypeName }}) interface{}) map[interface{}]*{{ .SliceName }} {
+	groups := make(map[interface{}]*{{ .SliceName }})
+	s.ForEach(func(item {{ .TypeName }}) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = {{ .New }}{{ .CapitalizeSliceName }}(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
 
 func (s *{{ .SliceName }}) String() string {
 	return fmt.Sprint(s.elements)

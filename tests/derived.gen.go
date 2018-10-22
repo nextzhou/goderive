@@ -595,6 +595,153 @@ func (s *IntSlice) Filter(f func(int) bool) *IntSlice {
 	return result
 }
 
+func (s *IntSlice) Index(idx int) *int {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return &s.elements[idx]
+}
+
+func (s *IntSlice) IndexRange(from, to int) []int {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	return s.elements[from:to]
+}
+
+func (s *IntSlice) IndexFrom(idx int) []int {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[idx:]
+}
+
+func (s *IntSlice) IndexTo(idx int) []int {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[:idx]
+}
+
+func (s *IntSlice) Find(item int) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if n == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) FindLast(item int) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if s.elements[idx] == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) FindBy(f func(int) bool) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if f(n) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) FindLastBy(f func(int) bool) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if f(s.elements[idx]) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) Count(item int) uint {
+	count := uint(0)
+	s.ForEach(func(n int) {
+		if n == item {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *IntSlice) CountBy(f func(int) bool) uint {
+	count := uint(0)
+	s.ForEach(func(item int) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *IntSlice) GroupByBool(f func(int) bool) (trueGroup, falseGroup *IntSlice) {
+	trueGroup, falseGroup = NewIntSlice(0), NewIntSlice(0)
+	s.ForEach(func(item int) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (s IntSlice) GroupByStr(f func(int) string) map[string]*IntSlice {
+	groups := make(map[string]*IntSlice)
+	s.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s IntSlice) GroupByInt(f func(int) int) map[int]*IntSlice {
+	groups := make(map[int]*IntSlice)
+	s.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s *IntSlice) GroupBy(f func(int) interface{}) map[interface{}]*IntSlice {
+	groups := make(map[interface{}]*IntSlice)
+	s.ForEach(func(item int) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewIntSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
 func (s *IntSlice) String() string {
 	return fmt.Sprint(s.elements)
 }
@@ -3414,6 +3561,153 @@ func (s *hSlice) Filter(f func(http.Handler) bool) *hSlice {
 		}
 	}
 	return result
+}
+
+func (s *hSlice) Index(idx int) *http.Handler {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return &s.elements[idx]
+}
+
+func (s *hSlice) IndexRange(from, to int) []http.Handler {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	return s.elements[from:to]
+}
+
+func (s *hSlice) IndexFrom(idx int) []http.Handler {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[idx:]
+}
+
+func (s *hSlice) IndexTo(idx int) []http.Handler {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return s.elements[:idx]
+}
+
+func (s *hSlice) Find(item http.Handler) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if n == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) FindLast(item http.Handler) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if s.elements[idx] == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) FindBy(f func(http.Handler) bool) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if f(n) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) FindLastBy(f func(http.Handler) bool) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if f(s.elements[idx]) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) Count(item http.Handler) uint {
+	count := uint(0)
+	s.ForEach(func(n http.Handler) {
+		if n == item {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *hSlice) CountBy(f func(http.Handler) bool) uint {
+	count := uint(0)
+	s.ForEach(func(item http.Handler) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *hSlice) GroupByBool(f func(http.Handler) bool) (trueGroup, falseGroup *hSlice) {
+	trueGroup, falseGroup = newHSlice(0), newHSlice(0)
+	s.ForEach(func(item http.Handler) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (s hSlice) GroupByStr(f func(http.Handler) string) map[string]*hSlice {
+	groups := make(map[string]*hSlice)
+	s.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s hSlice) GroupByInt(f func(http.Handler) int) map[int]*hSlice {
+	groups := make(map[int]*hSlice)
+	s.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s *hSlice) GroupBy(f func(http.Handler) interface{}) map[interface{}]*hSlice {
+	groups := make(map[interface{}]*hSlice)
+	s.ForEach(func(item http.Handler) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = newHSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
 }
 
 func (s *hSlice) String() string {
