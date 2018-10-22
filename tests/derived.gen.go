@@ -560,13 +560,19 @@ func (s *IntSlice) RemoveTo(idx int) {
 	s.elements = s.elements[idx+1:]
 }
 
-func (s *IntSlice) Concat(another IntSlice) *IntSlice {
+func (s *IntSlice) Concat(another *IntSlice) *IntSlice {
 	result := s.Clone()
+	if another.IsEmpty() {
+		return result
+	}
 	result.Append(another.elements...)
 	return result
 }
 
-func (s *IntSlice) InPlaceConcat(another IntSlice) {
+func (s *IntSlice) InPlaceConcat(another *IntSlice) {
+	if another.IsEmpty() {
+		return
+	}
 	s.Append(another.elements...)
 }
 
@@ -3375,13 +3381,19 @@ func (s *hSlice) RemoveTo(idx int) {
 	s.elements = s.elements[idx+1:]
 }
 
-func (s *hSlice) Concat(another hSlice) *hSlice {
+func (s *hSlice) Concat(another *hSlice) *hSlice {
 	result := s.Clone()
+	if another.IsEmpty() {
+		return result
+	}
 	result.Append(another.elements...)
 	return result
 }
 
-func (s *hSlice) InPlaceConcat(another hSlice) {
+func (s *hSlice) InPlaceConcat(another *hSlice) {
+	if another.IsEmpty() {
+		return
+	}
 	s.Append(another.elements...)
 }
 

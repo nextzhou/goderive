@@ -95,5 +95,22 @@ func TestIntSlice(t *testing.T) {
 
 			So(s.String(), ShouldEqual, "[1 2 3 4 5]")
 		})
+
+		Convey("concat", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3, 4, 5})
+
+			So(s.Concat(nil).String(), ShouldEqual, "[1 2 3 4 5]")
+			So(s.Concat(NewIntSlice(0)).String(), ShouldEqual, "[1 2 3 4 5]")
+
+			So(s.Concat(NewIntSliceFromSlice([]int{4, 5})).String(), ShouldEqual, "[1 2 3 4 5 4 5]")
+
+			So(s.String(), ShouldEqual, "[1 2 3 4 5]")
+
+			s.InPlaceConcat(nil)
+			So(s.String(), ShouldEqual, "[1 2 3 4 5]")
+
+			s.InPlaceConcat(NewIntSliceFromSlice([]int{6, 7, 8}))
+			So(s.String(), ShouldEqual, "[1 2 3 4 5 6 7 8]")
+		})
 	})
 }

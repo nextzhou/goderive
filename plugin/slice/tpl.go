@@ -122,13 +122,19 @@ func (s *{{ .SliceName }}) RemoveTo(idx int) {
 	s.elements = s.elements[idx + 1:]
 }
 
-func (s *{{ .SliceName }}) Concat(another {{ .SliceName }}) *{{ .SliceName }} {
+func (s *{{ .SliceName }}) Concat(another *{{ .SliceName }}) *{{ .SliceName }} {
 	result := s.Clone()
+	if another.IsEmpty() {
+		return result
+	}
 	result.Append(another.elements...)
 	return result
 }
 
-func (s *{{ .SliceName }}) InPlaceConcat(another {{ .SliceName }}) {
+func (s *{{ .SliceName }}) InPlaceConcat(another *{{ .SliceName }}) {
+	if another.IsEmpty() {
+		return
+	}
 	s.Append(another.elements...)
 }
 
