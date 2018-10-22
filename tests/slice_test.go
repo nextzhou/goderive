@@ -62,5 +62,38 @@ func TestIntSlice(t *testing.T) {
 			s.Insert(0, []int{0, 0, 0}...)
 			So(s.String(), ShouldEqual, "[0 0 0 1 1 1 2 2 2 3 4 5]")
 		})
+
+		Convey("remove", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8})
+			So(func() { s.Remove(10) }, ShouldPanic)
+
+			// remove first element
+			s.Remove(0)
+			So(s.String(), ShouldEqual, "[2 3 4 5 6 7 8]")
+
+			// remove last element
+			s.Remove(-1)
+			So(s.String(), ShouldEqual, "[2 3 4 5 6 7]")
+
+			// remove last 3 elements
+			s.RemoveFrom(-3)
+			So(s.String(), ShouldEqual, "[2 3 4]")
+
+			s = NewIntSliceFromSlice([]int{1, 2, 3, 4, 5, 6, 7, 8})
+			s.RemoveTo(2)
+			So(s.String(), ShouldEqual, "[4 5 6 7 8]")
+
+			s.RemoveRange(1, -2)
+			So(s.String(), ShouldEqual, "[4 8]")
+		})
+
+		Convey("filter", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3, 4, 5})
+			So(s.Filter(func(i int) bool { return false }).String(), ShouldEqual, "[]")
+			So(s.Filter(func(i int) bool { return true }).String(), ShouldEqual, "[1 2 3 4 5]")
+			So(s.Filter(func(i int) bool { return i%2 == 1 }).String(), ShouldEqual, "[1 3 5]")
+
+			So(s.String(), ShouldEqual, "[1 2 3 4 5]")
+		})
 	})
 }
