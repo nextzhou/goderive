@@ -164,28 +164,28 @@ func (s *{{ .SliceName }}) Index(idx int) *{{ .TypeName }} {
 	return &s.elements[idx]
 }
 
-func (s *{{ .SliceName }}) IndexRange(from, to int) []{{ .TypeName }} {
+func (s *{{ .SliceName }}) IndexRange(from, to int) *{{ .SliceName }} {
 	if from < 0 {
 		from += s.Len()
 	}
 	if to < 0 {
 		to += s.Len()
 	}
-	return s.elements[from:to]
+	return {{ .New }}{{ .CapitalizeSliceName }}FromSlice(s.elements[from:to])
 }
 
-func (s *{{ .SliceName }}) IndexFrom(idx int) []{{ .TypeName }} {
+func (s *{{ .SliceName }}) IndexFrom(idx int) *{{ .SliceName }} {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[idx:]
+	return {{ .New }}{{ .CapitalizeSliceName }}FromSlice(s.elements[idx:])
 }
 
-func (s *{{ .SliceName }}) IndexTo(idx int) []{{ .TypeName }} {
+func (s *{{ .SliceName }}) IndexTo(idx int) *{{ .SliceName }} {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[:idx]
+	return {{ .New }}{{ .CapitalizeSliceName }}FromSlice(s.elements[:idx])
 }
 
 func (s *{{ .SliceName }}) Find(item {{ .TypeName }}) int {

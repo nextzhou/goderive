@@ -602,28 +602,28 @@ func (s *IntSlice) Index(idx int) *int {
 	return &s.elements[idx]
 }
 
-func (s *IntSlice) IndexRange(from, to int) []int {
+func (s *IntSlice) IndexRange(from, to int) *IntSlice {
 	if from < 0 {
 		from += s.Len()
 	}
 	if to < 0 {
 		to += s.Len()
 	}
-	return s.elements[from:to]
+	return NewIntSliceFromSlice(s.elements[from:to])
 }
 
-func (s *IntSlice) IndexFrom(idx int) []int {
+func (s *IntSlice) IndexFrom(idx int) *IntSlice {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[idx:]
+	return NewIntSliceFromSlice(s.elements[idx:])
 }
 
-func (s *IntSlice) IndexTo(idx int) []int {
+func (s *IntSlice) IndexTo(idx int) *IntSlice {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[:idx]
+	return NewIntSliceFromSlice(s.elements[:idx])
 }
 
 func (s *IntSlice) Find(item int) int {
@@ -3570,28 +3570,28 @@ func (s *hSlice) Index(idx int) *http.Handler {
 	return &s.elements[idx]
 }
 
-func (s *hSlice) IndexRange(from, to int) []http.Handler {
+func (s *hSlice) IndexRange(from, to int) *hSlice {
 	if from < 0 {
 		from += s.Len()
 	}
 	if to < 0 {
 		to += s.Len()
 	}
-	return s.elements[from:to]
+	return newHSliceFromSlice(s.elements[from:to])
 }
 
-func (s *hSlice) IndexFrom(idx int) []http.Handler {
+func (s *hSlice) IndexFrom(idx int) *hSlice {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[idx:]
+	return newHSliceFromSlice(s.elements[idx:])
 }
 
-func (s *hSlice) IndexTo(idx int) []http.Handler {
+func (s *hSlice) IndexTo(idx int) *hSlice {
 	if idx < 0 {
 		idx += s.Len()
 	}
-	return s.elements[:idx]
+	return newHSliceFromSlice(s.elements[:idx])
 }
 
 func (s *hSlice) Find(item http.Handler) int {

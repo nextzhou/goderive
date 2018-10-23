@@ -146,14 +146,9 @@ func TestIntSlice(t *testing.T) {
 			*s.Index(0) = 100
 			So(s.String(), ShouldEqual, "[100 2 3 4 5]")
 
-			ss = s.IndexRange(1, -1)
-			So(NewIntSliceFromSlice(ss).String(), ShouldEqual, "[2 3 4]")
-
-			ss = s.IndexFrom(2)
-			So(NewIntSliceFromSlice(ss).String(), ShouldEqual, "[3 4 5]")
-
-			ss = s.IndexTo(3)
-			So(NewIntSliceFromSlice(ss).String(), ShouldEqual, "[100 2 3]")
+			So(s.IndexRange(1, -1).String(), ShouldEqual, "[2 3 4]")
+			So(s.IndexFrom(2).String(), ShouldEqual, "[3 4 5]")
+			So(s.IndexTo(3).String(), ShouldEqual, "[100 2 3]")
 		})
 
 		Convey("find", func() {
