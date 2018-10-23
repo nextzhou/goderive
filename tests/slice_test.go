@@ -1,10 +1,11 @@
 package tests
 
 import (
+	"errors"
 	"json"
-	"testing"
-
 	"strconv"
+	"strings"
+	"testing"
 
 	. "github.com/smartystreets/goconvey/convey"
 )
@@ -236,6 +237,54 @@ func TestIntSlice(t *testing.T) {
 				So(groups[3].String(), ShouldEqual, "[3]")
 				So(groups["3"].IsEmpty(), ShouldBeTrue)
 			})
+		})
+
+		Convey("map", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3})
+			result := s.Map(func(i int) string {
+				return strconv.Itoa(i * 2)
+			}).([]string)
+			So(result, ShouldContain, "2")
+			So(result, ShouldContain, "4")
+			So(result, ShouldContain, "6")
+			So(strings.Join(result, ""), ShouldEqual, "246")
+
+			So(func() { s.Map(func(string) string { return "" }) }, ShouldPanic)
+			So(func() { s.Map(func(int) (string, string) { return "", "" }) }, ShouldPanic)
+		})
+
+		Convey("filter map", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3})
+			// func(int) *string
+			result := s.FilterMap(func(i int) *string {
+				if i%2 == 0 {
+					return nil
+				}
+				s := strconv.Itoa(i * 2)
+				return &s
+			}).([]string)
+			So(strings.Join(result, ""), ShouldEqual, "26")
+
+			// func(int) (string, bool)
+			result = s.FilterMap(func(i int) (string, bool) {
+				if i%2 == 0 {
+					return "", false
+				}
+				return strconv.Itoa(i * 2), true
+			}).([]string)
+			So(strings.Join(result, ""), ShouldEqual, "26")
+
+			// func(int) (string, error)
+			result = s.FilterMap(func(i int) (string, error) {
+				if i%2 == 0 {
+					return "", errors.New("skipped")
+				}
+				return strconv.Itoa(i * 2), nil
+			}).([]string)
+			So(strings.Join(result, ""), ShouldEqual, "26")
+
+			So(func() { s.FilterMap(func(int) string { return "" }) }, ShouldPanic)
+			So(func() { s.FilterMap(func(int) (string, string) { return "", "" }) }, ShouldPanic)
 		})
 	})
 }
