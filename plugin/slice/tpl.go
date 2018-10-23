@@ -308,7 +308,7 @@ func (s *{{ .SliceName }}) String() string {
 	return fmt.Sprint(s.elements)
 }
 
-func (s *{{ .SliceName }}) MarshalJSON() ([]byte, error) {
+func (s {{ .SliceName }}) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.elements)
 }
 

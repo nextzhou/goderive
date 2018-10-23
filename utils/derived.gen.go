@@ -436,7 +436,7 @@ func (set *StrSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *StrSet) MarshalJSON() ([]byte, error) {
+func (set StrSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -904,7 +904,7 @@ func (set *StrOrderSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *StrOrderSet) MarshalJSON() ([]byte, error) {
+func (set StrOrderSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 

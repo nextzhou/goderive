@@ -122,6 +122,10 @@ func TestAppendOrderIntSet(t *testing.T) {
 		data, err := json.Marshal(set)
 		So(err, ShouldBeNil)
 		So(string(data), ShouldEqual, `[3,7,4,5]`)
+		data, err = json.Marshal(*set)
+		So(err, ShouldBeNil)
+		So(string(data), ShouldEqual, `[3,7,4,5]`)
+
 		found := set.FindBy(func(i Int2) bool {
 			return i%2 == 0
 		})

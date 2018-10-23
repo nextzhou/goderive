@@ -430,7 +430,7 @@ func (set *IntSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *IntSet) MarshalJSON() ([]byte, error) {
+func (set IntSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -746,7 +746,7 @@ func (s *IntSlice) String() string {
 	return fmt.Sprint(s.elements)
 }
 
-func (s *IntSlice) MarshalJSON() ([]byte, error) {
+func (s IntSlice) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.elements)
 }
 
@@ -1181,7 +1181,7 @@ func (set *intOrderSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *intOrderSet) MarshalJSON() ([]byte, error) {
+func (set intOrderSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -1649,7 +1649,7 @@ func (set *Int3Set) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *Int3Set) MarshalJSON() ([]byte, error) {
+func (set Int3Set) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -2042,7 +2042,7 @@ func (set *myTypeSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *myTypeSet) MarshalJSON() ([]byte, error) {
+func (set myTypeSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -2510,7 +2510,7 @@ func (set *SSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *SSet) MarshalJSON() ([]byte, error) {
+func (set SSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -2903,7 +2903,7 @@ func (set *TSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *TSet) MarshalJSON() ([]byte, error) {
+func (set TSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -3398,7 +3398,7 @@ func (set *hSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *hSet) MarshalJSON() ([]byte, error) {
+func (set hSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -3714,7 +3714,7 @@ func (s *hSlice) String() string {
 	return fmt.Sprint(s.elements)
 }
 
-func (s *hSlice) MarshalJSON() ([]byte, error) {
+func (s hSlice) MarshalJSON() ([]byte, error) {
 	return json.Marshal(s.elements)
 }
 
@@ -4107,7 +4107,7 @@ func (set *PSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
 
-func (set *PSet) MarshalJSON() ([]byte, error) {
+func (set PSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 

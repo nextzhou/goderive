@@ -40,6 +40,9 @@ func TestIntSlice(t *testing.T) {
 		j, err := json.Marshal(s)
 		So(err, ShouldBeNil)
 		So(string(j), ShouldEqual, "[5,2,3,2]")
+		j, err = json.Marshal(*s)
+		So(err, ShouldBeNil)
+		So(string(j), ShouldEqual, "[5,2,3,2]")
 
 		j = []byte("[3,2,1]")
 		err = json.Unmarshal(j, s)

@@ -586,7 +586,7 @@ func (set *{{ .SetName }}) String() string {
 	{{- end }}
 }
 
-func (set *{{ .SetName }}) MarshalJSON() ([]byte, error) {
+func (set {{ .SetName }}) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 

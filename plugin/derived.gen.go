@@ -447,7 +447,7 @@ func (set *ImportSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *ImportSet) MarshalJSON() ([]byte, error) {
+func (set ImportSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -882,7 +882,7 @@ func (set *PluginSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *PluginSet) MarshalJSON() ([]byte, error) {
+func (set PluginSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
@@ -1323,7 +1323,7 @@ func (set *ValueSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
 
-func (set *ValueSet) MarshalJSON() ([]byte, error) {
+func (set ValueSet) MarshalJSON() ([]byte, error) {
 	return json.Marshal(set.ToSlice())
 }
 
