@@ -271,6 +271,17 @@ func (set *{{ .SetName }}) ForEach(f func({{ .TypeName }})) {
 	}
 	{{- end }}
 }
+{{- if or (eq .Order "Append") (eq .Order "Key") }}
+
+func (set *{{ .SetName }}) ForEachWithIndex(f func(int, {{ .TypeName }})) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
+	}
+}
+{{- end }}
 
 func (set *{{ .SetName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SetName }} {
 	{{ if eq .Order "Key" -}}

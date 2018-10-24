@@ -173,6 +173,15 @@ func (set *ImportSet) ForEach(f func(Import)) {
 	}
 }
 
+func (set *ImportSet) ForEachWithIndex(f func(int, Import)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
+	}
+}
+
 func (set *ImportSet) Filter(f func(Import) bool) *ImportSet {
 	result := NewImportSet(0, set.cmp)
 	set.ForEach(func(item Import) {
@@ -605,6 +614,15 @@ func (set *PluginSet) ForEach(f func(Plugin)) {
 	}
 	for _, item := range set.elementSequence {
 		f(item)
+	}
+}
+
+func (set *PluginSet) ForEachWithIndex(f func(int, Plugin)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
 	}
 }
 
@@ -1046,6 +1064,15 @@ func (set *ValueSet) ForEach(f func(Value)) {
 	}
 	for _, item := range set.elementSequence {
 		f(item)
+	}
+}
+
+func (set *ValueSet) ForEachWithIndex(f func(int, Value)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
 	}
 }
 

@@ -162,6 +162,15 @@ func (set *StrSet) ForEach(f func(string)) {
 	}
 }
 
+func (set *StrSet) ForEachWithIndex(f func(int, string)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
+	}
+}
+
 func (set *StrSet) Filter(f func(string) bool) *StrSet {
 	result := NewStrSet(0)
 	set.ForEach(func(item string) {
@@ -627,6 +636,15 @@ func (set *StrOrderSet) ForEach(f func(string)) {
 	}
 	for _, item := range set.elementSequence {
 		f(item)
+	}
+}
+
+func (set *StrOrderSet) ForEachWithIndex(f func(int, string)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
 	}
 }
 

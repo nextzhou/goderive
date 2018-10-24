@@ -147,6 +147,15 @@ func (s *{{ .SliceName }}) ForEach(f func({{ .TypeName }})) {
 	}
 }
 
+func (s *{{ .SliceName }}) ForEachWithIndex(f func(int, {{ .TypeName }})) {
+	if s.IsEmpty() {
+		return
+	}
+	for idx, item := range s.elements {
+		f(idx, item)
+	}
+}
+
 func (s *{{ .SliceName }}) Filter(f func({{ .TypeName }}) bool) *{{ .SliceName }} {
 	result := {{ .New }}{{ .CapitalizeSliceName }}(0)
 	for _, item := range s.elements {

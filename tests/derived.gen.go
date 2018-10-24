@@ -1004,6 +1004,15 @@ func (set *intOrderSet) ForEach(f func(int)) {
 	}
 }
 
+func (set *intOrderSet) ForEachWithIndex(f func(int, int)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
+	}
+}
+
 func (set *intOrderSet) Filter(f func(int) bool) *intOrderSet {
 	result := newIntOrderSet(0)
 	set.ForEach(func(item int) {
@@ -1469,6 +1478,15 @@ func (set *Int3Set) ForEach(f func(int)) {
 	}
 	for _, item := range set.elementSequence {
 		f(item)
+	}
+}
+
+func (set *Int3Set) ForEachWithIndex(f func(int, int)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
 	}
 }
 
@@ -2330,6 +2348,15 @@ func (set *SSet) ForEach(f func(string)) {
 	}
 	for _, item := range set.elementSequence {
 		f(item)
+	}
+}
+
+func (set *SSet) ForEachWithIndex(f func(int, string)) {
+	if set.IsEmpty() {
+		return
+	}
+	for idx, item := range set.elementSequence {
+		f(idx, item)
 	}
 }
 
