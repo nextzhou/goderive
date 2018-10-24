@@ -458,6 +458,28 @@ func (s *Entries) Any(f func(Entry) bool) bool {
 	return false
 }
 
+func (s *Entries) Reduce(f func(Entry, Entry) Entry) Entry {
+	if s.IsEmpty() {
+		var defaultVal Entry
+		return defaultVal
+	}
+	ret := s.elements[0]
+	for _, item := range s.elements[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (s *Entries) Fold(init Entry, f func(Entry, Entry) Entry) Entry {
+	if s.IsEmpty() {
+		return init
+	}
+	for _, item := range s.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (s *Entries) String() string {
 	return fmt.Sprint(s.elements)
 }
@@ -913,6 +935,28 @@ func (set *ImportSet) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *ImportSet) Reduce(f func(Import, Import) Import) Import {
+	if set.IsEmpty() {
+		var defaultVal Import
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *ImportSet) Fold(init Import, f func(Import, Import) Import) Import {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *ImportSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -1355,6 +1399,28 @@ func (set *PluginSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *PluginSet) Reduce(f func(Plugin, Plugin) Plugin) Plugin {
+	if set.IsEmpty() {
+		var defaultVal Plugin
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *PluginSet) Fold(init Plugin, f func(Plugin, Plugin) Plugin) Plugin {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *PluginSet) String() string {
@@ -1805,6 +1871,28 @@ func (set *ValueSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *ValueSet) Reduce(f func(Value, Value) Value) Value {
+	if set.IsEmpty() {
+		var defaultVal Value
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *ValueSet) Fold(init Value, f func(Value, Value) Value) Value {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *ValueSet) String() string {

@@ -68,12 +68,25 @@ func TestIntSet(t *testing.T) {
 		So(set.Any(func(i Int) bool { return i%5 == 0 }), ShouldBeFalse)
 
 		So(set.CountBy(func(i Int) bool { return i%2 == 1 }), ShouldEqual, 2)
+
+		So(set.Reduce(func(i int, i2 int) int { return i + i2 }), ShouldEqual, 3+7+4)
+		So(set.Reduce(func(i int, i2 int) int { return i * i2 }), ShouldEqual, 3*7*4)
+		So(set.Fold(1, func(i int, i2 int) int { return i + i2 }), ShouldEqual, 1+3+7+4)
+		So(set.Fold(0, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 0*3*7*4)
+		So(set.Fold(2, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 2*3*7*4)
 	})
 }
 
 func TestAppendOrderIntSet(t *testing.T) {
 	Convey("int append set", t, func() {
 		set := newIntOrderSetFromSlice([]int{1, 2, 3})
+
+		So(set.Reduce(func(i int, i2 int) int { return i + i2 }), ShouldEqual, 1+2+3)
+		So(set.Reduce(func(i int, i2 int) int { return i * i2 }), ShouldEqual, 1*2*3)
+		So(set.Fold(1, func(i int, i2 int) int { return i + i2 }), ShouldEqual, 1+1+2+3)
+		So(set.Fold(0, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 0*1*2*3)
+		So(set.Fold(2, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 2*1*2*3)
+
 		So(set.Contains(1), ShouldBeTrue)
 		So(set.Contains(2), ShouldBeTrue)
 		So(set.Contains(3), ShouldBeTrue)
@@ -259,5 +272,4 @@ func TestFilterMap(t *testing.T) {
 		So(func() { set.FilterMap(func(int) string { return "" }) }, ShouldPanic)
 		So(func() { set.FilterMap(func(int) (string, string) { return "", "" }) }, ShouldPanic)
 	})
-
 }

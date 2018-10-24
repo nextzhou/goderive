@@ -298,5 +298,14 @@ func TestIntSlice(t *testing.T) {
 			So(s.All(func(i int) bool { return i%2 == 0 }), ShouldBeFalse)
 			So(s.Any(func(i int) bool { return i%2 == 0 }), ShouldBeTrue)
 		})
+
+		Convey("fold / reduce", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3})
+			So(s.Reduce(func(i int, i2 int) int { return i + i2 }), ShouldEqual, 1+2+3)
+			So(s.Reduce(func(i int, i2 int) int { return i * i2 }), ShouldEqual, 1*2*3)
+			So(s.Fold(1, func(i int, i2 int) int { return i + i2 }), ShouldEqual, 1+1+2+3)
+			So(s.Fold(0, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 0*1*2*3)
+			So(s.Fold(2, func(i int, i2 int) int { return i * i2 }), ShouldEqual, 2*1*2*3)
+		})
 	})
 }

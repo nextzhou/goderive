@@ -441,6 +441,28 @@ func (set *StrSet) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *StrSet) Reduce(f func(string, string) string) string {
+	if set.IsEmpty() {
+		var defaultVal string
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *StrSet) Fold(init string, f func(string, string) string) string {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *StrSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -916,6 +938,28 @@ func (set *StrOrderSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *StrOrderSet) Reduce(f func(string, string) string) string {
+	if set.IsEmpty() {
+		var defaultVal string
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *StrOrderSet) Fold(init string, f func(string, string) string) string {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *StrOrderSet) String() string {

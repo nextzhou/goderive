@@ -426,6 +426,34 @@ func (set *IntSet) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *IntSet) Reduce(f func(int, int) int) int {
+	if set.IsEmpty() {
+		var defaultVal int
+		return defaultVal
+	}
+	var ret int
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *IntSet) Fold(init int, f func(int, int) int) int {
+	if set.IsEmpty() {
+		return init
+	}
+	for item := range set.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *IntSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -893,6 +921,28 @@ func (s *IntSlice) Any(f func(int) bool) bool {
 	return false
 }
 
+func (s *IntSlice) Reduce(f func(int, int) int) int {
+	if s.IsEmpty() {
+		var defaultVal int
+		return defaultVal
+	}
+	ret := s.elements[0]
+	for _, item := range s.elements[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (s *IntSlice) Fold(init int, f func(int, int) int) int {
+	if s.IsEmpty() {
+		return init
+	}
+	for _, item := range s.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (s *IntSlice) String() string {
 	return fmt.Sprint(s.elements)
 }
@@ -1335,6 +1385,28 @@ func (set *intOrderSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *intOrderSet) Reduce(f func(int, int) int) int {
+	if set.IsEmpty() {
+		var defaultVal int
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *intOrderSet) Fold(init int, f func(int, int) int) int {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *intOrderSet) String() string {
@@ -1814,6 +1886,28 @@ func (set *Int3Set) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *Int3Set) Reduce(f func(int, int) int) int {
+	if set.IsEmpty() {
+		var defaultVal int
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *Int3Set) Fold(init int, f func(int, int) int) int {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *Int3Set) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -2205,6 +2299,34 @@ func (set *myTypeSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *myTypeSet) Reduce(f func(MyType, MyType) MyType) MyType {
+	if set.IsEmpty() {
+		var defaultVal MyType
+		return defaultVal
+	}
+	var ret MyType
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *myTypeSet) Fold(init MyType, f func(MyType, MyType) MyType) MyType {
+	if set.IsEmpty() {
+		return init
+	}
+	for item := range set.elements {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *myTypeSet) String() string {
@@ -2684,6 +2806,28 @@ func (set *SSet) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *SSet) Reduce(f func(string, string) string) string {
+	if set.IsEmpty() {
+		var defaultVal string
+		return defaultVal
+	}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *SSet) Fold(init string, f func(string, string) string) string {
+	if set.IsEmpty() {
+		return init
+	}
+	for _, item := range set.elementSequence {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *SSet) String() string {
 	return fmt.Sprint(set.elementSequence)
 }
@@ -3075,6 +3219,34 @@ func (set *TSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *TSet) Reduce(f func(t.Time, t.Time) t.Time) t.Time {
+	if set.IsEmpty() {
+		var defaultVal t.Time
+		return defaultVal
+	}
+	var ret t.Time
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *TSet) Fold(init t.Time, f func(t.Time, t.Time) t.Time) t.Time {
+	if set.IsEmpty() {
+		return init
+	}
+	for item := range set.elements {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *TSet) String() string {
@@ -3572,6 +3744,34 @@ func (set *hSet) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *hSet) Reduce(f func(http.Handler, http.Handler) http.Handler) http.Handler {
+	if set.IsEmpty() {
+		var defaultVal http.Handler
+		return defaultVal
+	}
+	var ret http.Handler
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *hSet) Fold(init http.Handler, f func(http.Handler, http.Handler) http.Handler) http.Handler {
+	if set.IsEmpty() {
+		return init
+	}
+	for item := range set.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *hSet) String() string {
 	return fmt.Sprint(set.ToSlice())
 }
@@ -4039,6 +4239,28 @@ func (s *hSlice) Any(f func(http.Handler) bool) bool {
 	return false
 }
 
+func (s *hSlice) Reduce(f func(http.Handler, http.Handler) http.Handler) http.Handler {
+	if s.IsEmpty() {
+		var defaultVal http.Handler
+		return defaultVal
+	}
+	ret := s.elements[0]
+	for _, item := range s.elements[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (s *hSlice) Fold(init http.Handler, f func(http.Handler, http.Handler) http.Handler) http.Handler {
+	if s.IsEmpty() {
+		return init
+	}
+	for _, item := range s.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (s *hSlice) String() string {
 	return fmt.Sprint(s.elements)
 }
@@ -4430,6 +4652,34 @@ func (set *PSet) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (set *PSet) Reduce(f func(plugin.Plugin, plugin.Plugin) plugin.Plugin) plugin.Plugin {
+	if set.IsEmpty() {
+		var defaultVal plugin.Plugin
+		return defaultVal
+	}
+	var ret plugin.Plugin
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (set *PSet) Fold(init plugin.Plugin, f func(plugin.Plugin, plugin.Plugin) plugin.Plugin) plugin.Plugin {
+	if set.IsEmpty() {
+		return init
+	}
+	for item := range set.elements {
+		init = f(init, item)
+	}
+	return init
 }
 
 func (set *PSet) String() string {

@@ -456,6 +456,28 @@ func (s *{{ .SliceName }}) Any(f func({{ .TypeName }}) bool) bool {
 	return false
 }
 
+func (s *{{ .SliceName }}) Reduce(f func({{ .TypeName }}, {{ .TypeName }}) {{ .TypeName }}) {{ .TypeName }} {
+	if s.IsEmpty() {
+		var defaultVal {{ .TypeName }}
+		return defaultVal
+	}
+	ret := s.elements[0]
+	for _, item := range s.elements[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (s *{{ .SliceName }}) Fold(init {{ .TypeName }}, f func({{ .TypeName }}, {{ .TypeName }}) {{ .TypeName }}) {{ .TypeName }} {
+	if s.IsEmpty() {
+		return init
+	}
+	for _, item := range s.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
 func (s *{{ .SliceName }}) String() string {
 	return fmt.Sprint(s.elements)
 }

@@ -589,6 +589,45 @@ func (set *{{ .SetName }}) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (set *{{ .SetName }}) Reduce(f func({{ .TypeName }}, {{ .TypeName }}) {{ .TypeName }}) {{ .TypeName }} {
+	if set.IsEmpty() {
+		var defaultVal {{ .TypeName }}
+		return defaultVal
+	}
+	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
+	ret := set.elementSequence[0]
+	for _, item := range set.elementSequence[1:] {
+		ret = f(ret, item)
+	}
+	{{- else -}}
+	var ret {{ .TypeName }}
+	first := true
+	for item := range set.elements {
+		if first {
+			ret = item
+			first = false
+			continue
+		}
+		ret = f(ret, item)
+	}
+	{{- end }}
+	return ret
+}
+
+func (set *{{ .SetName }}) Fold(init {{ .TypeName }}, f func({{ .TypeName }}, {{ .TypeName }}) {{ .TypeName }}) {{ .TypeName }} {
+	if set.IsEmpty() {
+		return init
+	}
+	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
+	for _, item := range set.elementSequence {
+	{{- else -}}
+	for item := range set.elements {
+	{{- end }}
+		init = f(init, item)
+	}
+	return init
+}
+
 func (set *{{ .SetName }}) String() string {
 	{{ if or (eq .Order "Append") (eq .Order "Key") -}}
 	return fmt.Sprint(set.elementSequence)
