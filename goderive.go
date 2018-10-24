@@ -218,10 +218,14 @@ func (d *Derive) Run(inputPaths []string) error {
 			return nil
 		}
 		for _, typ := range fileTypes {
-			for pluginID, opts := range typ.Plugins {
-				if err := d.ValidatePluginOptions(pluginID, opts); err != nil {
+			err := typ.Plugins.DoUntilError(func(plg plugin.Entry) error {
+				if err := d.ValidatePluginOptions(plg.Plugin, plg.Opts); err != nil {
 					return fmt.Errorf("%#v: type %s: %v", file, typ.Name, err)
 				}
+				return nil
+			})
+			if err != nil {
+				return err
 			}
 		}
 		pkgTypes = append(pkgTypes, fileTypes...)
@@ -247,15 +251,19 @@ func (d *Derive) Run(inputPaths []string) error {
 		imports := plugin.NewImportSet(0, func(i, j plugin.Import) bool { return i.String() < j.String() })
 		bodyBuf := bytes.NewBuffer(nil)
 		for _, typ := range types {
-			for pluginID, opts := range typ.Plugins {
-				p, _ := d.GetPlugin(pluginID)
+			err := typ.Plugins.DoUntilError(func(plg plugin.Entry) error {
+				p, _ := d.GetPlugin(plg.Plugin)
 				typeInfo := plugin.TypeInfo{Name: typ.Name, Ast: typ.Ast, Assigned: typ.Assigned}
-				prerequisites, err := p.GenerateTo(bodyBuf, typ.Env, typeInfo, *opts)
+				prerequisites, err := p.GenerateTo(bodyBuf, typ.Env, typeInfo, *plg.Opts)
 				if err != nil {
 					// TODO log file path of type
 					return fmt.Errorf("failed to generate code of type %s: %v", typ.Name, err)
 				}
 				imports.InPlaceUnion(prerequisites.Imports)
+				return nil
+			})
+			if err != nil {
+				return err
 			}
 		}
 		// TODO write file after all generating

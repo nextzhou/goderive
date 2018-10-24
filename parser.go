@@ -15,10 +15,9 @@ import (
 type TypeInfo struct {
 	Name     string
 	Assigned string
-	// TODO keep order
-	Plugins map[string]*plugin.Options
-	Ast     ast.Expr
-	Env     plugin.Env
+	Plugins  *plugin.Entries
+	Ast      ast.Expr
+	Env      plugin.Env
 }
 
 func ExtractTypes(src []byte) ([]TypeInfo, error) {
@@ -53,7 +52,7 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 			}
 			if typeInfo.Name == "" {
 				typeInfo.Name = typ.Name
-				typeInfo.Plugins = make(map[string]*plugin.Options)
+				typeInfo.Plugins = plugin.NewEntries(0)
 				spec := typ.Decl.Specs[0].(*ast.TypeSpec)
 				typeInfo.Ast = spec.Name.Obj.Decl.(*ast.TypeSpec).Type
 				if spec.Assign.IsValid() {
@@ -71,16 +70,15 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 			}
 
 			// merge options
-			currentOpts := typeInfo.Plugins[dc.Plugin]
-			if currentOpts.IsEmpty() {
-				currentOpts = opts
+			idx := typeInfo.Plugins.FindBy(func(e plugin.Entry) bool { return e.Plugin == dc.Plugin })
+			if idx == -1 {
+				typeInfo.Plugins.Append(plugin.MakeEntry(dc.Plugin, opts))
 			} else {
-				err = currentOpts.Merge(opts)
+				err := typeInfo.Plugins.Index(idx).Opts.Merge(opts)
 				if err != nil {
 					return nil, fmt.Errorf("type %s: %v", typ.Name, err)
 				}
 			}
-			typeInfo.Plugins[dc.Plugin] = currentOpts
 		}
 		if typeInfo.Name != "" {
 			typeInfo.Env = env

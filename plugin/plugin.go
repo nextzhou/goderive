@@ -405,6 +405,20 @@ type TypeInfo struct {
 	Ast      ast.Expr
 }
 
+// derive-slice: Rename=Entries
+type Entry struct {
+	Plugin string
+	Opts   *Options
+}
+
+func (e *Entry) IsEmpty() bool {
+	return e == nil || e.Plugin == "" || e.Opts.IsEmpty()
+}
+
+func MakeEntry(p string, opts *Options) Entry {
+	return Entry{Plugin: p, Opts: opts}
+}
+
 // derive-set: Order=Key
 type Import struct {
 	Name string

@@ -9,6 +9,467 @@ import (
 	"sort"
 )
 
+type Entries struct {
+	elements []Entry
+}
+
+func NewEntries(capacity int) *Entries {
+	return &Entries{
+		elements: make([]Entry, 0, capacity),
+	}
+}
+
+func NewEntriesFromSlice(slice []Entry) *Entries {
+	return &Entries{
+		elements: slice,
+	}
+}
+
+func (s *Entries) Len() int {
+	if s == nil {
+		return 0
+	}
+	return len(s.elements)
+}
+
+func (s *Entries) IsEmpty() bool {
+	return s.Len() == 0
+}
+
+func (s *Entries) Append(items ...Entry) {
+	s.elements = append(s.elements, items...)
+}
+
+func (s *Entries) Clone() *Entries {
+	cloned := &Entries{
+		elements: make([]Entry, s.Len()),
+	}
+	copy(cloned.elements, s.elements)
+	return cloned
+}
+
+func (s *Entries) ToSlice() []Entry {
+	slice := make([]Entry, s.Len())
+	copy(slice, s.elements)
+	return slice
+}
+
+func (s *Entries) ToSliceRef() []Entry {
+	return s.elements
+}
+
+func (s *Entries) Clear() {
+	s.elements = s.elements[:0]
+}
+
+func (s *Entries) Equal(another *Entries) bool {
+	if s.Len() != another.Len() {
+		return false
+	}
+	for idx, item := range s.elements {
+		if item != another.elements[idx] {
+			return false
+		}
+	}
+	return false
+}
+
+func (s *Entries) Insert(idx int, items ...Entry) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	if l := len(s.elements) + len(items); l > cap(s.elements) {
+		// reallocate
+		result := make([]Entry, l)
+		copy(result, s.elements[:idx])
+		copy(result[idx:], items)
+		copy(result[idx+len(items):], s.elements[idx:])
+		s.elements = result
+		return
+	}
+
+	l := s.Len()
+	s.elements = append(s.elements, items...)
+	copy(s.elements[idx+len(items):], s.elements[idx:l])
+	copy(s.elements[idx:], items)
+}
+
+func (s *Entries) Remove(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = append(s.elements[:idx], s.elements[idx+1:]...)
+}
+
+func (s *Entries) RemoveRange(from, to int) {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	s.elements = append(s.elements[:from], s.elements[to+1:]...)
+}
+
+func (s *Entries) RemoveFrom(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[:idx]
+}
+
+func (s *Entries) RemoveTo(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[idx+1:]
+}
+
+func (s *Entries) Concat(another *Entries) *Entries {
+	result := s.Clone()
+	if another.IsEmpty() {
+		return result
+	}
+	result.Append(another.elements...)
+	return result
+}
+
+func (s *Entries) InPlaceConcat(another *Entries) {
+	if another.IsEmpty() {
+		return
+	}
+	s.Append(another.elements...)
+}
+
+func (s *Entries) ForEach(f func(Entry)) {
+	if s.IsEmpty() {
+		return
+	}
+	for _, item := range s.elements {
+		f(item)
+	}
+}
+
+func (s *Entries) ForEachWithIndex(f func(int, Entry)) {
+	if s.IsEmpty() {
+		return
+	}
+	for idx, item := range s.elements {
+		f(idx, item)
+	}
+}
+
+func (s *Entries) Filter(f func(Entry) bool) *Entries {
+	result := NewEntries(0)
+	for _, item := range s.elements {
+		if f(item) {
+			result.Append(item)
+		}
+	}
+	return result
+}
+
+func (s *Entries) Index(idx int) *Entry {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return &s.elements[idx]
+}
+
+func (s *Entries) IndexRange(from, to int) *Entries {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	return NewEntriesFromSlice(s.elements[from:to])
+}
+
+func (s *Entries) IndexFrom(idx int) *Entries {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return NewEntriesFromSlice(s.elements[idx:])
+}
+
+func (s *Entries) IndexTo(idx int) *Entries {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return NewEntriesFromSlice(s.elements[:idx])
+}
+
+func (s *Entries) Find(item Entry) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if n == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) FindLast(item Entry) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if s.elements[idx] == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) FindBy(f func(Entry) bool) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if f(n) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) FindLastBy(f func(Entry) bool) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if f(s.elements[idx]) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) Count(item Entry) uint {
+	count := uint(0)
+	s.ForEach(func(n Entry) {
+		if n == item {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *Entries) CountBy(f func(Entry) bool) uint {
+	count := uint(0)
+	s.ForEach(func(item Entry) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *Entries) GroupByBool(f func(Entry) bool) (trueGroup, falseGroup *Entries) {
+	trueGroup, falseGroup = NewEntries(0), NewEntries(0)
+	s.ForEach(func(item Entry) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (s Entries) GroupByStr(f func(Entry) string) map[string]*Entries {
+	groups := make(map[string]*Entries)
+	s.ForEach(func(item Entry) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewEntries(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s Entries) GroupByInt(f func(Entry) int) map[int]*Entries {
+	groups := make(map[int]*Entries)
+	s.ForEach(func(item Entry) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewEntries(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s *Entries) GroupBy(f func(Entry) interface{}) map[interface{}]*Entries {
+	groups := make(map[interface{}]*Entries)
+	s.ForEach(func(item Entry) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewEntries(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+// f: func(Entry) T
+// return: []T
+func (s *Entries) Map(f interface{}) interface{} {
+	expected := "f should be func(Entry)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(Entry)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, s.Len())
+	s.ForEach(func(item Entry) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
+// f: func(Entry) *T
+//    func(Entry) (T, bool)
+//    func(Entry) (T, error)
+// return: []T
+func (s *Entries) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(Entry) *T / func(Entry) (T, bool) / func(Entry) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(Entry)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(Entry) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(Entry) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(Entry) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, s.Len())
+	s.ForEach(func(item Entry) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
+	})
+	return result.Interface()
+}
+
+func (s *Entries) DoUntil(f func(Entry) bool) int {
+	for idx, item := range s.elements {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) DoWhile(f func(Entry) bool) int {
+	for idx, item := range s.elements {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *Entries) DoUntilError(f func(Entry) error) error {
+	for _, item := range s.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *Entries) All(f func(Entry) bool) bool {
+	for _, item := range s.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *Entries) Any(f func(Entry) bool) bool {
+	for _, item := range s.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *Entries) String() string {
+	return fmt.Sprint(s.elements)
+}
+
+func (s Entries) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.elements)
+}
+
+func (s *Entries) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.elements)
+}
+
 type ImportSet struct {
 	cmp             func(i, j Import) bool
 	elements        map[Import]uint32
