@@ -286,5 +286,17 @@ func TestIntSlice(t *testing.T) {
 			So(func() { s.FilterMap(func(int) string { return "" }) }, ShouldPanic)
 			So(func() { s.FilterMap(func(int) (string, string) { return "", "" }) }, ShouldPanic)
 		})
+
+		Convey("any / all", func() {
+			s := NewIntSliceFromSlice([]int{1, 2, 3, 4, 5})
+
+			So(s.All(func(i int) bool { return true }), ShouldBeTrue)
+			So(s.All(func(i int) bool { return false }), ShouldBeFalse)
+			So(s.Any(func(i int) bool { return true }), ShouldBeTrue)
+			So(s.Any(func(i int) bool { return false }), ShouldBeFalse)
+
+			So(s.All(func(i int) bool { return i%2 == 0 }), ShouldBeFalse)
+			So(s.Any(func(i int) bool { return i%2 == 0 }), ShouldBeTrue)
+		})
 	})
 }

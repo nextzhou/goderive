@@ -585,6 +585,15 @@ func (s *IntSlice) ForEach(f func(int)) {
 	}
 }
 
+func (s *IntSlice) ForEachWithIndex(f func(int, int)) {
+	if s.IsEmpty() {
+		return
+	}
+	for idx, item := range s.elements {
+		f(idx, item)
+	}
+}
+
 func (s *IntSlice) Filter(f func(int) bool) *IntSlice {
 	result := NewIntSlice(0)
 	for _, item := range s.elements {
@@ -837,6 +846,51 @@ func (s *IntSlice) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (s *IntSlice) DoUntil(f func(int) bool) int {
+	for idx, item := range s.elements {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) DoWhile(f func(int) bool) int {
+	for idx, item := range s.elements {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *IntSlice) DoUntilError(f func(int) error) error {
+	for _, item := range s.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *IntSlice) All(f func(int) bool) bool {
+	for _, item := range s.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *IntSlice) Any(f func(int) bool) bool {
+	for _, item := range s.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *IntSlice) String() string {
@@ -3677,6 +3731,15 @@ func (s *hSlice) ForEach(f func(http.Handler)) {
 	}
 }
 
+func (s *hSlice) ForEachWithIndex(f func(int, http.Handler)) {
+	if s.IsEmpty() {
+		return
+	}
+	for idx, item := range s.elements {
+		f(idx, item)
+	}
+}
+
 func (s *hSlice) Filter(f func(http.Handler) bool) *hSlice {
 	result := newHSlice(0)
 	for _, item := range s.elements {
@@ -3929,6 +3992,51 @@ func (s *hSlice) FilterMap(f interface{}) interface{} {
 		}
 	})
 	return result.Interface()
+}
+
+func (s *hSlice) DoUntil(f func(http.Handler) bool) int {
+	for idx, item := range s.elements {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) DoWhile(f func(http.Handler) bool) int {
+	for idx, item := range s.elements {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) DoUntilError(f func(http.Handler) error) error {
+	for _, item := range s.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *hSlice) All(f func(http.Handler) bool) bool {
+	for _, item := range s.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *hSlice) Any(f func(http.Handler) bool) bool {
+	for _, item := range s.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
 }
 
 func (s *hSlice) String() string {

@@ -411,6 +411,51 @@ func (s *{{ .SliceName }}) FilterMap(f interface{}) interface{} {
 	return result.Interface()
 }
 
+func (s *{{ .SliceName }}) DoUntil(f func({{ .TypeName }}) bool) int {
+	for idx, item := range s.elements {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) DoWhile(f func({{ .TypeName }}) bool) int {
+	for idx, item := range s.elements {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *{{ .SliceName }}) DoUntilError(f func({{ .TypeName }}) error) error {
+	for _, item := range s.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *{{ .SliceName }}) All(f func({{ .TypeName }}) bool) bool {
+	for _, item := range s.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *{{ .SliceName }}) Any(f func({{ .TypeName }}) bool) bool {
+	for _, item := range s.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
 func (s *{{ .SliceName }}) String() string {
 	return fmt.Sprint(s.elements)
 }
