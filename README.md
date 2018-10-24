@@ -54,6 +54,10 @@ Plugins:
 
 ```
 
+[more usage examples](https://github.com/nextzhou/goderive/blob/master/tests/examples.go)
+
+[generated code examples](https://github.com/nextzhou/goderive/blob/master/tests/derived.gen.go)
+
 ## Plugins
 
 ```
