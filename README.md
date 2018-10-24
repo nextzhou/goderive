@@ -1,5 +1,8 @@
 # GoDerive
 
+[![Build Status](https://travis-ci.org/nextzhou/goderive.svg?branch=master)](https://travis-ci.org/nextzhou/goderive)
+[![Go Report Card](https://goreportcard.com/badge/github.com/nextzhou/goderive)](https://goreportcard.com/report/github.com/nextzhou/goderive)
+
 Add derive comment above your type, and generate source code for the marked type.
 
 ## Install
