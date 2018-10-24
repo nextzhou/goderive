@@ -3,6 +3,7 @@ package access
 import (
 	"go/ast"
 	"io"
+	"strings"
 
 	"github.com/nextzhou/goderive/plugin"
 	"github.com/nextzhou/goderive/utils"
@@ -18,7 +19,7 @@ func (a Access) Describe() plugin.Description {
 		Effect:     "access fields for struct type",
 		ValidFlags: []plugin.FlagDescription{},
 		ValidArgs: []plugin.ArgDescription{
-			{Key: "Receiver", DefaultValue: nil, ValidValues: nil, AllowEmpty: false, IsMultipleValues: false, Effect: "receiver of methods"},
+			{Key: "Receiver", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "receiver of methods"},
 		},
 		AllowUnexpectedlyFlag: false,
 		AllowUnexpectedlyArg:  false,
@@ -35,11 +36,13 @@ func (a Access) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo
 	}
 
 	args.TypeName = typeInfo.Name
-	r := opt.GetValue("Receiver").Str()
-	if !utils.ValidateIdentName(r) {
-		return pre, &utils.InvalidIdentError{Type: "Receiver", Ident: r}
+	args.Receiver = strings.ToLower(typeInfo.Name[:1])
+	if r := opt.GetValue("Receiver"); !r.IsNil() {
+		args.Receiver = r.Str()
 	}
-	args.Receiver = r
+	if !utils.ValidateIdentName(args.Receiver) {
+		return pre, &utils.InvalidIdentError{Type: "Receiver", Ident: args.Receiver}
+	}
 
 	for _, field := range s.Fields.List {
 		t := utils.TypeNameWithPkg(field.Type)

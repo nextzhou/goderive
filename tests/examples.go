@@ -41,7 +41,7 @@ type MyType struct {
 	field2 bool
 }
 
-// derive-access: Receiver=c
+// derive-access
 type c struct {
 	abc          string                                              // base type
 	Def          *int                                                // pointer type
@@ -57,13 +57,13 @@ type c struct {
 	ff           func(int, string, c, d t.Time) (a, b bool, e error) // complex function type
 }
 
-// derive-access: Receiver=b
+// derive-access
 type b struct {
 	c *c
 	C *c
 }
 
-// derive-access: Receiver=a
+// derive-access
 type AA struct {
 	b *b
 	B *b
