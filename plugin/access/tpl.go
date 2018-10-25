@@ -6,18 +6,16 @@ import (
 )
 
 var accessTemplate = `
-{{- $Receiver := .Receiver -}}
-{{- $TypeName := .TypeName }}
 {{ range $idx, $field := .Fields }}
 {{- if not (eq $idx 0) }}
 
 {{ end -}}
-func ({{ $Receiver }} *{{ $TypeName }}) {{ $field.GetFuncName }}() {{ $field.TypeName }} {
-	if {{ $Receiver }} == nil {
+func ({{ $.Receiver }} *{{ $.TypeName }}) {{ $field.GetFuncName }}() {{ $field.TypeName }} {
+	if {{ $.Receiver }} == nil {
 		var defaultVal {{ $field.TypeName }}
 		return defaultVal
 	}
-	return {{ $Receiver }}.{{ $field.Name }}
+	return {{ $.Receiver }}.{{ $field.Name }}
 }
 {{- end }}
 `
