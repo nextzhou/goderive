@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"go/ast"
 	"regexp"
 	"strings"
 )
@@ -11,12 +12,42 @@ func ValidateIdentName(name string) bool {
 	return identPattern.MatchString(name)
 }
 
-func IsComparableType(typ string) bool {
+func IsSortableType(typ string) bool {
 	switch typ {
 	case "int", "int8", "int16", "int32", "int64",
 		"uint", "uint8", "uint16", "uint32", "uint64",
 		"float32", "float64", "string", "uintptr", "rune", "byte":
 		return true
+	default:
+		return false
+	}
+}
+
+func IsComparableSimpleType(typ string) bool {
+	switch typ {
+	case "int", "int8", "int16", "int32", "int64",
+		"uint", "uint8", "uint16", "uint32", "uint64",
+		"float32", "float64", "complex64", "complex128",
+		"string", "uintptr", "rune", "byte", "bool":
+		return true
+	default:
+		return false
+	}
+}
+
+// check if operator == is defined on this type
+func IsComparableType(expr ast.Expr) bool {
+	switch e := expr.(type) {
+	case *ast.Ident:
+		return IsComparableSimpleType(e.Name)
+	case *ast.BasicLit:
+		return IsComparableSimpleType(e.Value)
+	case *ast.StarExpr, *ast.ChanType:
+		// pointer and channel types are aways comparable
+		return true
+	case *ast.ArrayType:
+		// array type is comparable, but not slice
+		return e.Len != nil
 	default:
 		return false
 	}

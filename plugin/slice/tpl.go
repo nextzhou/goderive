@@ -58,6 +58,7 @@ func (s *{{ .SliceName }}) ToSliceRef() []{{ .TypeName }} {
 func (s *{{ .SliceName }}) Clear() {
 	s.elements = s.elements[:0]
 }
+{{- if .IsComparable }}
 
 func (s *{{ .SliceName }}) Equal(another *{{ .SliceName }}) bool {
 	if s.Len() != another.Len() {
@@ -70,6 +71,7 @@ func (s *{{ .SliceName }}) Equal(another *{{ .SliceName }}) bool {
 	}
 	return false
 }
+{{- end }}
 
 func (s *{{ .SliceName }}) Insert(idx int, items ...{{ .TypeName }}) {
 	if idx < 0 {
@@ -196,6 +198,7 @@ func (s *{{ .SliceName }}) IndexTo(idx int) *{{ .SliceName }} {
 	}
 	return {{ .New }}{{ .CapitalizeSliceName }}FromSlice(s.elements[:idx])
 }
+{{- if .IsComparable }}
 
 func (s *{{ .SliceName }}) Find(item {{ .TypeName }}) int {
 	if s.IsEmpty() {
@@ -217,6 +220,7 @@ func (s *{{ .SliceName }}) FindLast(item {{ .TypeName }}) int {
 	}
 	return -1
 }
+{{- end }}
 
 func (s *{{ .SliceName }}) FindBy(f func({{ .TypeName }}) bool) int {
 	if s.IsEmpty() {
@@ -238,6 +242,7 @@ func (s *{{ .SliceName }}) FindLastBy(f func({{ .TypeName }}) bool) int {
 	}
 	return -1
 }
+{{- if .IsComparable }}
 
 func (s *{{ .SliceName }}) Count(item {{ .TypeName }}) uint {
 	count := uint(0)
@@ -248,6 +253,7 @@ func (s *{{ .SliceName }}) Count(item {{ .TypeName }}) uint {
 	})
 	return count
 }
+{{- end }}
 
 func (s *{{ .SliceName }}) CountBy(f func({{ .TypeName }}) bool) uint {
 	count := uint(0)
@@ -497,6 +503,7 @@ type TemplateArgs struct {
 	TypeName            string
 	SliceName           string
 	CapitalizeSliceName string
+	IsSortable          bool
 	IsComparable        bool
 	New                 string
 }

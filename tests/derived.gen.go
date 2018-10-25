@@ -2347,6 +2347,446 @@ func (set *myTypeSet) UnmarshalJSON(b []byte) error {
 	return nil
 }
 
+type NotComparableTypeSlice struct {
+	elements []NotComparableType
+}
+
+func NewNotComparableTypeSlice(capacity int) *NotComparableTypeSlice {
+	return &NotComparableTypeSlice{
+		elements: make([]NotComparableType, 0, capacity),
+	}
+}
+
+func NewNotComparableTypeSliceFromSlice(slice []NotComparableType) *NotComparableTypeSlice {
+	return &NotComparableTypeSlice{
+		elements: slice,
+	}
+}
+
+func (s *NotComparableTypeSlice) Len() int {
+	if s == nil {
+		return 0
+	}
+	return len(s.elements)
+}
+
+func (s *NotComparableTypeSlice) IsEmpty() bool {
+	return s.Len() == 0
+}
+
+func (s *NotComparableTypeSlice) Append(items ...NotComparableType) {
+	s.elements = append(s.elements, items...)
+}
+
+func (s *NotComparableTypeSlice) Clone() *NotComparableTypeSlice {
+	cloned := &NotComparableTypeSlice{
+		elements: make([]NotComparableType, s.Len()),
+	}
+	copy(cloned.elements, s.elements)
+	return cloned
+}
+
+func (s *NotComparableTypeSlice) ToSlice() []NotComparableType {
+	slice := make([]NotComparableType, s.Len())
+	copy(slice, s.elements)
+	return slice
+}
+
+func (s *NotComparableTypeSlice) ToSliceRef() []NotComparableType {
+	return s.elements
+}
+
+func (s *NotComparableTypeSlice) Clear() {
+	s.elements = s.elements[:0]
+}
+
+func (s *NotComparableTypeSlice) Insert(idx int, items ...NotComparableType) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	if l := len(s.elements) + len(items); l > cap(s.elements) {
+		// reallocate
+		result := make([]NotComparableType, l)
+		copy(result, s.elements[:idx])
+		copy(result[idx:], items)
+		copy(result[idx+len(items):], s.elements[idx:])
+		s.elements = result
+		return
+	}
+
+	l := s.Len()
+	s.elements = append(s.elements, items...)
+	copy(s.elements[idx+len(items):], s.elements[idx:l])
+	copy(s.elements[idx:], items)
+}
+
+func (s *NotComparableTypeSlice) Remove(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = append(s.elements[:idx], s.elements[idx+1:]...)
+}
+
+func (s *NotComparableTypeSlice) RemoveRange(from, to int) {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	s.elements = append(s.elements[:from], s.elements[to+1:]...)
+}
+
+func (s *NotComparableTypeSlice) RemoveFrom(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[:idx]
+}
+
+func (s *NotComparableTypeSlice) RemoveTo(idx int) {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	s.elements = s.elements[idx+1:]
+}
+
+func (s *NotComparableTypeSlice) Concat(another *NotComparableTypeSlice) *NotComparableTypeSlice {
+	result := s.Clone()
+	if another.IsEmpty() {
+		return result
+	}
+	result.Append(another.elements...)
+	return result
+}
+
+func (s *NotComparableTypeSlice) InPlaceConcat(another *NotComparableTypeSlice) {
+	if another.IsEmpty() {
+		return
+	}
+	s.Append(another.elements...)
+}
+
+func (s *NotComparableTypeSlice) ForEach(f func(NotComparableType)) {
+	if s.IsEmpty() {
+		return
+	}
+	for _, item := range s.elements {
+		f(item)
+	}
+}
+
+func (s *NotComparableTypeSlice) ForEachWithIndex(f func(int, NotComparableType)) {
+	if s.IsEmpty() {
+		return
+	}
+	for idx, item := range s.elements {
+		f(idx, item)
+	}
+}
+
+func (s *NotComparableTypeSlice) Filter(f func(NotComparableType) bool) *NotComparableTypeSlice {
+	result := NewNotComparableTypeSlice(0)
+	for _, item := range s.elements {
+		if f(item) {
+			result.Append(item)
+		}
+	}
+	return result
+}
+
+func (s *NotComparableTypeSlice) Index(idx int) *NotComparableType {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return &s.elements[idx]
+}
+
+func (s *NotComparableTypeSlice) IndexRange(from, to int) *NotComparableTypeSlice {
+	if from < 0 {
+		from += s.Len()
+	}
+	if to < 0 {
+		to += s.Len()
+	}
+	return NewNotComparableTypeSliceFromSlice(s.elements[from:to])
+}
+
+func (s *NotComparableTypeSlice) IndexFrom(idx int) *NotComparableTypeSlice {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return NewNotComparableTypeSliceFromSlice(s.elements[idx:])
+}
+
+func (s *NotComparableTypeSlice) IndexTo(idx int) *NotComparableTypeSlice {
+	if idx < 0 {
+		idx += s.Len()
+	}
+	return NewNotComparableTypeSliceFromSlice(s.elements[:idx])
+}
+
+func (s *NotComparableTypeSlice) FindBy(f func(NotComparableType) bool) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if f(n) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *NotComparableTypeSlice) FindLastBy(f func(NotComparableType) bool) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if f(s.elements[idx]) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *NotComparableTypeSlice) CountBy(f func(NotComparableType) bool) uint {
+	count := uint(0)
+	s.ForEach(func(item NotComparableType) {
+		if f(item) {
+			count++
+		}
+	})
+	return count
+}
+
+func (s *NotComparableTypeSlice) GroupByBool(f func(NotComparableType) bool) (trueGroup, falseGroup *NotComparableTypeSlice) {
+	trueGroup, falseGroup = NewNotComparableTypeSlice(0), NewNotComparableTypeSlice(0)
+	s.ForEach(func(item NotComparableType) {
+		if f(item) {
+			trueGroup.Append(item)
+		} else {
+			falseGroup.Append(item)
+		}
+	})
+	return trueGroup, falseGroup
+}
+
+func (s NotComparableTypeSlice) GroupByStr(f func(NotComparableType) string) map[string]*NotComparableTypeSlice {
+	groups := make(map[string]*NotComparableTypeSlice)
+	s.ForEach(func(item NotComparableType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewNotComparableTypeSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s NotComparableTypeSlice) GroupByInt(f func(NotComparableType) int) map[int]*NotComparableTypeSlice {
+	groups := make(map[int]*NotComparableTypeSlice)
+	s.ForEach(func(item NotComparableType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewNotComparableTypeSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+func (s *NotComparableTypeSlice) GroupBy(f func(NotComparableType) interface{}) map[interface{}]*NotComparableTypeSlice {
+	groups := make(map[interface{}]*NotComparableTypeSlice)
+	s.ForEach(func(item NotComparableType) {
+		key := f(item)
+		group := groups[key]
+		if group == nil {
+			group = NewNotComparableTypeSlice(0)
+			groups[key] = group
+		}
+		group.Append(item)
+	})
+	return groups
+}
+
+// f: func(NotComparableType) T
+// return: []T
+func (s *NotComparableTypeSlice) Map(f interface{}) interface{} {
+	expected := "f should be func(NotComparableType)T"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	elemType := reflect.TypeOf(new(NotComparableType)).Elem()
+	if ft.In(0) != elemType {
+		panic(expected)
+	}
+	if ft.NumOut() != 1 {
+		panic(expected)
+	}
+	outType := ft.Out(0)
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, s.Len())
+	s.ForEach(func(item NotComparableType) {
+		result = reflect.Append(result, fVal.Call([]reflect.Value{reflect.ValueOf(item)})[0])
+	})
+	return result.Interface()
+}
+
+// f: func(NotComparableType) *T
+//    func(NotComparableType) (T, bool)
+//    func(NotComparableType) (T, error)
+// return: []T
+func (s *NotComparableTypeSlice) FilterMap(f interface{}) interface{} {
+	expected := "f should be func(NotComparableType) *T / func(NotComparableType) (T, bool) / func(NotComparableType) (T, error)"
+	ft := reflect.TypeOf(f)
+	fVal := reflect.ValueOf(f)
+	if ft.Kind() != reflect.Func {
+		panic(expected)
+	}
+	if ft.NumIn() != 1 {
+		panic(expected)
+	}
+	in := ft.In(0)
+	if in != reflect.TypeOf(new(NotComparableType)).Elem() {
+		panic(expected)
+	}
+	var outType reflect.Type
+	var filter func([]reflect.Value) *reflect.Value
+	if ft.NumOut() == 1 {
+		// func(NotComparableType) *T
+		outType = ft.Out(0)
+		if outType.Kind() != reflect.Ptr {
+			panic(expected)
+		}
+		outType = outType.Elem()
+		filter = func(values []reflect.Value) *reflect.Value {
+			if values[0].IsNil() {
+				return nil
+			}
+			val := values[0].Elem()
+			return &val
+		}
+	} else if ft.NumOut() == 2 {
+		outType = ft.Out(0)
+		checker := ft.Out(1)
+		if checker == reflect.TypeOf(true) {
+			// func(NotComparableType) (T, bool)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].Interface().(bool) {
+					return &values[0]
+				}
+				return nil
+			}
+		} else if checker.Implements(reflect.TypeOf((*error)(nil)).Elem()) {
+			// func(NotComparableType) (T, error)
+			filter = func(values []reflect.Value) *reflect.Value {
+				if values[1].IsNil() {
+					return &values[0]
+				}
+				return nil
+			}
+		} else {
+			panic(expected)
+		}
+	} else {
+		panic(expected)
+	}
+
+	result := reflect.MakeSlice(reflect.SliceOf(outType), 0, s.Len())
+	s.ForEach(func(item NotComparableType) {
+		ret := fVal.Call([]reflect.Value{reflect.ValueOf(item)})
+		if val := filter(ret); val != nil {
+			result = reflect.Append(result, *val)
+		}
+	})
+	return result.Interface()
+}
+
+func (s *NotComparableTypeSlice) DoUntil(f func(NotComparableType) bool) int {
+	for idx, item := range s.elements {
+		if f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *NotComparableTypeSlice) DoWhile(f func(NotComparableType) bool) int {
+	for idx, item := range s.elements {
+		if !f(item) {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *NotComparableTypeSlice) DoUntilError(f func(NotComparableType) error) error {
+	for _, item := range s.elements {
+		if err := f(item); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (s *NotComparableTypeSlice) All(f func(NotComparableType) bool) bool {
+	for _, item := range s.elements {
+		if !f(item) {
+			return false
+		}
+	}
+	return true
+}
+
+func (s *NotComparableTypeSlice) Any(f func(NotComparableType) bool) bool {
+	for _, item := range s.elements {
+		if f(item) {
+			return true
+		}
+	}
+	return false
+}
+
+func (s *NotComparableTypeSlice) Reduce(f func(NotComparableType, NotComparableType) NotComparableType) NotComparableType {
+	if s.IsEmpty() {
+		var defaultVal NotComparableType
+		return defaultVal
+	}
+	ret := s.elements[0]
+	for _, item := range s.elements[1:] {
+		ret = f(ret, item)
+	}
+	return ret
+}
+
+func (s *NotComparableTypeSlice) Fold(init NotComparableType, f func(NotComparableType, NotComparableType) NotComparableType) NotComparableType {
+	if s.IsEmpty() {
+		return init
+	}
+	for _, item := range s.elements {
+		init = f(init, item)
+	}
+	return init
+}
+
+func (s *NotComparableTypeSlice) String() string {
+	return fmt.Sprint(s.elements)
+}
+
+func (s NotComparableTypeSlice) MarshalJSON() ([]byte, error) {
+	return json.Marshal(s.elements)
+}
+
+func (s *NotComparableTypeSlice) UnmarshalJSON(b []byte) error {
+	return json.Unmarshal(b, &s.elements)
+}
+
 type SSet struct {
 	cmp             func(i, j string) bool
 	elements        map[string]uint32
@@ -3843,18 +4283,6 @@ func (s *hSlice) Clear() {
 	s.elements = s.elements[:0]
 }
 
-func (s *hSlice) Equal(another *hSlice) bool {
-	if s.Len() != another.Len() {
-		return false
-	}
-	for idx, item := range s.elements {
-		if item != another.elements[idx] {
-			return false
-		}
-	}
-	return false
-}
-
 func (s *hSlice) Insert(idx int, items ...http.Handler) {
 	if idx < 0 {
 		idx += s.Len()
@@ -3981,27 +4409,6 @@ func (s *hSlice) IndexTo(idx int) *hSlice {
 	return newHSliceFromSlice(s.elements[:idx])
 }
 
-func (s *hSlice) Find(item http.Handler) int {
-	if s.IsEmpty() {
-		return -1
-	}
-	for idx, n := range s.elements {
-		if n == item {
-			return idx
-		}
-	}
-	return -1
-}
-
-func (s *hSlice) FindLast(item http.Handler) int {
-	for idx := s.Len() - 1; idx >= 0; idx-- {
-		if s.elements[idx] == item {
-			return idx
-		}
-	}
-	return -1
-}
-
 func (s *hSlice) FindBy(f func(http.Handler) bool) int {
 	if s.IsEmpty() {
 		return -1
@@ -4021,16 +4428,6 @@ func (s *hSlice) FindLastBy(f func(http.Handler) bool) int {
 		}
 	}
 	return -1
-}
-
-func (s *hSlice) Count(item http.Handler) uint {
-	count := uint(0)
-	s.ForEach(func(n http.Handler) {
-		if n == item {
-			count++
-		}
-	})
-	return count
 }
 
 func (s *hSlice) CountBy(f func(http.Handler) bool) uint {

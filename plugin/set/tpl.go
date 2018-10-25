@@ -57,7 +57,7 @@ func {{ .New }}{{ .CapitalizeSetName }}FromSlice(items []{{ .TypeName }}) *{{ .S
 	}
 	return set
 }
-{{- if and (eq .Order "Key") .IsComparable }}
+{{- if and (eq .Order "Key") .IsSortable }}
 
 func {{ .New }}Ascending{{ .CapitalizeSetName }}(capacity int) *{{ .SetName }} {
 	return {{ .New }}{{ .CapitalizeSetName }}(capacity, func(i, j {{ .TypeName }}) bool { return i < j })
@@ -662,7 +662,7 @@ type TemplateArgs struct {
 	SetName           string
 	CapitalizeSetName string
 	Order             string
-	IsComparable      bool
+	IsSortable        bool
 	New               string
 }
 

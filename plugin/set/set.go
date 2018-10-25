@@ -72,7 +72,7 @@ func (set Set) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo,
 		pre.Imports.Append(plugin.MakeImport("sort"))
 	}
 	arg.CapitalizeSetName = utils.Capitalize(arg.SetName)
-	arg.IsComparable = utils.IsComparableType(typeInfo.Assigned)
+	arg.IsSortable = utils.IsSortableType(typeInfo.Assigned)
 
 	return pre, arg.GenerateTo(w)
 }

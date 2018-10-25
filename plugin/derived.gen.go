@@ -62,18 +62,6 @@ func (s *Entries) Clear() {
 	s.elements = s.elements[:0]
 }
 
-func (s *Entries) Equal(another *Entries) bool {
-	if s.Len() != another.Len() {
-		return false
-	}
-	for idx, item := range s.elements {
-		if item != another.elements[idx] {
-			return false
-		}
-	}
-	return false
-}
-
 func (s *Entries) Insert(idx int, items ...Entry) {
 	if idx < 0 {
 		idx += s.Len()
@@ -200,27 +188,6 @@ func (s *Entries) IndexTo(idx int) *Entries {
 	return NewEntriesFromSlice(s.elements[:idx])
 }
 
-func (s *Entries) Find(item Entry) int {
-	if s.IsEmpty() {
-		return -1
-	}
-	for idx, n := range s.elements {
-		if n == item {
-			return idx
-		}
-	}
-	return -1
-}
-
-func (s *Entries) FindLast(item Entry) int {
-	for idx := s.Len() - 1; idx >= 0; idx-- {
-		if s.elements[idx] == item {
-			return idx
-		}
-	}
-	return -1
-}
-
 func (s *Entries) FindBy(f func(Entry) bool) int {
 	if s.IsEmpty() {
 		return -1
@@ -240,16 +207,6 @@ func (s *Entries) FindLastBy(f func(Entry) bool) int {
 		}
 	}
 	return -1
-}
-
-func (s *Entries) Count(item Entry) uint {
-	count := uint(0)
-	s.ForEach(func(n Entry) {
-		if n == item {
-			count++
-		}
-	})
-	return count
 }
 
 func (s *Entries) CountBy(f func(Entry) bool) uint {

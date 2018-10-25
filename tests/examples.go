@@ -70,3 +70,6 @@ type AA struct {
 	c *c
 	C *c
 }
+
+// derive-slice
+type NotComparableType = []int

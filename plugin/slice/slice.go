@@ -63,6 +63,7 @@ func (s Slice) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo,
 	}
 
 	arg.CapitalizeSliceName = utils.Capitalize(arg.SliceName)
-	arg.IsComparable = utils.IsComparableType(typeInfo.Assigned)
+	arg.IsSortable = utils.IsSortableType(typeInfo.Assigned)
+	arg.IsComparable = utils.IsComparableType(typeInfo.Ast)
 	return pre, arg.GenerateTo(w)
 }
