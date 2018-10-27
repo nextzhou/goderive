@@ -94,7 +94,8 @@ slice extension
 
 Flags:
   Export         force the generated code to be exported/unexported
+  Comparable     generate functions which used equal-comparison
 
 Args:
-  Rename         single value            assign set slice name manually
+  Rename         single value            assign slice type name manually
 ```

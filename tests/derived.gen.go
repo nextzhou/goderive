@@ -4283,6 +4283,18 @@ func (s *hSlice) Clear() {
 	s.elements = s.elements[:0]
 }
 
+func (s *hSlice) Equal(another *hSlice) bool {
+	if s.Len() != another.Len() {
+		return false
+	}
+	for idx, item := range s.elements {
+		if item != another.elements[idx] {
+			return false
+		}
+	}
+	return false
+}
+
 func (s *hSlice) Insert(idx int, items ...http.Handler) {
 	if idx < 0 {
 		idx += s.Len()
@@ -4409,6 +4421,27 @@ func (s *hSlice) IndexTo(idx int) *hSlice {
 	return newHSliceFromSlice(s.elements[:idx])
 }
 
+func (s *hSlice) Find(item http.Handler) int {
+	if s.IsEmpty() {
+		return -1
+	}
+	for idx, n := range s.elements {
+		if n == item {
+			return idx
+		}
+	}
+	return -1
+}
+
+func (s *hSlice) FindLast(item http.Handler) int {
+	for idx := s.Len() - 1; idx >= 0; idx-- {
+		if s.elements[idx] == item {
+			return idx
+		}
+	}
+	return -1
+}
+
 func (s *hSlice) FindBy(f func(http.Handler) bool) int {
 	if s.IsEmpty() {
 		return -1
@@ -4428,6 +4461,16 @@ func (s *hSlice) FindLastBy(f func(http.Handler) bool) int {
 		}
 	}
 	return -1
+}
+
+func (s *hSlice) Count(item http.Handler) uint {
+	count := uint(0)
+	s.ForEach(func(n http.Handler) {
+		if n == item {
+			count++
+		}
+	})
+	return count
 }
 
 func (s *hSlice) CountBy(f func(http.Handler) bool) uint {

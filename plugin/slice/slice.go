@@ -17,6 +17,7 @@ func (s Slice) Describe() plugin.Description {
 		Effect:   "slice extension",
 		ValidFlags: []plugin.FlagDescription{
 			{Key: "Export", Default: utils.TriBoolUndefined, Effect: "force the generated code to be exported/unexported"},
+			{Key: "Comparable", Default: utils.TriBoolUndefined, Effect: "generate functions which used equal-comparison"},
 		},
 		ValidArgs: []plugin.ArgDescription{
 			{Key: "Rename", DefaultValue: nil, ValidValues: nil, AllowEmpty: true, IsMultipleValues: false, Effect: "assign slice type name manually"},
@@ -64,6 +65,6 @@ func (s Slice) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo,
 
 	arg.CapitalizeSliceName = utils.Capitalize(arg.SliceName)
 	arg.IsSortable = utils.IsSortableType(typeInfo.Assigned)
-	arg.IsComparable = utils.IsComparableType(typeInfo.Ast)
+	arg.IsComparable = opt.GetFlag("Comparable").UnwrapOr(utils.IsComparableType(typeInfo.Ast))
 	return pre, arg.GenerateTo(w)
 }

@@ -20,7 +20,7 @@ type Int3 = int
 
 // unexported type, from imported package
 // derive-set
-// derive-slice
+// derive-slice: Comparable
 type h = http.Handler
 
 // from renamed imported package
