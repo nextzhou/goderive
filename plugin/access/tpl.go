@@ -1,8 +1,14 @@
 package access
 
 import (
+	"fmt"
+	"go/ast"
 	"io"
 	"text/template"
+
+	"github.com/nextzhou/goderive/utils"
+
+	"github.com/nextzhou/goderive/plugin"
 )
 
 var accessTemplate = `
@@ -39,4 +45,22 @@ func (ta TemplateArgs) GenerateTo(w io.Writer) error {
 		return err
 	}
 	return tpl.Execute(w, ta)
+}
+
+func (ta *TemplateArgs) AddField(field *ast.Field, opts *plugin.Options, t *utils.NameWithPkg) error {
+	var rename *plugin.Value
+	if opts != nil {
+		rename = opts.GetValue("RenameGet")
+	}
+	if rename.IsNil() {
+		for _, name := range field.Names {
+			ta.Fields = append(ta.Fields, Field{Name: name.Name, GetFuncName: genGetName(name.Name), TypeName: t.Name})
+		}
+	} else {
+		if len(field.Names) != 1 {
+			return fmt.Errorf(`"RenameGet" field can only have one name`)
+		}
+		ta.Fields = append(ta.Fields, Field{Name: field.Names[0].Name, GetFuncName: rename.Str(), TypeName: t.Name})
+	}
+	return nil
 }

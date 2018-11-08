@@ -4,10 +4,9 @@ package utils
 import (
 	"go/ast"
 	"io"
+	"reflect"
 	"strings"
 	"unicode"
-
-	"reflect"
 
 	"github.com/olekukonko/tablewriter"
 )

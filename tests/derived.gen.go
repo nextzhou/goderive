@@ -3739,7 +3739,7 @@ func (c *c) GetDef() *int {
 	return c.Def
 }
 
-func (c *c) getA() t.Time {
+func (c *c) TakeTime() t.Time {
 	if c == nil {
 		var defaultVal t.Time
 		return defaultVal

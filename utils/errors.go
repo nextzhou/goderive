@@ -77,3 +77,13 @@ type NotExistedError struct {
 func (e *NotExistedError) Error() string {
 	return fmt.Sprintf("not existed %s %#v", e.Type, e.Ident)
 }
+
+type UnmatchedError struct {
+	Got      string
+	Expected string
+	Ident    string
+}
+
+func (e *UnmatchedError) Error() string {
+	return fmt.Sprintf("unmatched %s %#v, expected %#v", e.Ident, e.Got, e.Expected)
+}

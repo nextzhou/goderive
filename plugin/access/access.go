@@ -58,9 +58,28 @@ func (a Access) GenerateTo(w io.Writer, env plugin.Env, typeInfo plugin.TypeInfo
 				pre.Imports.Append(*found)
 			}
 		})
-		for _, name := range field.Names {
-			args.Fields = append(args.Fields, Field{Name: name.Name, GetFuncName: genGetName(name.Name), TypeName: t.Name})
+		var cmtList []*ast.Comment
+		if field.Doc != nil {
+			cmtList = field.Doc.List
 		}
+
+		// field options parse
+		var fieldOpts = plugin.NewOptions()
+		for _, cmt := range cmtList {
+			dc, err := utils.MatchPluginComment(cmt.Text)
+			if err != nil {
+				return pre, err
+			}
+			opts, err := plugin.ParseOptions(dc.OptionsStr)
+			if err != nil {
+				return pre, err
+			}
+			if err = fieldOpts.Merge(opts); err != nil {
+				return pre, err
+			}
+		}
+
+		args.AddField(field, fieldOpts, t)
 	}
 	return pre, args.GenerateTo(w)
 }

@@ -43,7 +43,7 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 
 		cmts := strings.Split(typ.Doc, "\n")
 		for _, cmt := range cmts {
-			dc, err := MatchDeriveComment(cmt)
+			dc, err := utils.MatchDeriveComment(cmt)
 			if err != nil {
 				return nil, fmt.Errorf("type %s: %v", typ.Name, err)
 			}
@@ -86,29 +86,4 @@ func ExtractTypes(src []byte) ([]TypeInfo, error) {
 		}
 	}
 	return types, nil
-}
-
-type DeriveComment struct {
-	Plugin     string
-	OptionsStr string
-}
-
-func MatchDeriveComment(cmt string) (*DeriveComment, error) {
-	cmt = strings.TrimSpace(cmt)
-	if !strings.HasPrefix(cmt, "derive-") {
-		return nil, nil
-	}
-	cmt = strings.TrimPrefix(cmt, "derive-")
-	splitIdx := strings.Index(cmt, ":")
-	dc := new(DeriveComment)
-	if splitIdx == -1 {
-		dc.Plugin = cmt
-	} else {
-		dc.Plugin = cmt[:splitIdx]
-		dc.OptionsStr = strings.TrimSpace(cmt[splitIdx+1:])
-	}
-	if !utils.ValidateIdentName(dc.Plugin) {
-		return nil, fmt.Errorf("invalid plugin name %#v", dc.Plugin)
-	}
-	return dc, nil
 }

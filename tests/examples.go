@@ -43,9 +43,10 @@ type MyType struct {
 
 // derive-access
 type c struct {
-	abc          string                                              // base type
-	Def          *int                                                // pointer type
-	hi, jk, lmn  struct{ a string }                                  // anonymous struct is unsupported
+	abc         string             // base type
+	Def         *int               // pointer type
+	hi, jk, lmn struct{ a string } // anonymous struct is unsupported
+	// derive-access: RenameGet=TakeTime
 	a            t.Time                                              // selector expr
 	b            []string                                            // slice type
 	bb           [3]string                                           // array type
