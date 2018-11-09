@@ -48,6 +48,9 @@ func (ta TemplateArgs) GenerateTo(w io.Writer) error {
 }
 
 func (ta *TemplateArgs) AddField(field *ast.Field, opts *plugin.Options, t *utils.NameWithPkg) error {
+	if opts != nil && opts.WithFlag("Ignore") {
+		return nil
+	}
 	var rename *plugin.Value
 	if opts != nil {
 		rename = opts.GetValue("RenameGet")

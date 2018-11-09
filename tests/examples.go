@@ -56,6 +56,8 @@ type c struct {
 	f            <-chan int                                          // read-only channel type
 	http.Request                                                     // anonymous field
 	ff           func(int, string, c, d t.Time) (a, b bool, e error) // complex function type
+	// derive-access: Ignore
+	IgnoredField string
 }
 
 // derive-access
